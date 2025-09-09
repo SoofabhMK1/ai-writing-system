@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas
 from app.database import get_db
+from app.crud import crud_setting
+from app.schemas import setting as setting_schemas
 
 router = APIRouter(
     prefix="/projects",
@@ -112,3 +114,78 @@ def delete_outline_node(
     if not db_node:
         raise HTTPException(status_code=404, detail="Node not found")
     return db_node
+
+# --- Settings Router ---
+settings_router = APIRouter(
+    prefix="/settings",
+    tags=["Settings"],
+)
+
+# Worldview Endpoints
+@settings_router.post("/worldviews/", response_model=setting_schemas.WorldviewInDB)
+def create_worldview(worldview_in: setting_schemas.WorldviewCreate, db: Session = Depends(get_db)):
+    return crud_setting.worldview.create(db=db, obj_in=worldview_in)
+
+@settings_router.get("/worldviews/", response_model=List[setting_schemas.WorldviewInDB])
+def read_worldviews(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud_setting.worldview.get_multi(db, skip=skip, limit=limit)
+
+@settings_router.put("/worldviews/{worldview_id}", response_model=setting_schemas.WorldviewInDB)
+def update_worldview(worldview_id: int, worldview_in: setting_schemas.WorldviewUpdate, db: Session = Depends(get_db)):
+    db_worldview = crud_setting.worldview.get(db, id=worldview_id)
+    if not db_worldview:
+        raise HTTPException(status_code=404, detail="Worldview not found")
+    return crud_setting.worldview.update(db=db, db_obj=db_worldview, obj_in=worldview_in)
+
+@settings_router.delete("/worldviews/{worldview_id}", response_model=setting_schemas.WorldviewInDB)
+def delete_worldview(worldview_id: int, db: Session = Depends(get_db)):
+    db_worldview = crud_setting.worldview.remove(db=db, id=worldview_id)
+    if not db_worldview:
+        raise HTTPException(status_code=404, detail="Worldview not found")
+    return db_worldview
+
+# Writing Style Endpoints
+@settings_router.post("/writing-styles/", response_model=setting_schemas.WritingStyleInDB)
+def create_writing_style(style_in: setting_schemas.WritingStyleCreate, db: Session = Depends(get_db)):
+    return crud_setting.writing_style.create(db=db, obj_in=style_in)
+
+@settings_router.get("/writing-styles/", response_model=List[setting_schemas.WritingStyleInDB])
+def read_writing_styles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud_setting.writing_style.get_multi(db, skip=skip, limit=limit)
+
+@settings_router.put("/writing-styles/{style_id}", response_model=setting_schemas.WritingStyleInDB)
+def update_writing_style(style_id: int, style_in: setting_schemas.WritingStyleUpdate, db: Session = Depends(get_db)):
+    db_style = crud_setting.writing_style.get(db, id=style_id)
+    if not db_style:
+        raise HTTPException(status_code=404, detail="Writing style not found")
+    return crud_setting.writing_style.update(db=db, db_obj=db_style, obj_in=style_in)
+
+@settings_router.delete("/writing-styles/{style_id}", response_model=setting_schemas.WritingStyleInDB)
+def delete_writing_style(style_id: int, db: Session = Depends(get_db)):
+    db_style = crud_setting.writing_style.remove(db=db, id=style_id)
+    if not db_style:
+        raise HTTPException(status_code=404, detail="Writing style not found")
+    return db_style
+
+# Prompt Template Endpoints
+@settings_router.post("/prompt-templates/", response_model=setting_schemas.PromptTemplateInDB)
+def create_prompt_template(template_in: setting_schemas.PromptTemplateCreate, db: Session = Depends(get_db)):
+    return crud_setting.prompt_template.create(db=db, obj_in=template_in)
+
+@settings_router.get("/prompt-templates/", response_model=List[setting_schemas.PromptTemplateInDB])
+def read_prompt_templates(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud_setting.prompt_template.get_multi(db, skip=skip, limit=limit)
+
+@settings_router.put("/prompt-templates/{template_id}", response_model=setting_schemas.PromptTemplateInDB)
+def update_prompt_template(template_id: int, template_in: setting_schemas.PromptTemplateUpdate, db: Session = Depends(get_db)):
+    db_template = crud_setting.prompt_template.get(db, id=template_id)
+    if not db_template:
+        raise HTTPException(status_code=404, detail="Prompt template not found")
+    return crud_setting.prompt_template.update(db=db, db_obj=db_template, obj_in=template_in)
+
+@settings_router.delete("/prompt-templates/{template_id}", response_model=setting_schemas.PromptTemplateInDB)
+def delete_prompt_template(template_id: int, db: Session = Depends(get_db)):
+    db_template = crud_setting.prompt_template.remove(db=db, id=template_id)
+    if not db_template:
+        raise HTTPException(status_code=404, detail="Prompt template not found")
+    return db_template

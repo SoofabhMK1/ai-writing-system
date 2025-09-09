@@ -6,8 +6,7 @@
         AI Writer
       </router-link>
       <div class="navbar-menu">
-        <!-- 未来可以添加更多链接 -->
-        <!-- <a href="/settings">设置</a> -->
+        <router-link to="/settings" class="navbar-link">设定集</router-link>
       </div>
     </div>
   </nav>
@@ -49,5 +48,23 @@
   display: flex;
   align-items: center;
   font-weight: bold;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-link {
+  color: #2c3e50;
+  text-decoration: none;
+  padding: 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.navbar-link:hover {
+  color: #4a90e2;
 }
 </style>

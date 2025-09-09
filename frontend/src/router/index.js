@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ProjectListView from '../views/ProjectListView.vue';
 import ProjectDetailView from '../views/ProjectDetailView.vue';
+import SettingsView from '../views/SettingsView.vue';
 
 const routes = [
     {
@@ -12,6 +13,11 @@ const routes = [
       path: '/projects/:projectId',
       name: 'ProjectDetail',
       component: ProjectDetailView
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: SettingsView
     }
 ];
 

@@ -9,6 +9,8 @@ import os
 import sys
 # from app.database import Base
 from app.models.base import Base
+# Import all models here so that Alembic can see them
+from app.models import project, outline_node, setting 
 from app.core.config import settings
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 # this is the Alembic Config object, which provides
