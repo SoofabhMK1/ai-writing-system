@@ -9,6 +9,21 @@ from app.schemas import setting as setting_schemas
 from app.core.security import decrypt_data
 from app.services import ai_service
 from pydantic import BaseModel
+from app.models import Project, Worldview, WritingStyle
+
+def get_generation_context(db: Session, project_id: int, worldview_id: int | None, writing_style_id: int | None) -> dict:
+    project = crud.project.get(db, id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    worldview = crud_setting.worldview.get(db, id=worldview_id) if worldview_id else None
+    writing_style = crud_setting.writing_style.get(db, id=writing_style_id) if writing_style_id else None
+
+    return {
+        "project": project,
+        "worldview": {c.name: getattr(worldview, c.name) for c in worldview.__table__.columns} if worldview else {},
+        "writing_style": {c.name: getattr(writing_style, c.name) for c in writing_style.__table__.columns} if writing_style else {},
+    }
 
 router = APIRouter(
     prefix="/projects",
@@ -43,7 +58,7 @@ def read_project(
 @router.put("/{project_id}", response_model=schemas.Project)
 def update_project(
     project_id: int,
-    project_in: schemas.ProjectUpdate,
+    project_in: schemas.ProjectBase,
     db: Session = Depends(get_db)
 ):
     db_project = crud.project.get(db, id=project_id)
@@ -94,7 +109,7 @@ def create_outline_node(
 @outline_router.put("/{node_id}", response_model=schemas.OutlineNode)
 def update_outline_node(
     node_id: int,
-    node_in: schemas.OutlineNodeUpdate,
+    node_in: schemas.OutlineNodeBase,
     db: Session = Depends(get_db)
 ):
     """
@@ -135,7 +150,7 @@ def read_worldviews(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
     return crud_setting.worldview.get_multi(db, skip=skip, limit=limit)
 
 @settings_router.put("/worldviews/{worldview_id}", response_model=setting_schemas.WorldviewInDB)
-def update_worldview(worldview_id: int, worldview_in: setting_schemas.WorldviewUpdate, db: Session = Depends(get_db)):
+def update_worldview(worldview_id: int, worldview_in: setting_schemas.WorldviewBase, db: Session = Depends(get_db)):
     db_worldview = crud_setting.worldview.get(db, id=worldview_id)
     if not db_worldview:
         raise HTTPException(status_code=404, detail="Worldview not found")
@@ -158,7 +173,7 @@ def read_writing_styles(skip: int = 0, limit: int = 100, db: Session = Depends(g
     return crud_setting.writing_style.get_multi(db, skip=skip, limit=limit)
 
 @settings_router.put("/writing-styles/{style_id}", response_model=setting_schemas.WritingStyleInDB)
-def update_writing_style(style_id: int, style_in: setting_schemas.WritingStyleUpdate, db: Session = Depends(get_db)):
+def update_writing_style(style_id: int, style_in: setting_schemas.WritingStyleBase, db: Session = Depends(get_db)):
     db_style = crud_setting.writing_style.get(db, id=style_id)
     if not db_style:
         raise HTTPException(status_code=404, detail="Writing style not found")
@@ -181,7 +196,7 @@ def read_prompt_templates(skip: int = 0, limit: int = 100, db: Session = Depends
     return crud_setting.prompt_template.get_multi(db, skip=skip, limit=limit)
 
 @settings_router.put("/prompt-templates/{template_id}", response_model=setting_schemas.PromptTemplateInDB)
-def update_prompt_template(template_id: int, template_in: setting_schemas.PromptTemplateUpdate, db: Session = Depends(get_db)):
+def update_prompt_template(template_id: int, template_in: setting_schemas.PromptTemplateBase, db: Session = Depends(get_db)):
     db_template = crud_setting.prompt_template.get(db, id=template_id)
     if not db_template:
         raise HTTPException(status_code=404, detail="Prompt template not found")
@@ -220,7 +235,7 @@ def read_ai_models(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     return crud_setting.ai_model.get_multi(db, skip=skip, limit=limit)
 
 @settings_router.put("/ai-models/{model_id}", response_model=setting_schemas.AIModelInDB)
-def update_ai_model(model_id: int, model_in: setting_schemas.AIModelUpdate, db: Session = Depends(get_db)):
+def update_ai_model(model_id: int, model_in: setting_schemas.AIModelBase, db: Session = Depends(get_db)):
     db_model = crud_setting.ai_model.get(db, id=model_id)
     if not db_model:
         raise HTTPException(status_code=404, detail="AI Model not found")
@@ -273,20 +288,12 @@ def get_initial_prompt(req: GenerationRequest, db: Session = Depends(get_db)):
     """
     Constructs and returns the initial prompt string based on configuration.
     """
-    project = crud.project.get(db, id=req.project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    worldview = crud_setting.worldview.get(db, id=req.worldview_id) if req.worldview_id else None
-    writing_style = crud_setting.writing_style.get(db, id=req.writing_style_id) if req.writing_style_id else None
-
-    worldview_dict = {c.name: getattr(worldview, c.name) for c in worldview.__table__.columns} if worldview else {}
-    writing_style_dict = {c.name: getattr(writing_style, c.name) for c in writing_style.__table__.columns} if writing_style else {}
-
+    context = get_generation_context(db, req.project_id, req.worldview_id, req.writing_style_id)
+    
     return ai_service.create_outline_generation_prompt(
-        core_concept=project.core_concept,
-        worldview=worldview_dict,
-        writing_style=writing_style_dict,
+        core_concept=context["project"].core_concept,
+        worldview=context["worldview"],
+        writing_style=context["writing_style"],
         target_word_count=req.target_word_count
     )
 
@@ -306,24 +313,16 @@ async def generate_outline_stream(req: GenerationRequestWithPrompt, db: Session 
 
 @ai_router.post("/generate-outline")
 async def generate_outline(req: GenerationRequest, db: Session = Depends(get_db)):
-    project = crud.project.get(db, id=req.project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
+    context = get_generation_context(db, req.project_id, req.worldview_id, req.writing_style_id)
+    
     ai_model = crud_setting.ai_model.get(db, id=req.ai_model_id)
     if not ai_model:
         raise HTTPException(status_code=404, detail="AI Model not found")
 
-    worldview = crud_setting.worldview.get(db, id=req.worldview_id) if req.worldview_id else None
-    writing_style = crud_setting.writing_style.get(db, id=req.writing_style_id) if req.writing_style_id else None
-
-    worldview_dict = {c.name: getattr(worldview, c.name) for c in worldview.__table__.columns} if worldview else {}
-    writing_style_dict = {c.name: getattr(writing_style, c.name) for c in writing_style.__table__.columns} if writing_style else {}
-
     prompt = ai_service.create_outline_generation_prompt(
-        core_concept=project.core_concept,
-        worldview=worldview_dict,
-        writing_style=writing_style_dict,
+        core_concept=context["project"].core_concept,
+        worldview=context["worldview"],
+        writing_style=context["writing_style"],
         target_word_count=req.target_word_count
     )
     

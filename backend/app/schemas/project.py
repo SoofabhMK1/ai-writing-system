@@ -10,12 +10,6 @@ class ProjectBase(BaseModel):
 class ProjectCreate(ProjectBase):
     pass
 
-class ProjectUpdate(ProjectBase):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    book_title: Optional[str] = None
-    core_concept: Optional[str] = None
-
 class Project(ProjectBase):
     id: int
 

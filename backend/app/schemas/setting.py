@@ -15,14 +15,11 @@ class WorldviewBase(BaseModel):
 class WorldviewCreate(WorldviewBase):
     pass
 
-class WorldviewUpdate(WorldviewBase):
-    pass
-
 class WorldviewInDB(WorldviewBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- WritingStyle Schemas ---
 class WritingStyleBase(BaseModel):
@@ -36,14 +33,11 @@ class WritingStyleBase(BaseModel):
 class WritingStyleCreate(WritingStyleBase):
     pass
 
-class WritingStyleUpdate(WritingStyleBase):
-    pass
-
 class WritingStyleInDB(WritingStyleBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- PromptTemplate Schemas ---
 class PromptTemplateBase(BaseModel):
@@ -56,14 +50,11 @@ class PromptTemplateBase(BaseModel):
 class PromptTemplateCreate(PromptTemplateBase):
     pass
 
-class PromptTemplateUpdate(PromptTemplateBase):
-    pass
-
 class PromptTemplateInDB(PromptTemplateBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- GeneratedOutline Schemas ---
 class GeneratedOutlineBase(BaseModel):
@@ -78,15 +69,12 @@ class GeneratedOutlineBase(BaseModel):
 class GeneratedOutlineCreate(GeneratedOutlineBase):
     pass
 
-class GeneratedOutlineUpdate(GeneratedOutlineBase):
-    pass
-
 class GeneratedOutlineInDB(GeneratedOutlineBase):
     id: int
     created_at: Any # Using Any for datetime for simplicity, can be stricter
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- AIModel Schemas ---
 class AIModelBase(BaseModel):
@@ -98,12 +86,9 @@ class AIModelBase(BaseModel):
 class AIModelCreate(AIModelBase):
     pass
 
-class AIModelUpdate(AIModelBase):
-    pass
-
 class AIModelInDB(AIModelBase):
     id: int
     api_key: str = "********" # Never send the real key to the client
 
     class Config:
-        orm_mode = True
+        from_attributes = True

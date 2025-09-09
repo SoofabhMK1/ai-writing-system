@@ -7,32 +7,32 @@ from app.core.security import encrypt_data
 from typing import Dict, Any
 
 # CRUD for Worldview
-class CRUDWorldview(CRUDBase[models.Worldview, schemas.WorldviewCreate, schemas.WorldviewUpdate]):
+class CRUDWorldview(CRUDBase[models.Worldview, schemas.WorldviewCreate, schemas.WorldviewBase]):
     pass
 
 worldview = CRUDWorldview(models.Worldview)
 
 # CRUD for WritingStyle
-class CRUDWritingStyle(CRUDBase[models.WritingStyle, schemas.WritingStyleCreate, schemas.WritingStyleUpdate]):
+class CRUDWritingStyle(CRUDBase[models.WritingStyle, schemas.WritingStyleCreate, schemas.WritingStyleBase]):
     pass
 
 writing_style = CRUDWritingStyle(models.WritingStyle)
 
 # CRUD for PromptTemplate
-class CRUDPromptTemplate(CRUDBase[models.PromptTemplate, schemas.PromptTemplateCreate, schemas.PromptTemplateUpdate]):
+class CRUDPromptTemplate(CRUDBase[models.PromptTemplate, schemas.PromptTemplateCreate, schemas.PromptTemplateBase]):
     pass
 
 prompt_template = CRUDPromptTemplate(models.PromptTemplate)
 
 # CRUD for GeneratedOutline
-class CRUDGeneratedOutline(CRUDBase[models.GeneratedOutline, schemas.GeneratedOutlineCreate, schemas.GeneratedOutlineUpdate]):
+class CRUDGeneratedOutline(CRUDBase[models.GeneratedOutline, schemas.GeneratedOutlineCreate, schemas.GeneratedOutlineBase]):
     def get_all_by_project(self, db: Session, *, project_id: int) -> list[models.GeneratedOutline]:
         return db.query(self.model).filter(self.model.project_id == project_id).order_by(self.model.created_at.desc()).all()
 
 generated_outline = CRUDGeneratedOutline(models.GeneratedOutline)
 
 # CRUD for AIModel
-class CRUDAIModel(CRUDBase[models.AIModel, schemas.AIModelCreate, schemas.AIModelUpdate]):
+class CRUDAIModel(CRUDBase[models.AIModel, schemas.AIModelCreate, schemas.AIModelBase]):
     def create(self, db: Session, *, obj_in: schemas.AIModelCreate) -> models.AIModel:
         db_obj = models.AIModel(
             name=obj_in.name,
@@ -46,7 +46,7 @@ class CRUDAIModel(CRUDBase[models.AIModel, schemas.AIModelCreate, schemas.AIMode
         return db_obj
 
     def update(
-        self, db: Session, *, db_obj: models.AIModel, obj_in: schemas.AIModelUpdate | Dict[str, Any]
+        self, db: Session, *, db_obj: models.AIModel, obj_in: schemas.AIModelBase | Dict[str, Any]
     ) -> models.AIModel:
         if isinstance(obj_in, dict):
             update_data = obj_in

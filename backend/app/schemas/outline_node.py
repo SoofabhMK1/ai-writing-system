@@ -16,9 +16,6 @@ class OutlineNodeCreate(BaseModel):
     project_id: int
     parent_id: Optional[int] = None
 
-class OutlineNodeUpdate(OutlineNodeBase):
-    pass
-
 class OutlineNode(OutlineNodeBase):
     id: int
     project_id: int

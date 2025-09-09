@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8001/api/v1', // 这是我们后端 API 的地址
+    baseURL: '/api/v1', // 使用相对路径，以便 Vite 代理
     headers: {
         'Content-Type': 'application/json'
     }

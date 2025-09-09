@@ -4,9 +4,9 @@ from typing import List
 
 from app.crud.base import CRUDBase
 from app.models.outline_node import OutlineNode
-from app.schemas.outline_node import OutlineNodeCreate, OutlineNodeUpdate
+from app.schemas.outline_node import OutlineNodeCreate, OutlineNodeBase
 
-class CRUDOutlineNode(CRUDBase[OutlineNode, OutlineNodeCreate, OutlineNodeUpdate]):
+class CRUDOutlineNode(CRUDBase[OutlineNode, OutlineNodeCreate, OutlineNodeBase]):
     # 这里我们将添加专门为 OutlineNode 写的、非通用的数据库操作方法
     
     def get_all_by_project(self, db: Session, *, project_id: int) -> List[OutlineNode]:
