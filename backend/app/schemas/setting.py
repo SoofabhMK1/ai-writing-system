@@ -64,3 +64,46 @@ class PromptTemplateInDB(PromptTemplateBase):
 
     class Config:
         orm_mode = True
+
+# --- GeneratedOutline Schemas ---
+class GeneratedOutlineBase(BaseModel):
+    project_id: int
+    version_name: Optional[str] = None
+    target_word_count: Optional[int] = None
+    worldview_id: Optional[int] = None
+    writing_style_id: Optional[int] = None
+    settings_snapshot: Optional[Dict[str, Any]] = None
+    outline_data: Dict[str, Any]
+
+class GeneratedOutlineCreate(GeneratedOutlineBase):
+    pass
+
+class GeneratedOutlineUpdate(GeneratedOutlineBase):
+    pass
+
+class GeneratedOutlineInDB(GeneratedOutlineBase):
+    id: int
+    created_at: Any # Using Any for datetime for simplicity, can be stricter
+
+    class Config:
+        orm_mode = True
+
+# --- AIModel Schemas ---
+class AIModelBase(BaseModel):
+    name: str
+    api_url: str
+    api_key: str
+    model_name: str
+
+class AIModelCreate(AIModelBase):
+    pass
+
+class AIModelUpdate(AIModelBase):
+    pass
+
+class AIModelInDB(AIModelBase):
+    id: int
+    api_key: str = "********" # Never send the real key to the client
+
+    class Config:
+        orm_mode = True

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+    SECRET_KEY: str
     
     # 2. 定义一个属性来动态构建数据库URL
     #    这个属性不会直接从环境变量读取，而是通过其他字段计算得出

@@ -27,4 +27,20 @@ const promptTemplateService = {
   delete: (id) => api.delete(`${BASE_URL}/prompt-templates/${id}`),
 };
 
-export { worldviewService, writingStyleService, promptTemplateService };
+// --- Generated Outline Service ---
+const generatedOutlineService = {
+  getAllForProject: (projectId) => api.get(`${BASE_URL}/generated-outlines/project/${projectId}`),
+  create: (data) => api.post(`${BASE_URL}/generated-outlines/`, data),
+  delete: (id) => api.delete(`${BASE_URL}/generated-outlines/${id}`),
+};
+
+// --- AI Model Service ---
+const aiModelService = {
+  getAll: () => api.get(`${BASE_URL}/ai-models/`),
+  create: (data) => api.post(`${BASE_URL}/ai-models/`, data),
+  update: (id, data) => api.put(`${BASE_URL}/ai-models/${id}`, data),
+  delete: (id) => api.delete(`${BASE_URL}/ai-models/${id}`),
+  testConnection: (id) => api.post(`${BASE_URL}/ai-models/${id}/test-connection`),
+};
+
+export { worldviewService, writingStyleService, promptTemplateService, generatedOutlineService, aiModelService };

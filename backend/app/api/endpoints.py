@@ -5,6 +5,7 @@ from app import crud, schemas
 from app.database import get_db
 from app.crud import crud_setting
 from app.schemas import setting as setting_schemas
+from app.core.security import decrypt_data
 
 router = APIRouter(
     prefix="/projects",
@@ -189,3 +190,61 @@ def delete_prompt_template(template_id: int, db: Session = Depends(get_db)):
     if not db_template:
         raise HTTPException(status_code=404, detail="Prompt template not found")
     return db_template
+
+# Generated Outline Endpoints
+@settings_router.post("/generated-outlines/", response_model=setting_schemas.GeneratedOutlineInDB)
+def create_generated_outline(outline_in: setting_schemas.GeneratedOutlineCreate, db: Session = Depends(get_db)):
+    return crud_setting.generated_outline.create(db=db, obj_in=outline_in)
+
+@settings_router.get("/generated-outlines/project/{project_id}", response_model=List[setting_schemas.GeneratedOutlineInDB])
+def read_generated_outlines_for_project(project_id: int, db: Session = Depends(get_db)):
+    return crud_setting.generated_outline.get_all_by_project(db=db, project_id=project_id)
+
+@settings_router.delete("/generated-outlines/{outline_id}", response_model=setting_schemas.GeneratedOutlineInDB)
+def delete_generated_outline(outline_id: int, db: Session = Depends(get_db)):
+    db_outline = crud_setting.generated_outline.remove(db=db, id=outline_id)
+    if not db_outline:
+        raise HTTPException(status_code=404, detail="Generated outline not found")
+    return db_outline
+
+# AI Model Endpoints
+@settings_router.post("/ai-models/", response_model=setting_schemas.AIModelInDB)
+def create_ai_model(model_in: setting_schemas.AIModelCreate, db: Session = Depends(get_db)):
+    return crud_setting.ai_model.create(db=db, obj_in=model_in)
+
+@settings_router.get("/ai-models/", response_model=List[setting_schemas.AIModelInDB])
+def read_ai_models(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud_setting.ai_model.get_multi(db, skip=skip, limit=limit)
+
+@settings_router.put("/ai-models/{model_id}", response_model=setting_schemas.AIModelInDB)
+def update_ai_model(model_id: int, model_in: setting_schemas.AIModelUpdate, db: Session = Depends(get_db)):
+    db_model = crud_setting.ai_model.get(db, id=model_id)
+    if not db_model:
+        raise HTTPException(status_code=404, detail="AI Model not found")
+    return crud_setting.ai_model.update(db=db, db_obj=db_model, obj_in=model_in)
+
+@settings_router.delete("/ai-models/{model_id}", response_model=setting_schemas.AIModelInDB)
+def delete_ai_model(model_id: int, db: Session = Depends(get_db)):
+    db_model = crud_setting.ai_model.remove(db=db, id=model_id)
+    if not db_model:
+        raise HTTPException(status_code=404, detail="AI Model not found")
+    return db_model
+
+@settings_router.post("/ai-models/{model_id}/test-connection")
+async def test_ai_connection(model_id: int, db: Session = Depends(get_db)):
+    from openai import AsyncOpenAI
+
+    db_model = crud_setting.ai_model.get(db, id=model_id)
+    if not db_model:
+        raise HTTPException(status_code=404, detail="AI Model not found")
+
+    try:
+        api_key_to_test = decrypt_data(db_model.api_key)
+        client = AsyncOpenAI(
+            base_url=db_model.api_url,
+            api_key=api_key_to_test,
+        )
+        await client.models.list()
+        return {"status": "success", "message": "连接成功"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"连接失败: {str(e)}")

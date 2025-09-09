@@ -20,6 +20,11 @@
           :class="{ active: activeTab === 'templates' }">
           AI 提示词模板
         </li>
+        <li
+          @click="activeTab = 'aimodels'"
+          :class="{ active: activeTab === 'aimodels' }">
+          AI 模型设定
+        </li>
       </ul>
     </div>
 
@@ -28,6 +33,7 @@
       <WorldviewSettings v-if="activeTab === 'worldview'" />
       <WritingStyleSettings v-if="activeTab === 'style'" />
       <PromptTemplates v-if="activeTab === 'templates'" />
+      <AIModelSettings v-if="activeTab === 'aimodels'" />
     </div>
   </div>
 </template>
@@ -37,6 +43,7 @@ import { ref } from 'vue';
 import WorldviewSettings from '../components/settings/WorldviewSettings.vue';
 import WritingStyleSettings from '../components/settings/WritingStyleSettings.vue';
 import PromptTemplates from '../components/settings/PromptTemplates.vue';
+import AIModelSettings from '../components/settings/AIModelSettings.vue';
 
 const activeTab = ref('worldview'); // Default active tab
 </script>
