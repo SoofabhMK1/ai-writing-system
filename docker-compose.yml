@@ -23,10 +23,18 @@ services:
     env_file:
       - .env
     environment:
-      # - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
       - PYTHONPATH=/app
     depends_on:
       - db
+    restart: unless-stopped
+
+  frontend:
+    container_name: ai_writing_frontend
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:
