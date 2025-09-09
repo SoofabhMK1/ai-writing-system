@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas
@@ -264,6 +265,45 @@ class GenerationRequest(BaseModel):
     writing_style_id: int | None = None
     target_word_count: int
 
+class GenerationRequestWithPrompt(GenerationRequest):
+    prompt: str
+
+@ai_router.post("/get-initial-prompt", response_model=str)
+def get_initial_prompt(req: GenerationRequest, db: Session = Depends(get_db)):
+    """
+    Constructs and returns the initial prompt string based on configuration.
+    """
+    project = crud.project.get(db, id=req.project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    worldview = crud_setting.worldview.get(db, id=req.worldview_id) if req.worldview_id else None
+    writing_style = crud_setting.writing_style.get(db, id=req.writing_style_id) if req.writing_style_id else None
+
+    worldview_dict = {c.name: getattr(worldview, c.name) for c in worldview.__table__.columns} if worldview else {}
+    writing_style_dict = {c.name: getattr(writing_style, c.name) for c in writing_style.__table__.columns} if writing_style else {}
+
+    return ai_service.create_outline_generation_prompt(
+        core_concept=project.core_concept,
+        worldview=worldview_dict,
+        writing_style=writing_style_dict,
+        target_word_count=req.target_word_count
+    )
+
+@ai_router.post("/generate-outline-stream")
+async def generate_outline_stream(req: GenerationRequestWithPrompt, db: Session = Depends(get_db)):
+    ai_model = crud_setting.ai_model.get(db, id=req.ai_model_id)
+    if not ai_model:
+        raise HTTPException(status_code=404, detail="AI Model not found")
+
+    return StreamingResponse(
+        ai_service.generate_outline_from_config(
+            model_config=ai_model,
+            prompt=req.prompt,
+        ),
+        media_type="text/event-stream"
+    )
+
 @ai_router.post("/generate-outline")
 async def generate_outline(req: GenerationRequest, db: Session = Depends(get_db)):
     project = crud.project.get(db, id=req.project_id)
@@ -280,15 +320,24 @@ async def generate_outline(req: GenerationRequest, db: Session = Depends(get_db)
     worldview_dict = {c.name: getattr(worldview, c.name) for c in worldview.__table__.columns} if worldview else {}
     writing_style_dict = {c.name: getattr(writing_style, c.name) for c in writing_style.__table__.columns} if writing_style else {}
 
-    result = await ai_service.generate_outline_from_config(
-        model_config=ai_model,
+    prompt = ai_service.create_outline_generation_prompt(
         core_concept=project.core_concept,
         worldview=worldview_dict,
         writing_style=writing_style_dict,
         target_word_count=req.target_word_count
     )
     
-    if result["status"] == "error":
-        raise HTTPException(status_code=500, detail=result["message"])
+    # This is now a generator
+    stream = ai_service.generate_outline_from_config(
+        model_config=ai_model,
+        prompt=prompt,
+    )
+
+    # For the non-streaming endpoint, we consume the generator to get the full content
+    full_content = "".join([chunk async for chunk in stream])
+
+    # Check if the result is an error message
+    if full_content.startswith("Error:"):
+        raise HTTPException(status_code=500, detail=full_content)
         
-    return result
+    return {"status": "success", "outline": full_content}

@@ -45,7 +45,18 @@ const aiModelService = {
 
 // --- AI Generation Service ---
 const aiGenerationService = {
+  getInitialPrompt: (data) => api.post('/ai/get-initial-prompt', data),
   generateOutline: (data) => api.post('/ai/generate-outline', data),
+  generateOutlineStream: (data) => {
+    // Reverting to fetch for proper browser stream handling.
+    return fetch('/api/v1/ai/generate-outline-stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 export { worldviewService, writingStyleService, promptTemplateService, generatedOutlineService, aiModelService, aiGenerationService };
