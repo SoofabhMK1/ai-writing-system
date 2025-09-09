@@ -1,0 +1,12 @@
+# .gitignore
+
+# Environment variables
+.env
+
+# Python specific
+__pycache__/
+*.pyc
+
+# IDE configuration
+.vscode/
+.idea/

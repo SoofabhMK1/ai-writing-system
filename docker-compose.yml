@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ai_writing_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  backend:
+    container_name: ai_writing_backend
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      # - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: ai_writing_postgres_data
