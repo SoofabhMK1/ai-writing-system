@@ -2,71 +2,26 @@
 <template>
   <div class="editor-container">
     <div v-if="project" class="workspace">
-      <!-- Left Panel: Generation Config -->
-      <div class="left-panel card">
-        <h3 class="panel-title">生成配置</h3>
-        <div class="config-scroll-area">
-          <div class="form-group-inline">
-            <label for="worldview">世界观</label>
-            <select id="worldview" v-model="generationConfig.worldview_id">
-              <option :value="null">-- 选择 --</option>
-              <option v-for="w in worldviews" :key="w.id" :value="w.id">{{ w.name }}</option>
-            </select>
-          </div>
-          <div class="form-group-inline">
-            <label for="writingStyle">文风</label>
-            <select id="writingStyle" v-model="generationConfig.writing_style_id">
-              <option :value="null">-- 选择 --</option>
-              <option v-for="s in writingStyles" :key="s.id" :value="s.id">{{ s.name }}</option>
-            </select>
-          </div>
-          <div class="form-group-inline">
-            <label for="aiModel">AI 模型</label>
-            <select id="aiModel" v-model="generationConfig.ai_model_id">
-              <option :value="null">-- 选择 --</option>
-              <option v-for="m in aiModels" :key="m.id" :value="m.id">{{ m.name }}</option>
-            </select>
-          </div>
-          <div class="form-group-inline">
-            <label for="wordCount">目标总字数</label>
-            <input id="wordCount" type="number" v-model.number="generationConfig.target_word_count" placeholder="例如：100000" />
-          </div>
-        </div>
-        <button @click="handleGenerate" class="btn-generate" :disabled="isGenerating">
-          {{ isGenerating ? '正在生成中...' : '生成大纲' }}
-        </button>
-      </div>
+      <GenerationConfigPanel
+        v-model="generationConfig"
+        :worldviews="worldviews"
+        :writing-styles="writingStyles"
+        :ai-models="aiModels"
+        :is-generating="isGenerating"
+        @generate="handleGenerate"
+      />
 
-      <!-- Right Panel: Core Info & History -->
       <div class="right-panel">
-        <div class="creation-core card">
-          <h3 class="panel-title">项目核心信息 ({{ project.name }})</h3>
-          <div class="form-group">
-            <label for="bookTitle">书名</label>
-            <input id="bookTitle" type="text" v-model="editableProject.book_title" @blur="updateProject" placeholder="请输入小说的正式名称" />
-          </div>
-          <div class="form-group">
-            <label for="coreConcept">核心构想 (Seed)</label>
-            <textarea id="coreConcept" v-model="editableProject.core_concept" @blur="updateProject" rows="5" placeholder="请详细描述您的故事核心创意、主要情节、角色和主题..."></textarea>
-          </div>
-        </div>
-        <div class="history-panel card">
-          <h3 class="panel-title">大纲历史版本</h3>
-          <div v-if="historyLoading" class="loading-info">正在加载...</div>
-          <ul v-else-if="outlineHistory.length > 0" class="history-list">
-            <li v-for="item in outlineHistory" :key="item.id" class="history-item">
-              <div class="history-item-info">
-                <span>{{ item.version_name || `版本 ${item.id}` }}</span>
-                <small>{{ new Date(item.created_at).toLocaleString() }}</small>
-              </div>
-              <div class="history-item-actions">
-                <button @click="previewHistory(item)" class="btn-action btn-preview">预览</button>
-                <button @click="deleteHistory(item.id)" class="btn-action btn-delete">删除</button>
-              </div>
-            </li>
-          </ul>
-          <div v-else class="empty-info">暂无历史版本</div>
-        </div>
+        <ProjectInfoPanel
+          v-model="editableProject"
+          @save="updateProject"
+        />
+        <HistoryPanel
+          :history="outlineHistory"
+          :loading="historyLoading"
+          @preview="previewHistory"
+          @delete="deleteHistory"
+        />
       </div>
     </div>
     <div v-else class="placeholder">
@@ -100,6 +55,9 @@ import { useNotificationStore } from '@/store/notification';
 import { useModalStore } from '@/store/modal';
 import AIGenerationModal from './AIGenerationModal.vue';
 import GenerationResultModal from './GenerationResultModal.vue';
+import GenerationConfigPanel from './GenerationConfigPanel.vue';
+import ProjectInfoPanel from './ProjectInfoPanel.vue';
+import HistoryPanel from './HistoryPanel.vue';
 
 const notification = useNotificationStore();
 const modal = useModalStore();
@@ -183,9 +141,12 @@ watch(() => props.project, (newProject) => {
 const updateProject = async () => {
   if (!props.project || !editableProject.value.id) return;
   try {
+    // The backend expects the full ProjectBase model, including the name.
     await projectService.updateProject(props.project.id, {
+      name: editableProject.value.name,
       book_title: editableProject.value.book_title,
       core_concept: editableProject.value.core_concept,
+      description: editableProject.value.description,
     });
     notification.show('项目信息已保存', 'success', { duration: 2000 });
   } catch (error) {
