@@ -27,4 +27,3 @@ app.include_router(endpoints.outline_router, prefix="/api/v1")
 @app.get("/")
 def get_root():
     return "Hi"
-
