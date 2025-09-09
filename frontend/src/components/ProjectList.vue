@@ -14,7 +14,10 @@
         <h2>{{ project.name }}</h2>
         <p>{{ project.description || '暂无描述' }}</p>
       </div>
-      <button @click.stop="handleDeleteProject(project.id)" class="btn-delete">删除</button>
+      <div class="card-actions">
+        <button @click.stop="goToProjectDetail(project.id)" class="btn-action btn-detail">详情</button>
+        <button @click.stop="handleDeleteProject(project.id)" class="btn-action btn-delete">删除</button>
+      </div>
     </div>
   </div>
 
@@ -25,12 +28,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import projectService from '../services/projectService';
 import { useModalStore } from '@/store/modal.js';
 import { useNotificationStore } from '@/store/notification.js';
 
 const emit = defineEmits(['project-selected', 'project-deleted']);
-
+const router = useRouter();
 const modal = useModalStore();
 const notification = useNotificationStore();
 
@@ -48,6 +52,10 @@ const fetchProjects = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const goToProjectDetail = (projectId) => {
+  router.push(`/projects/${projectId}`);
 };
 
 const handleDeleteProject = async (projectId) => {
@@ -115,6 +123,41 @@ defineExpose({
   color: #333;
 }
 
+.card-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.project-card:hover .card-actions {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.btn-action {
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.btn-detail {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-detail:hover {
+  background-color: #218838;
+}
+
 .project-card p {
   margin: 0;
   color: #666;
@@ -123,23 +166,8 @@ defineExpose({
 }
 
 .btn-delete {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 0.3rem 0.6rem;
   background-color: #e94b3c;
   color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-.project-card:hover .btn-delete {
-  opacity: 1;
-  transform: scale(1);
 }
 
 .btn-delete:hover {

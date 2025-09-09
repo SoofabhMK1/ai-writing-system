@@ -14,4 +14,7 @@ export default {
     getProject(projectId) {
         return apiClient.get(`/projects/${projectId}`);
     },
+    updateProject(projectId, projectData) {
+        return apiClient.put(`/projects/${projectId}`, projectData);
+    },
 };

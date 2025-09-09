@@ -6,6 +6,8 @@ from app.database import get_db
 from app.crud import crud_setting
 from app.schemas import setting as setting_schemas
 from app.core.security import decrypt_data
+from app.services import ai_service
+from pydantic import BaseModel
 
 router = APIRouter(
     prefix="/projects",
@@ -248,3 +250,45 @@ async def test_ai_connection(model_id: int, db: Session = Depends(get_db)):
         return {"status": "success", "message": "连接成功"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"连接失败: {str(e)}")
+
+# --- AI Generation Router ---
+ai_router = APIRouter(
+    prefix="/ai",
+    tags=["AI Generation"],
+)
+
+class GenerationRequest(BaseModel):
+    project_id: int
+    ai_model_id: int
+    worldview_id: int | None = None
+    writing_style_id: int | None = None
+    target_word_count: int
+
+@ai_router.post("/generate-outline")
+async def generate_outline(req: GenerationRequest, db: Session = Depends(get_db)):
+    project = crud.project.get(db, id=req.project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    ai_model = crud_setting.ai_model.get(db, id=req.ai_model_id)
+    if not ai_model:
+        raise HTTPException(status_code=404, detail="AI Model not found")
+
+    worldview = crud_setting.worldview.get(db, id=req.worldview_id) if req.worldview_id else None
+    writing_style = crud_setting.writing_style.get(db, id=req.writing_style_id) if req.writing_style_id else None
+
+    worldview_dict = {c.name: getattr(worldview, c.name) for c in worldview.__table__.columns} if worldview else {}
+    writing_style_dict = {c.name: getattr(writing_style, c.name) for c in writing_style.__table__.columns} if writing_style else {}
+
+    result = await ai_service.generate_outline_from_config(
+        model_config=ai_model,
+        core_concept=project.core_concept,
+        worldview=worldview_dict,
+        writing_style=writing_style_dict,
+        target_word_count=req.target_word_count
+    )
+    
+    if result["status"] == "error":
+        raise HTTPException(status_code=500, detail=result["message"])
+        
+    return result

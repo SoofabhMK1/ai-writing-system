@@ -24,6 +24,7 @@ app.add_middleware(
 app.include_router(endpoints.router, prefix="/api/v1")
 app.include_router(endpoints.outline_router, prefix="/api/v1")
 app.include_router(endpoints.settings_router, prefix="/api/v1")
+app.include_router(endpoints.ai_router, prefix="/api/v1")
 
 @app.get("/")
 def get_root():

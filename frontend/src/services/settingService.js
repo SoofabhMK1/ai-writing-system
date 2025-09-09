@@ -43,4 +43,9 @@ const aiModelService = {
   testConnection: (id) => api.post(`${BASE_URL}/ai-models/${id}/test-connection`),
 };
 
-export { worldviewService, writingStyleService, promptTemplateService, generatedOutlineService, aiModelService };
+// --- AI Generation Service ---
+const aiGenerationService = {
+  generateOutline: (data) => api.post('/ai/generate-outline', data),
+};
+
+export { worldviewService, writingStyleService, promptTemplateService, generatedOutlineService, aiModelService, aiGenerationService };
