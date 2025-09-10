@@ -15,7 +15,7 @@
 3.  **前端 (`AIGenerationModal.vue`)**: 弹出模态框，显示初始提示词。用户可修改后点击“确认并生成”。
 4.  **前端 (`AIGenerationModal.vue`)**: 模态框自身通过 `fetch` API 向后端的流式端点 `/generate-outline-stream` 发起 `POST` 请求。
 5.  **Nginx**: 作为反向代理，将请求无缝转发到 `backend` 服务。
-6.  **后端 (`api/endpoints.py`)**: AI相关的路由接收到请求，并调用 `ai_service`。
+6.  **后端 (`api/routers/ai_generation.py`)**: AI相关的路由接收到请求，并调用 `ai_service`。
 7.  **后端 (`services/ai_service.py`)**: 该服务向AI模型发出流式请求。它被设计为可以处理支持独立“思维链”输出（`reasoning_content`）的先进模型。
 8.  **前后端数据流**: 后端通过 `StreamingResponse` 以**服务器发送事件 (Server-Sent Events, SSE)** 的格式向前端推送数据。事件被明确标记为 `reasoning`（思维链）或 `content`（最终内容）。
 9.  **前端 (`AIGenerationModal.vue`)**: 组件内的 `fetch` 逻辑会解析SSE流。`reasoning` 事件的数据被实时渲染到“AI 思维链”标签页，而 `content` 事件的数据则被渲染到“生成结果”标签页。
@@ -41,7 +41,11 @@
 │       ├── main.py
 │       ├── api/
 │       │   ├── __init__.py
-│       │   └── endpoints.py
+│       │   └── routers/
+│       │       ├── ai_generation.py
+│       │       ├── outline_nodes.py
+│       │       ├── projects.py
+│       │       └── settings.py
 │       ├── core/
 │       │   ├── config.py
 │       │   └── security.py
@@ -114,8 +118,12 @@
         *   `env.py`: Alembic 的运行时环境配置。核心是设置 `target_metadata = Base.metadata`，并确保所有模型都被导入，以便 Alembic 能够自动检测模型变化。
         *   `versions/`: 存放具体的数据库版本脚本。
     *   `app/`: FastAPI 应用的核心代码目录。
-        *   `api/`: 存放 API 路由层。
-            *   `endpoints.py`: 定义所有 HTTP 端点 (Endpoints)，并将它们组织成 APIRouter。
+        *   `api/`: 存放 API 路由层。该目录遵循模块化设计，将不同资源的路由拆分到独立的模块中。
+            *   `routers/`: 包含所有独立的路由模块。
+                *   `projects.py`: 负责所有与“项目”相关的CRUD操作。
+                *   `outline_nodes.py`: 负责所有与“大纲节点”相关的CRUD操作。
+                *   `settings.py`: 负责所有与“设置”相关的端点（世界观、文风、AI模型等），并使用工厂模式来减少重复代码。
+                *   `ai_generation.py`: 负责所有与AI内容生成相关的端点。
         *   `core/`: 存放应用的核心配置和安全相关模块。
             *   `config.py`: 使用 Pydantic 的 `BaseSettings` 管理环境变量，是配置的唯一来源。
             *   `security.py`: 使用 `cryptography.fernet` 对敏感数据（如AI模型的API密钥）进行对称加密和解密。
@@ -133,7 +141,7 @@
             *   `ai_service.py`: 封装与大语言模型 API 的交互逻辑。它以**服务器发送事件 (SSE)** 的格式处理流式响应，并能区分处理 `reasoning_content`（思维链）和 `content`（最终内容）两种数据，以支持更先进的模型。
             *   `prompt_service.py`: 负责动态构建发送给AI的结构化提示（Prompt）。目前，它会引导AI生成一个包含核心矛盾、主角任务、故事大纲等元素的“小说蓝图”，而不仅仅是章节列表。
         *   `database.py`: 初始化 SQLAlchemy 引擎和会话。
-        *   `main.py`: FastAPI 应用的入口文件，负责组装路由、CORS 中间件等。
+        *   `main.py`: FastAPI 应用的入口文件。其核心职责是初始化FastAPI应用，并从 `api/routers/` 目录中导入并聚合所有模块化的路由。
     *   `Dockerfile`: 用于构建后端服务 Docker 镜像的指令文件。
     *   `requirements.txt`: 定义了 Python 的所有依赖库。
 

@@ -73,7 +73,7 @@ const generationConfig = ref({
   worldview_id: null,
   writing_style_id: null,
   ai_model_id: null,
-  target_word_count: 5000,
+  target_word_count: 100000,
 });
 
 const worldviews = ref([]);
