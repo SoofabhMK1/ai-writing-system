@@ -16,7 +16,9 @@
     *   左侧的 `ConversationSidebar.vue` 显示历史对话列表，并提供“使用初始 Prompt”的按钮。
     *   用户点击按钮，初始 Prompt 被填充到 `ChatInput.vue` 中。
 4.  **前端 (`ChatInput.vue`)**: 用户确认或修改后，点击发送。
-5.  **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 被调用，通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求，请求体中包含**完整的消息历史**。
+5.  **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 被调用。
+    *   **（新功能）发送前预览**: 如果用户在 `ConversationSidebar.vue` 中勾选了“发送前预览”，`conversation.js` 会调用 `modal.js` store 来弹出一个 `PreviewSendModal.vue` 模态框，显示即将发送的完整内容。
+    *   **发送请求**: 用户在预览后点击“继续”，或如果未开启预览，`sendMessage` action 会通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求，请求体中包含**完整的消息历史**。
 6.  **Nginx**: 作为反向代理，将请求无缝转发到 `backend` 服务。
 7.  **后端 (`api/routers/ai_generation.py`)**: 新的 `chat-stream` 路由接收到请求，并调用 `ai_service`。
 8.  **后端 (`services/ai_service.py`)**: `generate_chat_completion` 服务接收消息历史，并向 AI 模型发出流式请求。
@@ -91,11 +93,12 @@
         ├── main.js
         ├── style.css
         ├── components/
-        │   ├── ChatInput.vue
-        │   ├── ChatInterface.vue
-        │   ├── ConfirmationModal.vue
-        │   ├── ConversationSidebar.vue
-        │   ├── CreateProjectModal.vue
+│   ├── ChatInput.vue
+│   ├── ChatInterface.vue
+│   ├── ConfirmationModal.vue
+│   ├── ConversationSidebar.vue
+│   ├── CreateProjectModal.vue
+│   ├── PreviewSendModal.vue
         │   ├── GenerationConfigPanel.vue
         │   ├── GenerationResultModal.vue
         │   ├── HistoryPanel.vue
@@ -169,7 +172,7 @@
         *   `components/`: 存放可复用的 Vue 组件。
             *   `OutlineEditor.vue`: **核心工作区组件**。当用户选择一个项目后，此组件作为主界面，整合了 `GenerationConfigPanel`（AI配置）, `ProjectInfoPanel`（项目信息）和 `HistoryPanel`（历史记录）。现在，它负责**发起 AI 对话**，将用户导航到独立的对话页面。
             *   **对话页面组件**:
-                *   `ConversationSidebar.vue`: 对话页面的左侧边栏，用于管理和导航对话历史。
+                *   `ConversationSidebar.vue`: 对话页面的左侧边栏，用于管理和导航对话历史。现在还包含一个**“发送前预览”的切换开关**。
                 *   `ChatInterface.vue`: 对话页面的核心区域，用于展示用户与 AI 之间的消息。
                 *   `ChatInput.vue`: 对话页面的底部输入区域，包含文本输入框和发送按钮。
             *   `GenerationConfigPanel.vue`: 左侧的AI生成配置面板。
@@ -179,6 +182,7 @@
             *   `NavBar.vue`: 应用顶部的导航栏。
             *   **模态框组件**:
                 *   `ConfirmationModal.vue`: 通用的二次确认模态框。
+                *   `PreviewSendModal.vue`: **（新增）** 用于在发送前向用户展示完整请求内容的模态框。
                 *   `CreateProjectModal.vue`: 创建新项目的模态框。
                 *   `GenerationResultModal.vue`: 用于预览历史版本大纲的模态框。
                 *   `PromptModal.vue`: 通用的、需要用户输入的提示框。
@@ -191,8 +195,9 @@
             *   `settingService.js`: 一个复合服务，导出了多个与设置相关的子服务。
             *   `conversationService.js`: 封装了与对话历史相关的 CRUD API 调用。
         *   `store/`: 存放 Pinia 的全局状态管理模块。
-            *   `modal.js`, `notification.js`, `prompt.js`: 分别管理全局模态框、通知和输入提示框的状态和逻辑。
-            *   `conversation.js`: 负责管理当前对话的状态，包括消息历史、加载状态，并处理与后端的流式通信。
+            *   `modal.js`: 管理全局模态框的状态和逻辑，现在支持**多种类型的模态框**（如 `ConfirmationModal` 和 `PreviewSendModal`）。
+            *   `notification.js`, `prompt.js`: 分别管理通知和输入提示框的状态。
+            *   `conversation.js`: 负责管理当前对话的状态，包括消息历史、加载状态，并处理与后端的流式通信。现在还包含**触发发送前预览的核心逻辑**。
         *   `views/`: 存放页面级别的 Vue 组件。
             *   `ProjectListView.vue`: **项目列表页**。此页面是应用的主要入口和工作区，采用双栏布局，左侧是项目列表 (`ProjectList.vue`)，右侧是选中项目的工作区 (`OutlineEditor.vue`)。
             *   `ConversationView.vue`: **对话页面**。一个独立的、支持多轮对话的 AI 交互界面，包含对话历史侧边栏和主聊天窗口。

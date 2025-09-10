@@ -11,6 +11,10 @@
       >
         Use Initial Prompt
       </button>
+      <div class="preview-toggle-container">
+        <input type="checkbox" id="preview-toggle" v-model="previewBeforeSending" />
+        <label for="preview-toggle">Preview before sending</label>
+      </div>
     </div>
     <ul class="history-list">
       <li 
@@ -41,7 +45,7 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const conversationStore = useConversationStore();
 const modal = useModalStore();
-const { historyList, currentConversationId, cachedInitialPrompt } = storeToRefs(conversationStore);
+const { historyList, currentConversationId, cachedInitialPrompt, previewBeforeSending } = storeToRefs(conversationStore);
 const { 
   loadConversationHistory, 
   loadConversation, 
@@ -90,6 +94,21 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+.preview-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+.preview-toggle-container input {
+  margin: 0;
+  cursor: pointer;
+}
+.preview-toggle-container label {
+  cursor: pointer;
 }
 .history-list {
   flex-grow: 1;

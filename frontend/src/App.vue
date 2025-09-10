@@ -1,4 +1,3 @@
-<!-- src/App.vue -->
 <template>
   <NavBar />
   <main class="main-container">
@@ -7,13 +6,25 @@
   <ConfirmationModal />
   <Notification />
   <PromptModal />
+  <PreviewSendModal 
+    :is-open="isPreviewOpen"
+    :content="previewContent"
+    :confirm="modal.confirmPreview"
+    :cancel="modal.cancelPreview"
+  />
 </template>
 
 <script setup>
+import { storeToRefs } from 'pinia';
 import NavBar from './components/NavBar.vue';
 import ConfirmationModal from './components/ConfirmationModal.vue';
 import Notification from './components/Notification.vue';
 import PromptModal from './components/PromptModal.vue';
+import PreviewSendModal from './components/PreviewSendModal.vue';
+import { useModalStore } from './store/modal';
+
+const modal = useModalStore();
+const { isPreviewOpen, previewContent } = storeToRefs(modal);
 </script>
 
 <style>

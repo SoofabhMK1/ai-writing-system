@@ -1,17 +1,22 @@
-// frontend/src/store/modal.js
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useModalStore = defineStore('modal', () => {
+  // State for the original ConfirmationModal
   const isOpen = ref(false);
   const title = ref('');
   const message = ref('');
-
-  // 用于处理 Promise 的解析和拒绝
   let resolvePromise = null;
   let rejectPromise = null;
 
-  // 打开模态框并返回一个 Promise
+  // State for the new PreviewSendModal
+  const isPreviewOpen = ref(false);
+  const previewContent = ref('');
+  let previewResolve = null;
+  let previewReject = null;
+
+  // --- Methods for ConfirmationModal ---
+
   const show = (newTitle, newMessage) => {
     title.value = newTitle;
     message.value = newMessage;
@@ -23,21 +28,79 @@ export const useModalStore = defineStore('modal', () => {
     });
   };
 
-  // 用户点击“确认”
   const confirm = () => {
     if (resolvePromise) {
-      resolvePromise(true); // 解析 Promise，表示确认
+      resolvePromise(true);
     }
     isOpen.value = false;
+    resetConfirmationState();
   };
 
-  // 用户点击“取消”或背景
   const cancel = () => {
     if (rejectPromise) {
-      rejectPromise(false); // 拒绝 Promise，表示取消
+      const error = new Error('Operation canceled by user.');
+      error.isCanceled = true;
+      rejectPromise(error);
     }
     isOpen.value = false;
+    resetConfirmationState();
   };
 
-  return { isOpen, title, message, show, confirm, cancel };
+  function resetConfirmationState() {
+    resolvePromise = null;
+    rejectPromise = null;
+  }
+
+  // --- Methods for PreviewSendModal ---
+
+  const showPreview = (content) => {
+    previewContent.value = content;
+    isPreviewOpen.value = true;
+
+    return new Promise((resolve, reject) => {
+      previewResolve = resolve;
+      previewReject = reject;
+    });
+  };
+
+  const confirmPreview = () => {
+    if (previewResolve) {
+      previewResolve(true);
+    }
+    isPreviewOpen.value = false;
+    resetPreviewState();
+  };
+
+  const cancelPreview = () => {
+    if (previewReject) {
+      const error = new Error('Sending canceled by user.');
+      error.isCanceled = true;
+      previewReject(error);
+    }
+    isPreviewOpen.value = false;
+    resetPreviewState();
+  };
+
+  function resetPreviewState() {
+    previewContent.value = '';
+    previewResolve = null;
+    previewReject = null;
+  }
+
+  return { 
+    // For ConfirmationModal
+    isOpen, 
+    title, 
+    message, 
+    show, 
+    confirm, 
+    cancel,
+
+    // For PreviewSendModal
+    isPreviewOpen,
+    previewContent,
+    showPreview,
+    confirmPreview,
+    cancelPreview,
+  };
 });

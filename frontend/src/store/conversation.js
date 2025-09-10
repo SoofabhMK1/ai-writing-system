@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import conversationService from '../services/conversationService';
 import { ref } from 'vue';
+import { useModalStore } from './modal';
 
 export const useConversationStore = defineStore('conversation', () => {
   const currentConversationId = ref(null);
@@ -9,6 +10,9 @@ export const useConversationStore = defineStore('conversation', () => {
   const isLoading = ref(false);
   const cachedInitialPrompt = ref('');
   const promptForInput = ref('');
+  const previewBeforeSending = ref(false);
+
+  const modal = useModalStore();
 
   function setCachedInitialPrompt(prompt) {
     cachedInitialPrompt.value = prompt;
@@ -21,12 +25,8 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  async function sendMessage(prompt, aiModelId) {
-    if (!prompt || isLoading.value) return;
-
+  async function _performStreamedChat(aiModelId) {
     isLoading.value = true;
-    messages.value.push({ role: 'user', content: prompt });
-
     const assistantMessage = { role: 'assistant', content: '' };
     messages.value.push(assistantMessage);
 
@@ -52,7 +52,7 @@ export const useConversationStore = defineStore('conversation', () => {
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        buffer = lines.pop(); // Keep the last, possibly incomplete line
+        buffer = lines.pop();
 
         for (const line of lines) {
           if (line.startsWith('data:')) {
@@ -73,6 +73,41 @@ export const useConversationStore = defineStore('conversation', () => {
       assistantMessage.content = 'An error occurred. Please try again.';
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  async function sendMessage(prompt, aiModelId) {
+    if (!prompt || isLoading.value) return false;
+
+    const userMessage = { role: 'user', content: prompt };
+    
+    if (previewBeforeSending.value) {
+      try {
+        // Construct the full content to be sent
+        const fullContent = [...messages.value, userMessage]
+          .map(m => `## ${m.role}\n\n${m.content}`)
+          .join('\n\n---\n\n');
+        
+        await modal.showPreview(fullContent);
+        
+        // If user confirms, proceed
+        messages.value.push(userMessage);
+        await _performStreamedChat(aiModelId);
+        return true; // Message sent after preview
+      } catch (error) {
+        if (error.isCanceled) {
+          // User canceled the preview
+          return false; // Message not sent
+        }
+        // Handle other potential errors from modal
+        console.error("Error during preview modal:", error);
+        return false;
+      }
+    } else {
+      // No preview needed, send directly
+      messages.value.push(userMessage);
+      await _performStreamedChat(aiModelId);
+      return true; // Message sent directly
     }
   }
 
@@ -142,6 +177,7 @@ export const useConversationStore = defineStore('conversation', () => {
     isLoading,
     cachedInitialPrompt,
     promptForInput,
+    previewBeforeSending,
     setCachedInitialPrompt,
     fillInputWithCachedPrompt,
     sendMessage,
