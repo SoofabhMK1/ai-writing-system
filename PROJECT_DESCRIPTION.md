@@ -10,16 +10,16 @@
 
 ### **核心工作流程 (Core Workflow)**
 以“生成大纲”功能为例，数据流如下：
-1.  **前端 (`OutlineEditor.vue`)**: 用户在界面上选择配置（如世界观、文风、AI模型）并点击“生成大纲”按钮。
-2.  **前端 (`services/`)**: 请求被发送到 `aiGenerationService`，它首先调用后端 `/get-initial-prompt` 端点获取一个根据配置生成的初始提示词。
-3.  **前端 (`AIGenerationModal.vue`)**: 前端弹出一个模态框，显示这个初始提示词，允许用户进行修改。
-4.  **前端 (`services/`)**: 用户确认后，`aiGenerationService` 调用后端的流式端点 `/generate-outline-stream`，并传递最终的提示词。
-5.  **Nginx**: 作为反向代理，接收到 `/api/v1/ai/generate-outline-stream` 请求，并将其无缝转发到 `backend` 服务的 `8001` 端口。
+1.  **前端 (`OutlineEditor.vue`)**: 用户在AI配置面板 (`GenerationConfigPanel.vue`) 中选择配置，并点击“生成大纲”按钮。
+2.  **前端 (`OutlineEditor.vue`)**: 调用 `aiGenerationService` (从 `settingService.js` 导出) 获取初始提示词。
+3.  **前端 (`AIGenerationModal.vue`)**: 弹出模态框，显示初始提示词。用户可修改后点击“确认并生成”。
+4.  **前端 (`AIGenerationModal.vue`)**: 模态框自身通过 `fetch` API 向后端的流式端点 `/generate-outline-stream` 发起 `POST` 请求。
+5.  **Nginx**: 作为反向代理，将请求无缝转发到 `backend` 服务。
 6.  **后端 (`api/endpoints.py`)**: AI相关的路由接收到请求，并调用 `ai_service`。
-7.  **后端 (`services/ai_service.py`)**: 该服务解密存储的API密钥，初始化OpenAI客户端，并向AI模型发出流式请求。
-8.  **前后端数据流**: AI模型返回的数据块通过后端的 `StreamingResponse`，经由Nginx，实时地流向前端。
-9.  **前端 (`AIGenerationModal.vue`)**: 接收到数据流，并实时地在文本框中显示生成的内容。
-10. **前端 (`OutlineEditor.vue`)**: 用户确认保存后，生成的内容被保存为一个新的“历史版本”。
+7.  **后端 (`services/ai_service.py`)**: 该服务向AI模型发出流式请求。它被设计为可以处理支持独立“思维链”输出（`reasoning_content`）的先进模型。
+8.  **前后端数据流**: 后端通过 `StreamingResponse` 以**服务器发送事件 (Server-Sent Events, SSE)** 的格式向前端推送数据。事件被明确标记为 `reasoning`（思维链）或 `content`（最终内容）。
+9.  **前端 (`AIGenerationModal.vue`)**: 组件内的 `fetch` 逻辑会解析SSE流。`reasoning` 事件的数据被实时渲染到“AI 思维链”标签页，而 `content` 事件的数据则被渲染到“生成结果”标签页。
+10. **前端 (`OutlineEditor.vue`)**: 用户在模态框中点击保存后，`AIGenerationModal` 会将纯净的JSON结果传递给 `OutlineEditor`，后者负责将其保存为一个新的“历史版本”。
 
 ### **文件结构与核心职责 (File Structure & Core Responsibilities)**
 这是一个对大语言模型友好的项目文件结构树。在未来进行代码修改时，请务必参考此结构以理解各部分的功能和相互关系。
@@ -130,8 +130,8 @@
             *   `__init__.py`: 作为 `schemas` 包的入口，导出所有 Pydantic 模型。
             *   `project.py`, `outline_node.py`, `setting.py`: 分别定义与模型对应的Pydantic Schema。
         *   `services/`: 存放核心业务逻辑服务。
-            *   `ai_service.py`: 封装与 OpenAI API 的交互逻辑，特别是处理流式响应。
-            *   `prompt_service.py`: 负责根据用户的配置和输入，动态构建发送给AI的结构化提示（Prompt）。
+            *   `ai_service.py`: 封装与大语言模型 API 的交互逻辑。它以**服务器发送事件 (SSE)** 的格式处理流式响应，并能区分处理 `reasoning_content`（思维链）和 `content`（最终内容）两种数据，以支持更先进的模型。
+            *   `prompt_service.py`: 负责动态构建发送给AI的结构化提示（Prompt）。目前，它会引导AI生成一个包含核心矛盾、主角任务、故事大纲等元素的“小说蓝图”，而不仅仅是章节列表。
         *   `database.py`: 初始化 SQLAlchemy 引擎和会话。
         *   `main.py`: FastAPI 应用的入口文件，负责组装路由、CORS 中间件等。
     *   `Dockerfile`: 用于构建后端服务 Docker 镜像的指令文件。
@@ -141,15 +141,15 @@
 *   `frontend/`: 前端应用的根目录，基于 Vue.js 3 和 Vite。
     *   `src/`: 前端应用的核心源代码目录。
         *   `components/`: 存放可复用的 Vue 组件。
-            *   `OutlineEditor.vue`: 核心工作区组件，作为布局容器，协调下方的三个面板组件。
+            *   `OutlineEditor.vue`: **核心工作区组件**。当用户选择一个项目后，此组件作为主界面，整合了 `GenerationConfigPanel`（AI配置）, `ProjectInfoPanel`（项目信息）和 `HistoryPanel`（历史记录），并负责发起AI生成流程。
             *   `GenerationConfigPanel.vue`: 左侧的AI生成配置面板。
             *   `ProjectInfoPanel.vue`: 右上角的项目核心信息编辑面板。
             *   `HistoryPanel.vue`: 右下角的大纲历史版本列表面板。
-            *   `ProjectList.vue`: 在项目列表页中，以卡片形式展示所有项目，并处理删除逻辑。
+            *   `ProjectList.vue`: 在项目列表页 (`ProjectListView`) 中，以卡片形式展示所有项目，并处理项目选择和删除的逻辑。
             *   `OutlineNodeItem.vue`: 用于在大纲树状图中展示单个节点。
             *   `NavBar.vue`: 应用顶部的导航栏。
             *   **模态框组件**:
-                *   `AIGenerationModal.vue`: AI生成大纲时，用于显示和编辑提示词，并实时展示流式生成结果的模态框。
+                *   `AIGenerationModal.vue`: AI生成大纲的核心交互界面。它现在是一个功能完善的“智能”组件，内部自己处理 `fetch` 流式请求和SSE事件解析。其UI被重构为**标签页**形式，可分别展示“生成结果”、“AI思维链”和“Prompt”，极大地改善了用户体验。
                 *   `ConfirmationModal.vue`: 通用的二次确认模态框。
                 *   `CreateProjectModal.vue`: 创建新项目的模态框。
                 *   `GenerationResultModal.vue`: 用于预览历史版本大纲的模态框。
@@ -159,12 +159,13 @@
         *   `router/`: 存放 Vue Router 的配置，定义了应用的页面路由。
         *   `services/`: 存放与后端 API 通信的逻辑。
             *   `api.js`: 配置一个全局的 Axios 实例，设置了基础 URL (`/api/v1`)。
-            *   `projectService.js`, `outlineNodeService.js`, `settingService.js`: 分别封装了与项目、大纲、设置相关的API调用。
+            *   `projectService.js`, `outlineNodeService.js`: 分别封装了与项目、大纲节点相关的API调用。
+            *   `settingService.js`: 一个复合服务，导出了多个与设置相关的子服务，如 `worldviewService`, `writingStyleService`, `aiModelService` 以及发起AI生成请求的 `aiGenerationService`。
         *   `store/`: 存放 Pinia 的全局状态管理模块。
             *   `modal.js`, `notification.js`, `prompt.js`: 分别管理全局模态框、通知和输入提示框的状态和逻辑。
         *   `views/`: 存放页面级别的 Vue 组件。
-            *   `ProjectListView.vue`: 项目列表页，也是应用的主工作区，左侧是项目列表，右侧是 `OutlineEditor`。
-            *   `ProjectDetailView.vue`: 用于展示项目详细信息或大纲的独立页面。
+            *   `ProjectListView.vue`: **项目列表页**。此页面是应用的主要入口和工作区，采用双栏布局，左侧是项目列表 (`ProjectList.vue`)，右侧是选中项目的工作区 (`OutlineEditor.vue`)。
+            *   `ProjectDetailView.vue`: 用于展示项目详细信息或大纲的独立页面 (当前在主要流程中较少使用)。
             *   `SettingsView.vue`: 应用的设置页面，允许用户管理AI模型、世界观、文风等。
         *   `App.vue`: Vue 应用的根组件，是所有页面的容器。
         *   `main.js`: 前端应用的入口文件，负责初始化Vue实例、Pinia和Vue Router。

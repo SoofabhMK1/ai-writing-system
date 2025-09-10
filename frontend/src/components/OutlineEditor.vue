@@ -37,11 +37,10 @@
     />
 
     <AIGenerationModal
-      ref="generationModalRef"
       :show="isGenerationModalOpen"
       :initial-prompt="generationModalPrompt"
+      :generation-params="{ project_id: project?.id, ...generationConfig }"
       @close="isGenerationModalOpen = false"
-      @start-generation="handleStartGeneration"
       @save="saveGeneratedOutline"
     />
   </div>
@@ -179,55 +178,14 @@ const handleGenerate = async () => {
   }
 };
 
-const handleStartGeneration = async (editedPrompt) => {
-  isGenerating.value = true;
-  notification.show('正在连接 AI 并生成大纲...', 'info');
-  
-  const requestBody = {
-    project_id: props.project.id,
-    ...generationConfig.value,
-    prompt: editedPrompt,
-  };
-
-  try {
-    const response = await aiGenerationService.generateOutlineStream(requestBody);
-
-    if (!response.body) {
-      throw new Error("Response body is null");
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      generationModalRef.value?.appendStream(chunk);
-    }
-    
-    generationModalRef.value?.completeStream();
-    notification.show('大纲生成完毕！', 'success');
-
-  } catch (error) {
-    const detail = error.response?.data?.detail || '生成失败，请检查后台日志。';
-    notification.show(`生成失败: ${detail}`, 'error', { duration: 5000 });
-    console.error("Failed to generate outline:", error);
-    isGenerationModalOpen.value = false; // Close modal on error
-  } finally {
-    isGenerating.value = false;
-  }
-};
-
 const saveGeneratedOutline = async (generatedContent) => {
   if (!generatedContent) {
     notification.show('没有内容可保存', 'warn');
     return;
   }
   try {
-    // Clean the string: remove markdown fences and trim whitespace
-    const cleanedContent = generatedContent.replace(/```json\n|```/g, '').trim();
-    const outlineData = JSON.parse(cleanedContent);
+    // The content from the modal is already clean JSON
+    const outlineData = JSON.parse(generatedContent);
 
     const worldview = worldviews.value.find(w => w.id === generationConfig.value.worldview_id);
     const writingStyle = writingStyles.value.find(s => s.id === generationConfig.value.writing_style_id);
@@ -248,7 +206,7 @@ const saveGeneratedOutline = async (generatedContent) => {
     notification.show('大纲已保存', 'success');
     isGenerationModalOpen.value = false;
   } catch (error) {
-    notification.show('保存失败，生成的JSON格式可能无效。', 'error');
+    notification.show('保存大纲失败', 'error');
     console.error("Failed to save outline:", error);
   }
 };

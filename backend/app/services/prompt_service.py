@@ -54,14 +54,17 @@ Guidelines: {writing_style.get('guidelines', 'None')}
   }},
   "key_characters": [
     {{
+      "role": "主角",
       "name": "主角姓名",
       "description": "一个勇敢但经验不足的年轻人，肩负着世界的希望。"
     }},
     {{
-      "name": "导师/盟友姓名",
+      "role": "导师",
+      "name": "导师姓名",
       "description": "一位智慧的长者或可靠的伙伴，引导主角成长。"
     }},
     {{
+      "role": "反派",
       "name": "反派姓名",
       "description": "巨龙或其代理人，拥有强大的力量和明确的动机。"
     }}

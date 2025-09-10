@@ -311,6 +311,8 @@ async def generate_outline_stream(req: GenerationRequestWithPrompt, db: Session 
         media_type="text/event-stream"
     )
 
+import json
+
 @ai_router.post("/generate-outline")
 async def generate_outline(req: GenerationRequest, db: Session = Depends(get_db)):
     context = get_generation_context(db, req.project_id, req.worldview_id, req.writing_style_id)
@@ -326,17 +328,32 @@ async def generate_outline(req: GenerationRequest, db: Session = Depends(get_db)
         target_word_count=req.target_word_count
     )
     
-    # This is now a generator
+    # The service now returns an SSE-formatted stream
     stream = ai_service.generate_outline_from_config(
         model_config=ai_model,
         prompt=prompt,
     )
 
-    # For the non-streaming endpoint, we consume the generator to get the full content
-    full_content = "".join([chunk async for chunk in stream])
-
-    # Check if the result is an error message
-    if full_content.startswith("Error:"):
-        raise HTTPException(status_code=500, detail=full_content)
+    # For the non-streaming endpoint, we must parse the SSE stream
+    full_content = ""
+    async for sse_event in stream:
+        # SSE events are separated by double newlines
+        lines = sse_event.strip().split('\n')
+        event_type = None
+        data_str = ""
+        for line in lines:
+            if line.startswith("event:"):
+                event_type = line.split(":", 1)[1].strip()
+            elif line.startswith("data:"):
+                data_str = line.split(":", 1)[1].strip()
         
+        if event_type == "error":
+            error_data = json.loads(data_str)
+            raise HTTPException(status_code=500, detail=error_data.get("error", "Unknown AI error"))
+        
+        # We only care about the final 'content' for this non-streaming endpoint
+        if event_type == "content" and data_str:
+            data = json.loads(data_str)
+            full_content += data.get("chunk", "")
+
     return {"status": "success", "outline": full_content}
