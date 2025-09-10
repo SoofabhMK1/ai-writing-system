@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import ProjectListView from '../views/ProjectListView.vue';
 import ProjectDetailView from '../views/ProjectDetailView.vue';
 import SettingsView from '../views/SettingsView.vue';
+import ConversationView from '../views/ConversationView.vue';
 
 const routes = [
     {
@@ -13,6 +14,12 @@ const routes = [
       path: '/projects/:projectId',
       name: 'ProjectDetail',
       component: ProjectDetailView
+    },
+    {
+        path: '/projects/:projectId/conversation/:conversationId?',
+        name: 'Conversation',
+        component: ConversationView,
+        props: true
     },
     {
       path: '/settings',

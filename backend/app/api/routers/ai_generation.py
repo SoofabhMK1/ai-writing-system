@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import List
 
-from app import crud
+from app import crud, schemas
 from app.database import get_db
 from app.crud import crud_setting
 from app.services import ai_service
@@ -34,6 +35,10 @@ class GenerationRequest(BaseModel):
 
 class GenerationRequestWithPrompt(GenerationRequest):
     prompt: str
+
+class ChatRequest(BaseModel):
+    ai_model_id: int
+    messages: List[schemas.MessageCreate]
 
 # --- AI Generation Router ---
 
@@ -66,6 +71,20 @@ async def generate_outline_stream(req: GenerationRequestWithPrompt, db: Session 
         ai_service.generate_outline_from_config(
             model_config=ai_model,
             prompt=req.prompt,
+        ),
+        media_type="text/event-stream"
+    )
+
+@router.post("/chat-stream")
+async def chat_stream(req: ChatRequest, db: Session = Depends(get_db)):
+    ai_model = crud_setting.ai_model.get(db, id=req.ai_model_id)
+    if not ai_model:
+        raise HTTPException(status_code=404, detail="AI Model not found")
+
+    return StreamingResponse(
+        ai_service.generate_chat_completion(
+            model_config=ai_model,
+            messages=[message.dict() for message in req.messages],
         ),
         media_type="text/event-stream"
     )

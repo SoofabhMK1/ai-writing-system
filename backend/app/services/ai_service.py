@@ -4,9 +4,42 @@ from app.core.security import decrypt_data
 from app.models.setting import AIModel
 from app.services.prompt_service import create_outline_generation_prompt
 
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List, Dict
 
 import json
+
+async def generate_chat_completion(
+    model_config: AIModel,
+    messages: List[Dict[str, str]],
+) -> AsyncGenerator[str, None]:
+    decrypted_api_key = decrypt_data(model_config.api_key)
+    client = AsyncOpenAI(
+        base_url=model_config.api_url,
+        api_key=decrypted_api_key,
+    )
+
+    try:
+        stream = await client.chat.completions.create(
+            model=model_config.model_name,
+            messages=messages,
+            stream=True,
+        )
+        async for chunk in stream:
+            delta = chunk.choices[0].delta
+            
+            reasoning_chunk = getattr(delta, 'reasoning_content', None)
+            if reasoning_chunk:
+                data = json.dumps({"chunk": reasoning_chunk})
+                yield f"event: reasoning\ndata: {data}\n\n"
+
+            if delta.content:
+                data = json.dumps({"chunk": delta.content})
+                yield f"event: content\ndata: {data}\n\n"
+
+    except Exception as e:
+        data = json.dumps({"error": str(e)})
+        yield f"event: error\ndata: {data}\n\n"
+
 
 async def generate_outline_from_config(
     model_config: AIModel,

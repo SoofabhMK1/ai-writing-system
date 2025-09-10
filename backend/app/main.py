@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routers import projects, outline_nodes, settings, ai_generation
+from app.api.routers import projects, outline_nodes, settings, ai_generation, conversations
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -21,10 +21,11 @@ app.add_middleware(
     allow_headers=["*"],  # 允许所有请求头
 )
 
-app.include_router(projects.router, prefix="/api/v1")
-app.include_router(outline_nodes.router, prefix="/api/v1")
-app.include_router(settings.router, prefix="/api/v1")
-app.include_router(ai_generation.router, prefix="/api/v1")
+app.include_router(projects.router, prefix="/api/v1", tags=["projects"])
+app.include_router(outline_nodes.router, prefix="/api/v1", tags=["outline-nodes"])
+app.include_router(settings.router, prefix="/api/v1", tags=["settings"])
+app.include_router(ai_generation.router, prefix="/api/v1", tags=["ai"])
+app.include_router(conversations.router, prefix="/api/v1/conversations", tags=["conversations"])
 
 @app.get("/")
 def get_root():

@@ -35,24 +35,17 @@
       :is-read-only="isReadOnlyModal"
       @close="closeResultModal"
     />
-
-    <AIGenerationModal
-      :show="isGenerationModalOpen"
-      :initial-prompt="generationModalPrompt"
-      :generation-params="{ project_id: project?.id, ...generationConfig }"
-      @close="isGenerationModalOpen = false"
-      @save="saveGeneratedOutline"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { worldviewService, writingStyleService, generatedOutlineService, aiModelService, aiGenerationService } from '@/services/settingService';
 import projectService from '@/services/projectService';
 import { useNotificationStore } from '@/store/notification';
 import { useModalStore } from '@/store/modal';
-import AIGenerationModal from './AIGenerationModal.vue';
+import { useConversationStore } from '@/store/conversation';
 import GenerationResultModal from './GenerationResultModal.vue';
 import GenerationConfigPanel from './GenerationConfigPanel.vue';
 import ProjectInfoPanel from './ProjectInfoPanel.vue';
@@ -60,6 +53,8 @@ import HistoryPanel from './HistoryPanel.vue';
 
 const notification = useNotificationStore();
 const modal = useModalStore();
+const router = useRouter();
+const conversationStore = useConversationStore();
 
 const props = defineProps({
   project: {
@@ -83,11 +78,6 @@ const outlineHistory = ref([]);
 
 const isGenerating = ref(false);
 const historyLoading = ref(false);
-
-// State for the AI Generation Modal
-const isGenerationModalOpen = ref(false);
-const generationModalPrompt = ref('');
-const generationModalRef = ref(null);
 
 // State for the History Preview Modal
 const isResultModalOpen = ref(false);
@@ -170,8 +160,16 @@ const handleGenerate = async () => {
       ...generationConfig.value,
     };
     const response = await aiGenerationService.getInitialPrompt(requestBody);
-    generationModalPrompt.value = response.data;
-    isGenerationModalOpen.value = true;
+    const initialPrompt = response.data;
+    
+    conversationStore.startNewConversation();
+    conversationStore.setCachedInitialPrompt(initialPrompt);
+
+    router.push({ 
+      name: 'Conversation', 
+      params: { projectId: props.project.id }
+    });
+
   } catch (error) {
     notification.show('获取 Prompt 失败', 'error');
     console.error("Failed to get initial prompt:", error);
