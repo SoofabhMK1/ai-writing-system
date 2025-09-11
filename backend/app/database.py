@@ -1,17 +1,29 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.config import settings
 
-engine = create_engine(settings.DATABASE_URL)
-SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
-Base = declarative_base()
+# 1. 使用 create_async_engine 创建异步引擎
+engine = create_async_engine(settings.DATABASE_URL, echo=True)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# 2. 创建异步会话工厂
+SessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    autoflush=False,
+    autocommit=False,
+)
+
+
+# 3. 使用新的声明式基类 (SQLAlchemy 2.0 推荐)
+class Base(DeclarativeBase):
+    pass
+
+
+# 4. 创建异步的数据库会话依赖项
+async def get_db():
+    """
+    FastAPI dependency that provides an async database session.
+    """
+    async with SessionLocal() as session:
+        yield session

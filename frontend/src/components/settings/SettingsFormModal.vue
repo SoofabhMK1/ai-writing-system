@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch, defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   show: {
@@ -65,49 +65,53 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-});
+})
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save'])
 
-const editableData = ref({});
+const editableData = ref({})
 
-watch(() => props.initialData, (newData) => {
-  // Create a fresh object for the form to bind to
-  editableData.value = { ...newData };
-}, { immediate: true, deep: true });
+watch(
+  () => props.initialData,
+  (newData) => {
+    // Create a fresh object for the form to bind to
+    editableData.value = { ...newData }
+  },
+  { immediate: true, deep: true },
+)
 
 const close = () => {
-  emit('close');
-};
+  emit('close')
+}
 
-const jsonErrorField = ref(null);
+const jsonErrorField = ref(null)
 
 const jsonString = (data) => {
   if (typeof data === 'object' && data !== null) {
-    return JSON.stringify(data, null, 2);
+    return JSON.stringify(data, null, 2)
   }
-  return data || '';
-};
+  return data || ''
+}
 
 const updateJson = (key, value) => {
   try {
-    editableData.value[key] = value ? JSON.parse(value) : null;
-    jsonErrorField.value = null;
-  } catch (e) {
+    editableData.value[key] = value ? JSON.parse(value) : null
+    jsonErrorField.value = null
+  } catch {
     // Don't update the data if JSON is invalid, but keep the raw string
     // in a temporary state or just mark the field as invalid.
-    jsonErrorField.value = key;
+    jsonErrorField.value = key
   }
-};
+}
 
 const handleSubmit = () => {
   if (jsonErrorField.value) {
-    alert('无法保存，存在无效的 JSON 格式。');
-    return;
+    alert('无法保存，存在无效的 JSON 格式。')
+    return
   }
-  emit('save', editableData.value);
-  close();
-};
+  emit('save', editableData.value)
+  close()
+}
 </script>
 
 <style scoped>
@@ -187,7 +191,7 @@ textarea.form-control {
   font-family: inherit;
 }
 
-textarea.form-control[rows="6"] {
+textarea.form-control[rows='6'] {
   min-height: 180px;
   font-family: 'Courier New', Courier, monospace;
 }

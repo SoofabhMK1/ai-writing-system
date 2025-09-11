@@ -3,12 +3,15 @@
   <div class="setting-card">
     <div class="setting-header">
       <h3 class="setting-title">文风设定</h3>
-      <button @click="handleAddNew" class="btn btn-primary">＋ 添加新文风</button>
+      <button @click="handleAddNew" class="btn btn-primary">
+        ＋ 添加新文风
+      </button>
     </div>
     <p class="setting-description">
-      定义不同的写作风格，例如“幽默”、“严肃”或“诗意”。这些设定可以帮助 AI 在生成内容时保持一致的语调。
+      定义不同的写作风格，例如“幽默”、“严肃”或“诗意”。这些设定可以帮助 AI
+      在生成内容时保持一致的语调。
     </p>
-    
+
     <div v-if="loading" class="status-info">正在加载...</div>
     <div v-if="error" class="status-info error">{{ error }}</div>
 
@@ -21,7 +24,9 @@
         </div>
         <div class="item-actions">
           <button @click="handleEdit(style)" class="btn">编辑</button>
-          <button @click="handleDelete(style.id)" class="btn btn-danger">删除</button>
+          <button @click="handleDelete(style.id)" class="btn btn-danger">
+            删除
+          </button>
         </div>
       </div>
     </div>
@@ -41,113 +46,151 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { writingStyleService } from '@/services/settingService';
-import { useModalStore } from '@/store/modal';
-import { useNotificationStore } from '@/store/notification';
-import SettingsFormModal from './SettingsFormModal.vue';
+import { ref, onMounted, computed } from 'vue'
+import { writingStyleService } from '@/services/settingService'
+import { useModalStore } from '@/store/modal'
+import { useNotificationStore } from '@/store/notification'
+import SettingsFormModal from './SettingsFormModal.vue'
 
-const modalStore = useModalStore();
-const notification = useNotificationStore();
+const modalStore = useModalStore()
+const notification = useNotificationStore()
 
-const writingStyles = ref([]);
-const loading = ref(true);
-const error = ref(null);
-const isModalOpen = ref(false);
-const currentStyle = ref(null);
-const isEditing = ref(false);
+const writingStyles = ref([])
+const loading = ref(true)
+const error = ref(null)
+const isModalOpen = ref(false)
+const currentStyle = ref(null)
+const isEditing = ref(false)
 
-const modalTitle = computed(() => isEditing.value ? '编辑文风' : '添加新文风');
+const modalTitle = computed(() => (isEditing.value ? '编辑文风' : '添加新文风'))
 
 const modalFields = [
   { key: 'name', label: '名称', placeholder: '例如：轻松幽默' },
-  { key: 'description', label: '描述', type: 'textarea', placeholder: '对这个文风进行简短的描述' },
-  { key: 'tone', label: '基调', placeholder: '例如：正式, 严肃, 活泼 (用逗号分隔)' },
-  { key: 'point_of_view', label: '视角', placeholder: '例如：第一人称、第三人称' },
-  { key: 'reference_works', label: '参考作品', type: 'textarea', placeholder: '列出一些参考作品，如书籍、电影等' },
-  { key: 'guidelines', label: '具体准则 (JSON)', type: 'json', placeholder: '输入 JSON 格式的准则' },
-];
+  {
+    key: 'description',
+    label: '描述',
+    type: 'textarea',
+    placeholder: '对这个文风进行简短的描述',
+  },
+  {
+    key: 'tone',
+    label: '基调',
+    placeholder: '例如：正式, 严肃, 活泼 (用逗号分隔)',
+  },
+  {
+    key: 'point_of_view',
+    label: '视角',
+    placeholder: '例如：第一人称、第三人称',
+  },
+  {
+    key: 'reference_works',
+    label: '参考作品',
+    type: 'textarea',
+    placeholder: '列出一些参考作品，如书籍、电影等',
+  },
+  {
+    key: 'guidelines',
+    label: '具体准则 (JSON)',
+    type: 'json',
+    placeholder: '输入 JSON 格式的准则',
+  },
+]
 
 const fetchWritingStyles = async () => {
   try {
-    loading.value = true;
-    const response = await writingStyleService.getAll();
-    writingStyles.value = response.data;
+    loading.value = true
+    const response = await writingStyleService.getAll()
+    writingStyles.value = response.data
   } catch (err) {
-    error.value = '加载文风失败，请稍后重试。';
-    console.error(err);
+    error.value = '加载文风失败，请稍后重试。'
+    console.error(err)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-const openModal = () => { isModalOpen.value = true; };
-const closeModal = () => { isModalOpen.value = false; };
+const openModal = () => {
+  isModalOpen.value = true
+}
+const closeModal = () => {
+  isModalOpen.value = false
+}
 
 const handleAddNew = () => {
-  isEditing.value = false;
-  currentStyle.value = { 
-    name: '', 
-    description: '', 
-    tone: [], 
-    point_of_view: '', 
+  isEditing.value = false
+  currentStyle.value = {
+    name: '',
+    description: '',
+    tone: [],
+    point_of_view: '',
     reference_works: '',
-    guidelines: {} 
-  };
-  openModal();
-};
+    guidelines: {},
+  }
+  openModal()
+}
 
 const handleEdit = (style) => {
-  isEditing.value = true;
+  isEditing.value = true
   // Ensure tone is an array for the form
-  const formData = { ...style, tone: Array.isArray(style.tone) ? style.tone.join(', ') : style.tone };
-  currentStyle.value = formData;
-  openModal();
-};
+  const formData = {
+    ...style,
+    tone: Array.isArray(style.tone) ? style.tone.join(', ') : style.tone,
+  }
+  currentStyle.value = formData
+  openModal()
+}
 
 const saveStyle = async (data) => {
   // Convert tone string back to array if needed
-  const payload = { ...data };
+  const payload = { ...data }
   if (payload.tone && typeof payload.tone === 'string') {
-    payload.tone = payload.tone.split(',').map(item => item.trim()).filter(Boolean);
+    payload.tone = payload.tone
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
   }
 
   try {
     if (isEditing.value) {
-      const response = await writingStyleService.update(currentStyle.value.id, payload);
-      const index = writingStyles.value.findIndex(s => s.id === currentStyle.value.id);
+      const response = await writingStyleService.update(
+        currentStyle.value.id,
+        payload,
+      )
+      const index = writingStyles.value.findIndex(
+        (s) => s.id === currentStyle.value.id,
+      )
       if (index !== -1) {
-        writingStyles.value[index] = response.data;
+        writingStyles.value[index] = response.data
       }
-      notification.show('文风已更新', 'success');
+      notification.show('文风已更新', 'success')
     } else {
-      const response = await writingStyleService.create(payload);
-      writingStyles.value.unshift(response.data);
-      notification.show('文风已创建', 'success');
+      const response = await writingStyleService.create(payload)
+      writingStyles.value.unshift(response.data)
+      notification.show('文风已创建', 'success')
     }
-  } catch (err) {
-    notification.show(isEditing.value ? '更新失败' : '创建失败', 'error');
+  } catch {
+    notification.show(isEditing.value ? '更新失败' : '创建失败', 'error')
   }
-};
+}
 
 const handleDelete = async (id) => {
   try {
-    await modalStore.show('确认删除', '你确定要删除这个文风吗？');
-    await writingStyleService.delete(id);
-    writingStyles.value = writingStyles.value.filter(s => s.id !== id);
-    notification.show('文风已删除', 'success');
-  } catch (err) {
-    if (err.isCanceled) {
-      notification.show('删除操作已取消', 'info');
+    await modalStore.show('确认删除', '你确定要删除这个文风吗？')
+    await writingStyleService.delete(id)
+    writingStyles.value = writingStyles.value.filter((s) => s.id !== id)
+    notification.show('文风已删除', 'success')
+  } catch (error) {
+    if (error.isCanceled) {
+      notification.show('删除操作已取消', 'info')
     } else {
-      notification.show('删除失败', 'error');
+      notification.show('删除失败', 'error')
     }
   }
-};
+}
 
 onMounted(() => {
-  fetchWritingStyles();
-});
+  fetchWritingStyles()
+})
 </script>
 
 <style scoped>

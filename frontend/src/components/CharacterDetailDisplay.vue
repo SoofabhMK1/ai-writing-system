@@ -5,7 +5,11 @@
       <DetailItem label="性别" :value="character.gender" />
       <DetailItem label="年龄" :value="character.age" />
       <DetailItem label="职业" :value="character.occupation" />
-      <DetailItem label="简介" :value="character.brief_introduction" type="textarea" />
+      <DetailItem
+        label="简介"
+        :value="character.brief_introduction"
+        type="textarea"
+      />
     </div>
     <div v-if="activeTab === '外貌特征'">
       <JsonViewer :data="character.physical_attributes" />
@@ -23,8 +27,8 @@
 </template>
 
 <script setup>
-import DetailItem from './DetailItem.vue';
-import JsonViewer from './JsonViewer.vue';
+import DetailItem from './DetailItem.vue'
+import JsonViewer from './JsonViewer.vue'
 
 defineProps({
   character: {
@@ -35,7 +39,7 @@ defineProps({
     type: String,
     required: true,
   },
-});
+})
 </script>
 
 <style scoped>

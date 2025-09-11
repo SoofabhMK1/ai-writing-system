@@ -12,70 +12,85 @@
         使用初始 Prompt
       </button>
       <div class="preview-toggle-container">
-        <input type="checkbox" id="preview-toggle" v-model="previewBeforeSending" class="custom-checkbox" />
+        <input
+          type="checkbox"
+          id="preview-toggle"
+          v-model="previewBeforeSending"
+          class="custom-checkbox"
+        />
         <label for="preview-toggle">发送前预览</label>
       </div>
     </div>
     <ul class="history-list">
-      <li 
-        v-for="item in historyList" 
+      <li
+        v-for="item in historyList"
         :key="item.id"
         class="history-item"
-        :class="{ 'active': item.id === currentConversationId }"
+        :class="{ active: item.id === currentConversationId }"
       >
-        <span @click="loadConversation(item.id)" class="history-item-title">{{ item.title || '未命名对话' }}</span>
-        <button @click.stop="handleDelete(item.id)" class="btn-delete">×</button>
+        <span @click="loadConversation(item.id)" class="history-item-title">{{
+          item.title || '未命名对话'
+        }}</span>
+        <button @click.stop="handleDelete(item.id)" class="btn-delete">
+          ×
+        </button>
       </li>
     </ul>
     <div class="sidebar-footer">
-      <button @click="handleSave" class="btn btn-success">
-        保存对话
-      </button>
+      <button @click="handleSave" class="btn btn-success">保存对话</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useConversationStore } from '../store/conversation';
-import { useModalStore } from '../store/modal';
-import { useRoute } from 'vue-router';
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useConversationStore } from '../store/conversation'
+import { useModalStore } from '../store/modal'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
-const conversationStore = useConversationStore();
-const modal = useModalStore();
-const { historyList, currentConversationId, cachedInitialPrompt, previewBeforeSending } = storeToRefs(conversationStore);
-const { 
-  loadConversationHistory, 
-  loadConversation, 
-  startNewConversation, 
+const route = useRoute()
+const conversationStore = useConversationStore()
+const modal = useModalStore()
+const {
+  historyList,
+  currentConversationId,
+  cachedInitialPrompt,
+  previewBeforeSending,
+} = storeToRefs(conversationStore)
+const {
+  loadConversationHistory,
+  loadConversation,
+  startNewConversation,
   saveCurrentConversation,
   fillInputWithCachedPrompt,
-  deleteConversation
-} = conversationStore;
+  deleteConversation,
+} = conversationStore
 
 const handleSave = () => {
-  saveCurrentConversation(route.params.projectId);
-};
+  saveCurrentConversation(route.params.projectId)
+}
 
 const handleDelete = async (conversationId) => {
   try {
-    await modal.show('Confirm Deletion', 'Are you sure you want to delete this conversation?');
-    await deleteConversation(conversationId, route.params.projectId);
+    await modal.show(
+      'Confirm Deletion',
+      'Are you sure you want to delete this conversation?',
+    )
+    await deleteConversation(conversationId, route.params.projectId)
   } catch (err) {
     if (err.isCanceled) {
       // User canceled the deletion
     } else {
       // Handle other errors if needed
-      console.error("Deletion failed:", err);
+      console.error('Deletion failed:', err)
     }
   }
-};
+}
 
 onMounted(() => {
-  loadConversationHistory(route.params.projectId);
-});
+  loadConversationHistory(route.params.projectId)
+})
 </script>
 
 <style scoped>

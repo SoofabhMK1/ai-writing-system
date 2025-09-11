@@ -4,14 +4,22 @@
     <div class="outline-panel card">
       <div class="panel-header">
         <h3>大纲</h3>
-        <button v-if="outline.length > 0" @click="handleAddNode(null)" class="btn btn-sm">添加顶级节点</button>
+        <button
+          v-if="outline.length > 0"
+          @click="handleAddNode(null)"
+          class="btn btn-sm"
+        >
+          添加顶级节点
+        </button>
       </div>
 
       <div v-if="loading" class="status-info">加载中...</div>
       <div v-else-if="error" class="status-info error">{{ error }}</div>
       <div v-else-if="outline.length === 0" class="no-outline status-info">
         <p>此项目还没有大纲。</p>
-        <button @click="handleAddNode(null)" class="btn btn-primary">创建第一个节点</button>
+        <button @click="handleAddNode(null)" class="btn btn-primary">
+          创建第一个节点
+        </button>
       </div>
       <div v-else class="outline-tree">
         <OutlineNodeItem
@@ -29,7 +37,7 @@
     <div class="content-panel card">
       <!-- 1. 内容区 -->
       <div class="content-editor-wrapper">
-        <textarea 
+        <textarea
           class="content-textarea form-control"
           placeholder="AI 生成的内容将显示在这里..."
         ></textarea>
@@ -39,11 +47,16 @@
       <div class="ai-settings-wrapper">
         <div class="setting-item">
           <label for="word-count">目标字数</label>
-          <input id="word-count" type="number" class="form-control" placeholder="例如: 800">
+          <input
+            id="word-count"
+            type="number"
+            class="form-control"
+            placeholder="例如: 800"
+          />
         </div>
         <div class="setting-item">
           <label for="brief">内容蓝图 / 写作指令</label>
-          <textarea 
+          <textarea
             id="brief"
             rows="5"
             class="form-control"
@@ -62,105 +75,113 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import projectService from '../services/projectService';
-import outlineNodeService from '../services/outlineNodeService';
-import OutlineNodeItem from '../components/OutlineNodeItem.vue';
-import { useModalStore } from '@/store/modal.js';
-import { useNotificationStore } from '@/store/notification.js';
-import { usePromptStore } from '@/store/prompt.js';
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import projectService from '../services/projectService'
+import outlineNodeService from '../services/outlineNodeService'
+import OutlineNodeItem from '../components/OutlineNodeItem.vue'
+import { useModalStore } from '@/store/modal.js'
+import { useNotificationStore } from '@/store/notification.js'
+import { usePromptStore } from '@/store/prompt.js'
 
-const route = useRoute();
-const modal = useModalStore();
-const notification = useNotificationStore();
-const prompt = usePromptStore();
-const project = ref(null);
-const loading = ref(true);
-const error = ref(null);
+const route = useRoute()
+const modal = useModalStore()
+const notification = useNotificationStore()
+const prompt = usePromptStore()
+const project = ref(null)
+const loading = ref(true)
+const error = ref(null)
 
-const outline = ref([]); // <-- 2. 创建一个新状态来存储大纲数据
+const outline = ref([]) // <-- 2. 创建一个新状态来存储大纲数据
 
 const fetchProjectData = async () => {
-  const projectId = route.params.projectId;
+  const projectId = route.params.projectId
   // 进入加载状态
-  loading.value = true; 
-  error.value = null;
+  loading.value = true
+  error.value = null
   try {
-    const projectResponse = await projectService.getProject(projectId);
-    project.value = projectResponse.data;
-    const outlineResponse = await outlineNodeService.getOutlineForProject(projectId);
-    outline.value = outlineResponse.data;
+    const projectResponse = await projectService.getProject(projectId)
+    project.value = projectResponse.data
+    const outlineResponse =
+      await outlineNodeService.getOutlineForProject(projectId)
+    outline.value = outlineResponse.data
   } catch (err) {
-    console.error(err);
-    error.value = '加载项目失败。';
+    console.error(err)
+    error.value = '加载项目失败。'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const handleAddNode = async (parentId) => {
   try {
-    const title = await prompt.show('创建新节点', '请输入新节点的标题：', '新章节');
-    
+    const title = await prompt.show(
+      '创建新节点',
+      '请输入新节点的标题：',
+      '新章节',
+    )
+
     if (title && title.trim()) {
       try {
         const newNodeData = {
           title: title,
           project_id: parseInt(route.params.projectId),
-          parent_id: parentId
-        };
-        await outlineNodeService.createNode(newNodeData);
-        fetchProjectData();
-        notification.show('节点创建成功', 'success');
+          parent_id: parentId,
+        }
+        await outlineNodeService.createNode(newNodeData)
+        fetchProjectData()
+        notification.show('节点创建成功', 'success')
       } catch (err) {
-        console.error(err);
-        notification.show('创建节点失败！', 'error');
+        console.error(err)
+        notification.show('创建节点失败！', 'error')
       }
     } else {
-      notification.show('标题不能为空', 'error');
+      notification.show('标题不能为空', 'error')
     }
-  } catch (err) {
+  } catch {
     // 用户点击了取消
-    notification.show('操作已取消', 'info');
+    notification.show('操作已取消', 'info')
   }
-};
+}
 
 const handleDeleteNode = async (nodeId) => {
   try {
-    await modal.show('确认删除', '确定要删除这个节点及其所有子节点吗？此操作不可撤销。');
+    await modal.show(
+      '确认删除',
+      '确定要删除这个节点及其所有子节点吗？此操作不可撤销。',
+    )
     // 用户确认后执行删除
     try {
-      await outlineNodeService.deleteNode(nodeId);
-      fetchProjectData();
-      notification.show('节点已删除', 'success');
+      await outlineNodeService.deleteNode(nodeId)
+      fetchProjectData()
+      notification.show('节点已删除', 'success')
     } catch (err) {
-      console.error(err);
-      notification.show('删除节点失败！', 'error');
+      console.error(err)
+      notification.show('删除节点失败！', 'error')
     }
-  } catch (isCanceled) {
+  } catch {
     // 用户取消
-    notification.show('删除操作已取消', 'info');
+    notification.show('删除操作已取消', 'info')
   }
-};
+}
 
 const handleUpdateNode = async (payload) => {
   // payload 是一个对象，例如 { id: 1, title: '新的标题' }
   try {
-    await outlineNodeService.updateNode(payload.id, { title: payload.title });
+    await outlineNodeService.updateNode(payload.id, { title: payload.title })
     // 更新成功后，为了保证数据一致性，重新获取整个大纲
     // 这是一个简单可靠的策略
-    fetchProjectData();
-    notification.show('节点更新成功', 'success');
+    fetchProjectData()
+    notification.show('节点更新成功', 'success')
   } catch (err) {
-    console.error(err);
-    notification.show('更新节点失败！', 'error');
+    console.error(err)
+    notification.show('更新节点失败！', 'error')
   }
-};
+}
 
 onMounted(() => {
-  fetchProjectData();
-});
+  fetchProjectData()
+})
 </script>
 
 <style scoped>
@@ -171,7 +192,8 @@ onMounted(() => {
   height: 100%;
 }
 
-.outline-panel, .content-panel {
+.outline-panel,
+.content-panel {
   display: flex;
   flex-direction: column;
   height: 100%;

@@ -4,11 +4,37 @@
     <h3 class="panel-title">项目核心信息 ({{ modelValue.name }})</h3>
     <div class="form-group">
       <label for="bookTitle">书名</label>
-      <input id="bookTitle" type="text" class="form-control" :value="modelValue.book_title" @input="$emit('update:modelValue', { ...modelValue, book_title: $event.target.value })" @blur="$emit('save')" placeholder="请输入小说的正式名称" />
+      <input
+        id="bookTitle"
+        type="text"
+        class="form-control"
+        :value="modelValue.book_title"
+        @input="
+          $emit('update:modelValue', {
+            ...modelValue,
+            book_title: $event.target.value,
+          })
+        "
+        @blur="$emit('save')"
+        placeholder="请输入小说的正式名称"
+      />
     </div>
     <div class="form-group">
       <label for="coreConcept">核心构想 (Seed)</label>
-      <textarea id="coreConcept" class="form-control" :value="modelValue.core_concept" @input="$emit('update:modelValue', { ...modelValue, core_concept: $event.target.value })" @blur="$emit('save')" rows="5" placeholder="请详细描述您的故事核心创意、主要情节、角色和主题..."></textarea>
+      <textarea
+        id="coreConcept"
+        class="form-control"
+        :value="modelValue.core_concept"
+        @input="
+          $emit('update:modelValue', {
+            ...modelValue,
+            core_concept: $event.target.value,
+          })
+        "
+        @blur="$emit('save')"
+        rows="5"
+        placeholder="请详细描述您的故事核心创意、主要情节、角色和主题..."
+      ></textarea>
     </div>
   </div>
 </template>
@@ -19,9 +45,9 @@ defineProps({
     type: Object,
     required: true,
   },
-});
+})
 
-defineEmits(['update:modelValue', 'save']);
+defineEmits(['update:modelValue', 'save'])
 </script>
 
 <style scoped>

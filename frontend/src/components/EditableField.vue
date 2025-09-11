@@ -1,8 +1,19 @@
 <template>
   <div class="form-group">
     <label>{{ label }}</label>
-    <textarea v-if="type === 'textarea'" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" class="form-control"></textarea>
-    <input v-else :type="type || 'text'" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" class="form-control">
+    <textarea
+      v-if="type === 'textarea'"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      class="form-control"
+    ></textarea>
+    <input
+      v-else
+      :type="type || 'text'"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      class="form-control"
+    />
   </div>
 </template>
 
@@ -11,8 +22,8 @@ defineProps({
   label: String,
   modelValue: [String, Number],
   type: String,
-});
-defineEmits(['update:modelValue']);
+})
+defineEmits(['update:modelValue'])
 </script>
 
 <style scoped>

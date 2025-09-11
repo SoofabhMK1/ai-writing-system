@@ -1,6 +1,8 @@
 # backend/app/schemas/setting.py
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+
 
 # --- Worldview Schemas ---
 class WorldviewBase(BaseModel):
@@ -12,14 +14,17 @@ class WorldviewBase(BaseModel):
     magic_system: Optional[str] = None
     additional_details: Optional[Dict[str, Any]] = None
 
+
 class WorldviewCreate(WorldviewBase):
     pass
+
 
 class WorldviewInDB(WorldviewBase):
     id: int
 
     class Config:
         from_attributes = True
+
 
 # --- WritingStyle Schemas ---
 class WritingStyleBase(BaseModel):
@@ -30,14 +35,17 @@ class WritingStyleBase(BaseModel):
     reference_works: Optional[str] = None
     guidelines: Optional[Dict[str, Any]] = None
 
+
 class WritingStyleCreate(WritingStyleBase):
     pass
+
 
 class WritingStyleInDB(WritingStyleBase):
     id: int
 
     class Config:
         from_attributes = True
+
 
 # --- PromptTemplate Schemas ---
 class PromptTemplateBase(BaseModel):
@@ -47,14 +55,17 @@ class PromptTemplateBase(BaseModel):
     template_text: str
     variables: Optional[Dict[str, Any]] = None
 
+
 class PromptTemplateCreate(PromptTemplateBase):
     pass
+
 
 class PromptTemplateInDB(PromptTemplateBase):
     id: int
 
     class Config:
         from_attributes = True
+
 
 # --- GeneratedOutline Schemas ---
 class GeneratedOutlineBase(BaseModel):
@@ -66,15 +77,18 @@ class GeneratedOutlineBase(BaseModel):
     settings_snapshot: Optional[Dict[str, Any]] = None
     outline_data: Dict[str, Any]
 
+
 class GeneratedOutlineCreate(GeneratedOutlineBase):
     pass
 
+
 class GeneratedOutlineInDB(GeneratedOutlineBase):
     id: int
-    created_at: Any # Using Any for datetime for simplicity, can be stricter
+    created_at: Any  # Using Any for datetime for simplicity, can be stricter
 
     class Config:
         from_attributes = True
+
 
 # --- AIModel Schemas ---
 class AIModelBase(BaseModel):
@@ -83,12 +97,14 @@ class AIModelBase(BaseModel):
     api_key: str
     model_name: str
 
+
 class AIModelCreate(AIModelBase):
     pass
 
+
 class AIModelInDB(AIModelBase):
     id: int
-    api_key: str = "********" # Never send the real key to the client
+    api_key: str = "********"  # Never send the real key to the client
 
     class Config:
         from_attributes = True

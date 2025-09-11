@@ -2,10 +2,12 @@
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content" v-if="character">
       <div class="modal-header">
-        <h2 class="modal-title">{{ isEditing ? '编辑角色' : character.name }}</h2>
+        <h2 class="modal-title">
+          {{ isEditing ? '编辑角色' : character.name }}
+        </h2>
         <button @click="$emit('close')" class="close-button">&times;</button>
       </div>
-      
+
       <div class="tabs">
         <button
           v-for="tab in tabs"
@@ -17,15 +19,16 @@
         </button>
       </div>
 
-      <CharacterDetailDisplay 
+      <CharacterDetailDisplay
         v-if="!isEditing"
         :character="character"
         :active-tab="activeTab"
       />
-      <CharacterDetailEdit 
+      <CharacterDetailEdit
         v-else
         :editable-character="editableCharacter"
         :active-tab="activeTab"
+        @update:editable-character="editableCharacter = $event"
       />
 
       <div class="modal-actions">
@@ -44,60 +47,67 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useCharacterStore } from '@/store/character';
-import { useModalStore } from '@/store/modal';
-import CharacterDetailDisplay from './CharacterDetailDisplay.vue';
-import CharacterDetailEdit from './CharacterDetailEdit.vue';
+import { ref, computed, onMounted, watch } from 'vue'
+import { useCharacterStore } from '@/store/character'
+import { useModalStore } from '@/store/modal'
+import CharacterDetailDisplay from './CharacterDetailDisplay.vue'
+import CharacterDetailEdit from './CharacterDetailEdit.vue'
 
-const props = defineProps({ characterId: { type: Number, required: true } });
-const emit = defineEmits(['close']);
+const props = defineProps({ characterId: { type: Number, required: true } })
+const emit = defineEmits(['close'])
 
-const characterStore = useCharacterStore();
-const modalStore = useModalStore();
+const characterStore = useCharacterStore()
+const modalStore = useModalStore()
 
-const character = computed(() => characterStore.selectedCharacter);
-const isEditing = ref(false);
-const editableCharacter = ref(null);
-const activeTab = ref('基本信息');
-const tabs = ['基本信息', '外貌特征', '性格与背景', '其他'];
+const character = computed(() => characterStore.selectedCharacter)
+const isEditing = ref(false)
+const editableCharacter = ref(null)
+const activeTab = ref('基本信息')
+const tabs = ['基本信息', '外貌特征', '性格与背景', '其他']
 
 onMounted(() => {
-  characterStore.fetchCharacter(props.characterId);
-});
+  characterStore.fetchCharacter(props.characterId)
+})
 
-watch(character, (newChar) => {
-  if (newChar) {
-    editableCharacter.value = JSON.parse(JSON.stringify(newChar));
-  }
-}, { deep: true, immediate: true });
+watch(
+  character,
+  (newChar) => {
+    if (newChar) {
+      editableCharacter.value = JSON.parse(JSON.stringify(newChar))
+    }
+  },
+  { deep: true, immediate: true },
+)
 
 const enterEditMode = () => {
-  isEditing.value = true;
-};
+  isEditing.value = true
+}
 
 const cancelEdit = () => {
-  editableCharacter.value = JSON.parse(JSON.stringify(character.value));
-  isEditing.value = false;
-};
+  editableCharacter.value = JSON.parse(JSON.stringify(character.value))
+  isEditing.value = false
+}
 
 const saveChanges = async () => {
   await characterStore.updateCharacter({
     id: props.characterId,
     data: editableCharacter.value,
-  });
-  isEditing.value = false;
-};
+  })
+  isEditing.value = false
+}
 
 const handleDelete = async () => {
   try {
-    await modalStore.show('确认删除', `你确定要删除角色“${character.value.name}”吗？此操作不可撤销。`);
-    await characterStore.deleteCharacter(props.characterId);
-    emit('close');
+    await modalStore.show(
+      '确认删除',
+      `你确定要删除角色“${character.value.name}”吗？此操作不可撤销。`,
+    )
+    await characterStore.deleteCharacter(props.characterId)
+    emit('close')
   } catch (error) {
-    if (!error.isCanceled) console.error('Deletion error:', error);
+    if (!error.isCanceled) console.error('Deletion error:', error)
   }
-};
+}
 </script>
 
 <style scoped>
@@ -107,7 +117,7 @@ const handleDelete = async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;

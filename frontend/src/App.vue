@@ -6,9 +6,9 @@
     </main>
   </div>
   <ConfirmationModal />
-  <Notification />
+  <AppNotification />
   <PromptModal />
-  <PreviewSendModal 
+  <PreviewSendModal
     :is-open="isPreviewOpen"
     :content="previewContent"
     :confirm="modal.confirmPreview"
@@ -17,25 +17,25 @@
 </template>
 
 <script setup>
-import { watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import NavBar from './components/NavBar.vue';
-import ConfirmationModal from './components/ConfirmationModal.vue';
-import Notification from './components/Notification.vue';
-import PromptModal from './components/PromptModal.vue';
-import PreviewSendModal from './components/PreviewSendModal.vue';
-import { useModalStore } from './store/modal';
+import { watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import NavBar from './components/NavBar.vue'
+import ConfirmationModal from './components/ConfirmationModal.vue'
+import AppNotification from './components/AppNotification.vue'
+import PromptModal from './components/PromptModal.vue'
+import PreviewSendModal from './components/PreviewSendModal.vue'
+import { useModalStore } from './store/modal'
 
-const modal = useModalStore();
-const { isPreviewOpen, previewContent, isAnyModalOpen } = storeToRefs(modal);
+const modal = useModalStore()
+const { isPreviewOpen, previewContent, isAnyModalOpen } = storeToRefs(modal)
 
 watch(isAnyModalOpen, (newValue) => {
   if (newValue) {
-    document.body.classList.add('modal-open');
+    document.body.classList.add('modal-open')
   } else {
-    document.body.classList.remove('modal-open');
+    document.body.classList.remove('modal-open')
   }
-});
+})
 </script>
 
 <style scoped>

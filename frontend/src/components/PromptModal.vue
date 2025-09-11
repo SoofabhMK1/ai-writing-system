@@ -14,7 +14,9 @@
             required
           />
           <div class="modal-actions">
-            <button type="button" @click="handleCancel" class="btn">取消</button>
+            <button type="button" @click="handleCancel" class="btn">
+              取消
+            </button>
             <button type="submit" class="btn btn-primary">确认</button>
           </div>
         </form>
@@ -24,30 +26,33 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue';
-import { usePromptStore } from '@/store/prompt.js';
+import { ref, watch, nextTick } from 'vue'
+import { usePromptStore } from '@/store/prompt.js'
 
-const prompt = usePromptStore();
-const inputValue = ref('');
-const inputRef = ref(null);
+const prompt = usePromptStore()
+const inputValue = ref('')
+const inputRef = ref(null)
 
 // 当模态框打开时，自动聚焦到输入框
-watch(() => prompt.isOpen, (isOpen) => {
-  if (isOpen) {
-    inputValue.value = prompt.defaultValue || '';
-    nextTick(() => {
-      inputRef.value?.focus();
-    });
-  }
-});
+watch(
+  () => prompt.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      inputValue.value = prompt.defaultValue || ''
+      nextTick(() => {
+        inputRef.value?.focus()
+      })
+    }
+  },
+)
 
 const handleConfirm = () => {
-  prompt.confirm(inputValue.value);
-};
+  prompt.confirm(inputValue.value)
+}
 
 const handleCancel = () => {
-  prompt.cancel();
-};
+  prompt.cancel()
+}
 </script>
 
 <style scoped>

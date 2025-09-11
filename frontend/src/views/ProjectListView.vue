@@ -4,11 +4,16 @@
     <!-- Left Panel -->
     <div class="left-panel">
       <div class="left-panel-header">
-        <button @click="showCreateModal = true" class="btn btn-primary btn-add-project">+ 创建新项目</button>
+        <button
+          @click="showCreateModal = true"
+          class="btn btn-primary btn-add-project"
+        >
+          + 创建新项目
+        </button>
       </div>
       <div class="project-list-container">
-        <ProjectList 
-          ref="projectList" 
+        <ProjectList
+          ref="projectList"
           @project-selected="onProjectSelected"
           @project-deleted="onProjectDeleted"
         />
@@ -30,38 +35,38 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useModalStore } from '@/store/modal';
-import CreateProjectModal from '../components/CreateProjectModal.vue';
-import ProjectList from '../components/ProjectList.vue';
-import OutlineEditor from '../components/OutlineEditor.vue';
+import { ref, watch } from 'vue'
+import { useModalStore } from '@/store/modal'
+import CreateProjectModal from '../components/CreateProjectModal.vue'
+import ProjectList from '../components/ProjectList.vue'
+import OutlineEditor from '../components/OutlineEditor.vue'
 
-const projectList = ref(null);
-const selectedProject = ref(null);
-const showCreateModal = ref(false);
-const modalStore = useModalStore();
+const projectList = ref(null)
+const selectedProject = ref(null)
+const showCreateModal = ref(false)
+const modalStore = useModalStore()
 
 watch(showCreateModal, (newValue) => {
-  modalStore.setActive(newValue);
-});
+  modalStore.setActive(newValue)
+})
 
 const onProjectCreated = (newProject) => {
   if (projectList.value) {
-    projectList.value.addProject(newProject);
+    projectList.value.addProject(newProject)
   }
   // 自动选择新创建的项目
-  onProjectSelected(newProject);
-};
+  onProjectSelected(newProject)
+}
 
 const onProjectSelected = (project) => {
-  selectedProject.value = project;
-};
+  selectedProject.value = project
+}
 
 const onProjectDeleted = (deletedProjectId) => {
   if (selectedProject.value && selectedProject.value.id === deletedProjectId) {
-    selectedProject.value = null;
+    selectedProject.value = null
   }
-};
+}
 </script>
 
 <style scoped>

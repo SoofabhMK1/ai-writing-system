@@ -15,8 +15,18 @@
         <p>{{ project.description || '暂无描述' }}</p>
       </div>
       <div class="card-actions">
-        <button @click.stop="goToProjectDetail(project.id)" class="btn-action btn-detail">详情</button>
-        <button @click.stop="handleDeleteProject(project.id)" class="btn-action btn-delete">删除</button>
+        <button
+          @click.stop="goToProjectDetail(project.id)"
+          class="btn-action btn-detail"
+        >
+          详情
+        </button>
+        <button
+          @click.stop="handleDeleteProject(project.id)"
+          class="btn-action btn-delete"
+        >
+          删除
+        </button>
       </div>
     </div>
   </div>
@@ -27,65 +37,65 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import projectService from '../services/projectService';
-import { useModalStore } from '@/store/modal.js';
-import { useNotificationStore } from '@/store/notification.js';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import projectService from '../services/projectService'
+import { useModalStore } from '@/store/modal.js'
+import { useNotificationStore } from '@/store/notification.js'
 
-const emit = defineEmits(['project-selected', 'project-deleted']);
-const router = useRouter();
-const modal = useModalStore();
-const notification = useNotificationStore();
+const emit = defineEmits(['project-selected', 'project-deleted'])
+const router = useRouter()
+const modal = useModalStore()
+const notification = useNotificationStore()
 
-const projects = ref([]);
-const loading = ref(true);
-const error = ref(null);
+const projects = ref([])
+const loading = ref(true)
+const error = ref(null)
 
 const fetchProjects = async () => {
   try {
-    const response = await projectService.getProjects();
-    projects.value = response.data;
+    const response = await projectService.getProjects()
+    projects.value = response.data
   } catch (err) {
-    console.error(err);
-    error.value = '无法连接到服务器或 API 出错。';
+    console.error(err)
+    error.value = '无法连接到服务器或 API 出错。'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const goToProjectDetail = (projectId) => {
-  router.push(`/projects/${projectId}`);
-};
+  router.push(`/projects/${projectId}`)
+}
 
 const handleDeleteProject = async (projectId) => {
   try {
-    await modal.show('确认删除', '你确定要删除这个项目吗？此操作不可撤销。');
+    await modal.show('确认删除', '你确定要删除这个项目吗？此操作不可撤销。')
     try {
-      await projectService.deleteProject(projectId);
-      projects.value = projects.value.filter(p => p.id !== projectId);
-      notification.show('项目已删除', 'success');
-      emit('project-deleted', projectId); // Emit event on successful deletion
+      await projectService.deleteProject(projectId)
+      projects.value = projects.value.filter((p) => p.id !== projectId)
+      notification.show('项目已删除', 'success')
+      emit('project-deleted', projectId) // Emit event on successful deletion
     } catch (err) {
-      console.error(err);
-      notification.show('删除项目失败！', 'error');
+      console.error(err)
+      notification.show('删除项目失败！', 'error')
     }
-  } catch (isCanceled) {
-    console.log('删除操作已取消');
-    notification.show('删除操作已取消', 'info');
+  } catch {
+    console.log('删除操作已取消')
+    notification.show('删除操作已取消', 'info')
   }
-};
+}
 
 onMounted(() => {
-  fetchProjects();
-});
+  fetchProjects()
+})
 
 // Expose a method to be called by the parent
 defineExpose({
   addProject(project) {
-    projects.value.unshift(project);
-  }
-});
+    projects.value.unshift(project)
+  },
+})
 </script>
 
 <style scoped>

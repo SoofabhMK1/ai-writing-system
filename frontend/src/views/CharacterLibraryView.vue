@@ -1,49 +1,57 @@
 <template>
   <div class="workspace-container">
     <div class="left-panel">
-      <button @click="isCreateModalOpen = true" class="btn btn-primary create-button">创建新角色</button>
+      <button
+        @click="isCreateModalOpen = true"
+        class="btn btn-primary create-button"
+      >
+        创建新角色
+      </button>
     </div>
     <div class="right-panel">
       <CharacterList @view-character="handleViewCharacter" />
     </div>
-    <CreateCharacterModal v-if="isCreateModalOpen" @close="isCreateModalOpen = false" />
-    <CharacterDetailModal 
-      v-if="selectedCharacterId" 
-      :character-id="selectedCharacterId" 
-      @close="handleCloseDetailModal" 
+    <CreateCharacterModal
+      v-if="isCreateModalOpen"
+      @close="isCreateModalOpen = false"
+    />
+    <CharacterDetailModal
+      v-if="selectedCharacterId"
+      :character-id="selectedCharacterId"
+      @close="handleCloseDetailModal"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useCharacterStore } from '@/store/character';
-import { useModalStore } from '@/store/modal';
-import CharacterList from '@/components/CharacterList.vue';
-import CreateCharacterModal from '@/components/CreateCharacterModal.vue';
-import CharacterDetailModal from '@/components/CharacterDetailModal.vue';
+import { ref, watch } from 'vue'
+import { useCharacterStore } from '@/store/character'
+import { useModalStore } from '@/store/modal'
+import CharacterList from '@/components/CharacterList.vue'
+import CreateCharacterModal from '@/components/CreateCharacterModal.vue'
+import CharacterDetailModal from '@/components/CharacterDetailModal.vue'
 
-const characterStore = useCharacterStore();
-const modalStore = useModalStore();
-const isCreateModalOpen = ref(false);
-const selectedCharacterId = ref(null);
+const characterStore = useCharacterStore()
+const modalStore = useModalStore()
+const isCreateModalOpen = ref(false)
+const selectedCharacterId = ref(null)
 
 watch(isCreateModalOpen, (newValue) => {
-  modalStore.setActive(newValue);
-});
+  modalStore.setActive(newValue)
+})
 
 watch(selectedCharacterId, (newValue) => {
-  modalStore.setActive(!!newValue);
-});
+  modalStore.setActive(!!newValue)
+})
 
 const handleViewCharacter = (id) => {
-  selectedCharacterId.value = id;
-};
+  selectedCharacterId.value = id
+}
 
 const handleCloseDetailModal = () => {
-  selectedCharacterId.value = null;
-  characterStore.clearSelectedCharacter();
-};
+  selectedCharacterId.value = null
+  characterStore.clearSelectedCharacter()
+}
 </script>
 
 <style scoped>

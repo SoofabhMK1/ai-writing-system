@@ -5,31 +5,83 @@
     <div class="config-scroll-area">
       <div class="form-group">
         <label for="worldview">世界观</label>
-        <select id="worldview" class="form-control" :value="modelValue.worldview_id" @change="$emit('update:modelValue', { ...modelValue, worldview_id: $event.target.value })">
+        <select
+          id="worldview"
+          class="form-control"
+          :value="modelValue.worldview_id"
+          @change="
+            $emit('update:modelValue', {
+              ...modelValue,
+              worldview_id: $event.target.value,
+            })
+          "
+        >
           <option :value="null">-- 选择 --</option>
-          <option v-for="w in worldviews" :key="w.id" :value="w.id">{{ w.name }}</option>
+          <option v-for="w in worldviews" :key="w.id" :value="w.id">
+            {{ w.name }}
+          </option>
         </select>
       </div>
       <div class="form-group">
         <label for="writingStyle">文风</label>
-        <select id="writingStyle" class="form-control" :value="modelValue.writing_style_id" @change="$emit('update:modelValue', { ...modelValue, writing_style_id: $event.target.value })">
+        <select
+          id="writingStyle"
+          class="form-control"
+          :value="modelValue.writing_style_id"
+          @change="
+            $emit('update:modelValue', {
+              ...modelValue,
+              writing_style_id: $event.target.value,
+            })
+          "
+        >
           <option :value="null">-- 选择 --</option>
-          <option v-for="s in writingStyles" :key="s.id" :value="s.id">{{ s.name }}</option>
+          <option v-for="s in writingStyles" :key="s.id" :value="s.id">
+            {{ s.name }}
+          </option>
         </select>
       </div>
       <div class="form-group">
         <label for="aiModel">AI 模型</label>
-        <select id="aiModel" class="form-control" :value="modelValue.ai_model_id" @change="$emit('update:modelValue', { ...modelValue, ai_model_id: $event.target.value })">
+        <select
+          id="aiModel"
+          class="form-control"
+          :value="modelValue.ai_model_id"
+          @change="
+            $emit('update:modelValue', {
+              ...modelValue,
+              ai_model_id: $event.target.value,
+            })
+          "
+        >
           <option :value="null">-- 选择 --</option>
-          <option v-for="m in aiModels" :key="m.id" :value="m.id">{{ m.name }}</option>
+          <option v-for="m in aiModels" :key="m.id" :value="m.id">
+            {{ m.name }}
+          </option>
         </select>
       </div>
       <div class="form-group">
         <label for="wordCount">目标总字数</label>
-        <input id="wordCount" type="number" class="form-control" :value="modelValue.target_word_count" @input="$emit('update:modelValue', { ...modelValue, target_word_count: $event.target.value })" placeholder="例如：100000" />
+        <input
+          id="wordCount"
+          type="number"
+          class="form-control"
+          :value="modelValue.target_word_count"
+          @input="
+            $emit('update:modelValue', {
+              ...modelValue,
+              target_word_count: $event.target.value,
+            })
+          "
+          placeholder="例如：100000"
+        />
       </div>
     </div>
-    <button @click="$emit('generate')" class="btn btn-primary btn-generate" :disabled="isGenerating">
+    <button
+      @click="$emit('generate')"
+      class="btn btn-primary btn-generate"
+      :disabled="isGenerating"
+    >
       {{ isGenerating ? '正在生成中...' : '生成大纲' }}
     </button>
   </div>
@@ -57,9 +109,9 @@ defineProps({
     type: Boolean,
     default: false,
   },
-});
+})
 
-defineEmits(['update:modelValue', 'generate']);
+defineEmits(['update:modelValue', 'generate'])
 </script>
 
 <style scoped>

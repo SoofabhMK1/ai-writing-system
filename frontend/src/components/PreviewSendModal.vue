@@ -21,7 +21,7 @@ defineProps({
   content: String,
   confirm: Function,
   cancel: Function,
-});
+})
 </script>
 
 <style scoped>

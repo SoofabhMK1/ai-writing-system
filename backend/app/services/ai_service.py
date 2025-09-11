@@ -1,12 +1,12 @@
 # backend/app/services/ai_service.py
+import json
+from typing import AsyncGenerator, Dict, List
+
 from openai import AsyncOpenAI
+
 from app.core.security import decrypt_data
 from app.models.setting import AIModel
-from app.services.prompt_service import create_outline_generation_prompt
 
-from typing import AsyncGenerator, List, Dict
-
-import json
 
 async def generate_chat_completion(
     model_config: AIModel,
@@ -26,8 +26,8 @@ async def generate_chat_completion(
         )
         async for chunk in stream:
             delta = chunk.choices[0].delta
-            
-            reasoning_chunk = getattr(delta, 'reasoning_content', None)
+
+            reasoning_chunk = getattr(delta, "reasoning_content", None)
             if reasoning_chunk:
                 data = json.dumps({"chunk": reasoning_chunk})
                 yield f"event: reasoning\ndata: {data}\n\n"
@@ -69,9 +69,9 @@ async def generate_outline_from_config(
         )
         async for chunk in stream:
             delta = chunk.choices[0].delta
-            
+
             # Check for reasoning_content (for models like deepseek-reasoner)
-            reasoning_chunk = getattr(delta, 'reasoning_content', None)
+            reasoning_chunk = getattr(delta, "reasoning_content", None)
             if reasoning_chunk:
                 # SSE format: event name and data
                 data = json.dumps({"chunk": reasoning_chunk})

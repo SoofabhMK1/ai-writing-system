@@ -2,18 +2,23 @@
   <div class="character-list-container">
     <h2 class="list-title">Character Library</h2>
     <div v-if="characterStore.isLoading" class="loading">Loading...</div>
-    <div v-else-if="characterStore.characters.length === 0" class="no-characters">
+    <div
+      v-else-if="characterStore.characters.length === 0"
+      class="no-characters"
+    >
       No characters found. Create one to get started!
     </div>
     <div v-else class="grid">
-      <div 
-        v-for="character in characterStore.characters" 
-        :key="character.id" 
+      <div
+        v-for="character in characterStore.characters"
+        :key="character.id"
         class="character-card"
         @click="viewCharacter(character.id)"
       >
         <h3 class="character-name">{{ character.name }}</h3>
-        <p class="character-details">{{ character.age }} | {{ character.occupation }}</p>
+        <p class="character-details">
+          {{ character.age }} | {{ character.occupation }}
+        </p>
         <p class="character-intro">{{ character.brief_introduction }}</p>
       </div>
     </div>
@@ -21,19 +26,19 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useCharacterStore } from '@/store/character';
+import { onMounted } from 'vue'
+import { useCharacterStore } from '@/store/character'
 
-const emit = defineEmits(['view-character']);
-const characterStore = useCharacterStore();
+const emit = defineEmits(['view-character'])
+const characterStore = useCharacterStore()
 
 onMounted(() => {
-  characterStore.fetchCharacters();
-});
+  characterStore.fetchCharacters()
+})
 
 const viewCharacter = (id) => {
-  emit('view-character', id);
-};
+  emit('view-character', id)
+}
 </script>
 
 <style scoped>
@@ -48,7 +53,8 @@ const viewCharacter = (id) => {
   padding-bottom: var(--spacing-4);
   border-bottom: var(--border-width) solid var(--color-border);
 }
-.loading, .no-characters {
+.loading,
+.no-characters {
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--font-size-base);

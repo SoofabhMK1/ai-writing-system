@@ -1,79 +1,99 @@
 <template>
   <div class="editable-json">
     <div v-for="(value, key) in editableData" :key="key" class="json-row">
-      <input type="text" :value="key" @input="updateKey(key, $event.target.value)" class="form-control json-key-input" placeholder="Key" />
-      <input 
-        type="text" 
-        :value="formatValueForInput(value)" 
-        @change="updateValue(key, $event.target.value)" 
-        class="form-control json-value-input" 
+      <input
+        type="text"
+        :value="key"
+        @input="updateKey(key, $event.target.value)"
+        class="form-control json-key-input"
+        placeholder="Key"
+      />
+      <input
+        type="text"
+        :value="formatValueForInput(value)"
+        @change="updateValue(key, $event.target.value)"
+        class="form-control json-value-input"
         placeholder="Value"
       />
-      <button @click="removeField(key)" class="btn btn-danger remove-btn">&times;</button>
+      <button @click="removeField(key)" class="btn btn-danger remove-btn">
+        &times;
+      </button>
     </div>
     <button @click="addField" class="btn add-btn">+ 添加字段</button>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({}),
   },
-});
+})
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue'])
 
-const editableData = ref({});
+const editableData = ref({})
 
-watch(() => props.modelValue, (newValue) => {
-  // Only update from props if the data is actually different.
-  // This breaks the infinite loop.
-  if (JSON.stringify(newValue) !== JSON.stringify(editableData.value)) {
-    editableData.value = { ...newValue };
-  }
-}, { immediate: true, deep: true });
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    // Only update from props if the data is actually different.
+    // This breaks the infinite loop.
+    if (JSON.stringify(newValue) !== JSON.stringify(editableData.value)) {
+      editableData.value = { ...newValue }
+    }
+  },
+  { immediate: true, deep: true },
+)
 
-watch(editableData, (newValue) => {
-  emit('update:modelValue', newValue);
-}, { deep: true });
+watch(
+  editableData,
+  (newValue) => {
+    emit('update:modelValue', newValue)
+  },
+  { deep: true },
+)
 
 const formatValueForInput = (value) => {
-  if (Array.isArray(value) || typeof value === 'object' && value !== null) {
-    return JSON.stringify(value);
+  if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+    return JSON.stringify(value)
   }
-  return value;
-};
+  return value
+}
 
 const updateValue = (key, stringValue) => {
   try {
     // Try to parse it as JSON (for arrays/objects)
-    editableData.value[key] = JSON.parse(stringValue);
-  } catch (e) {
+    editableData.value[key] = JSON.parse(stringValue)
+  } catch {
     // If it fails, treat it as a plain string
-    editableData.value[key] = stringValue;
+    editableData.value[key] = stringValue
   }
-};
+}
 
 const addField = () => {
-  const newKey = `new_key_${Object.keys(editableData.value).length + 1}`;
-  editableData.value[newKey] = 'new_value';
-};
+  const newKey = `new_key_${Object.keys(editableData.value).length + 1}`
+  editableData.value[newKey] = 'new_value'
+}
 
 const removeField = (key) => {
-  delete editableData.value[key];
-};
+  delete editableData.value[key]
+}
 
 const updateKey = (oldKey, newKey) => {
-  if (newKey && oldKey !== newKey && !editableData.value.hasOwnProperty(newKey)) {
-    const value = editableData.value[oldKey];
-    delete editableData.value[oldKey];
-    editableData.value[newKey] = value;
+  if (
+    newKey &&
+    oldKey !== newKey &&
+    !Object.prototype.hasOwnProperty.call(editableData.value, newKey)
+  ) {
+    const value = editableData.value[oldKey]
+    delete editableData.value[oldKey]
+    editableData.value[newKey] = value
   }
-};
+}
 </script>
 
 <style scoped>

@@ -24,47 +24,47 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import projectService from '../services/projectService';
-import { useNotificationStore } from '@/store/notification.js';
+import { ref } from 'vue'
+import projectService from '../services/projectService'
+import { useNotificationStore } from '@/store/notification.js'
 
-const emit = defineEmits(['project-created', 'close']);
-const props = defineProps({
+const emit = defineEmits(['project-created', 'close'])
+defineProps({
   show: {
     type: Boolean,
     required: true,
   },
-});
+})
 
-const notification = useNotificationStore();
-const newProjectName = ref('');
-const newProjectDescription = ref('');
+const notification = useNotificationStore()
+const newProjectName = ref('')
+const newProjectDescription = ref('')
 
 const close = () => {
-  emit('close');
-};
+  emit('close')
+}
 
 const handleCreateProject = async () => {
   if (!newProjectName.value.trim()) {
-    notification.show('项目名称不能为空！', 'error');
-    return;
+    notification.show('项目名称不能为空！', 'error')
+    return
   }
   try {
     const projectData = {
       name: newProjectName.value,
       description: newProjectDescription.value,
-    };
-    const response = await projectService.createProject(projectData);
-    emit('project-created', response.data);
-    newProjectName.value = '';
-    newProjectDescription.value = '';
-    notification.show('项目创建成功！', 'success');
-    close();
+    }
+    const response = await projectService.createProject(projectData)
+    emit('project-created', response.data)
+    newProjectName.value = ''
+    newProjectDescription.value = ''
+    notification.show('项目创建成功！', 'success')
+    close()
   } catch (err) {
-    console.error(err);
-    notification.show('创建项目失败！', 'error');
+    console.error(err)
+    notification.show('创建项目失败！', 'error')
   }
-};
+}
 </script>
 
 <style scoped>

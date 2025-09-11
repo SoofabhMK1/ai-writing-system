@@ -2,9 +2,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-container">
-      <router-link to="/" class="navbar-logo">
-        AI Writer
-      </router-link>
+      <router-link to="/" class="navbar-logo"> AI Writer </router-link>
       <div class="navbar-menu">
         <router-link to="/characters" class="navbar-link">角色库</router-link>
         <router-link to="/settings" class="navbar-link">设定集</router-link>
@@ -13,8 +11,7 @@
   </nav>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 
 <style scoped>
 .navbar {
@@ -72,7 +69,10 @@
 
 .navbar-link:hover {
   color: var(--color-text);
-  background-color: var(--color-surface-hover, rgba(255, 255, 255, 0.05)); /* Fallback for hover */
+  background-color: var(
+    --color-surface-hover,
+    rgba(255, 255, 255, 0.05)
+  ); /* Fallback for hover */
 }
 
 .navbar-link.router-link-exact-active {

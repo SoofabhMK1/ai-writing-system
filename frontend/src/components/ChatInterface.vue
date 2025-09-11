@@ -4,11 +4,19 @@
       <p>Start the conversation by typing below.</p>
     </div>
     <div v-else>
-      <div v-for="(message, index) in messages" :key="index" class="message-group" :class="`role-${message.role}`">
+      <div
+        v-for="(message, index) in messages"
+        :key="index"
+        class="message-group"
+        :class="`role-${message.role}`"
+      >
         <div class="avatar">
           {{ message.role === 'user' ? 'U' : 'AI' }}
         </div>
-        <div class="message-content prose" v-html="renderMarkdown(message.content)"></div>
+        <div
+          class="message-content prose"
+          v-html="renderMarkdown(message.content)"
+        ></div>
       </div>
       <div v-if="isLoading" class="message-group role-assistant">
         <div class="avatar">AI</div>
@@ -21,36 +29,40 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useConversationStore } from '../store/conversation';
-import { marked } from 'marked';
+import { ref, watch, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useConversationStore } from '../store/conversation'
+import { marked } from 'marked'
 
-const chatContainer = ref(null);
-const conversationStore = useConversationStore();
-const { messages, isLoading } = storeToRefs(conversationStore);
+const chatContainer = ref(null)
+const conversationStore = useConversationStore()
+const { messages, isLoading } = storeToRefs(conversationStore)
 
 const renderMarkdown = (content) => {
-  return marked.parse(content || '');
-};
+  return marked.parse(content || '')
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
     if (chatContainer.value) {
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
     }
-  });
-};
+  })
+}
 
-watch(messages, () => {
-  scrollToBottom();
-}, { deep: true });
+watch(
+  messages,
+  () => {
+    scrollToBottom()
+  },
+  { deep: true },
+)
 
 watch(isLoading, (newValue) => {
   if (newValue) {
-    scrollToBottom();
+    scrollToBottom()
   }
-});
+})
 </script>
 
 <style scoped>
@@ -96,7 +108,8 @@ watch(isLoading, (newValue) => {
 .role-user .message-content {
   background-color: var(--color-primary);
   color: white;
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 var(--border-radius-lg);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0
+    var(--border-radius-lg);
   order: 1;
 }
 .role-assistant .avatar {

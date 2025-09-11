@@ -2,9 +2,7 @@
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
       <h2 class="modal-title">通过 JSON 创建角色</h2>
-      <p class="modal-description">
-        请在下方粘贴角色的 JSON 数据。
-      </p>
+      <p class="modal-description">请在下方粘贴角色的 JSON 数据。</p>
       <textarea
         v-model="jsonInput"
         class="json-textarea form-control"
@@ -30,25 +28,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useCharacterStore } from '@/store/character';
+import { ref } from 'vue'
+import { useCharacterStore } from '@/store/character'
 
-const emit = defineEmits(['close']);
-const characterStore = useCharacterStore();
-const jsonInput = ref('');
-const errorMessage = ref('');
+const emit = defineEmits(['close'])
+const characterStore = useCharacterStore()
+const jsonInput = ref('')
+const errorMessage = ref('')
 
 const saveCharacter = async () => {
   try {
-    const characterData = JSON.parse(jsonInput.value);
-    errorMessage.value = '';
-    await characterStore.createCharacter(characterData);
-    emit('close');
+    const characterData = JSON.parse(jsonInput.value)
+    errorMessage.value = ''
+    await characterStore.createCharacter(characterData)
+    emit('close')
   } catch (error) {
-    errorMessage.value = 'Invalid JSON format. Please check your input.';
-    console.error('JSON parsing error:', error);
+    errorMessage.value = 'Invalid JSON format. Please check your input.'
+    console.error('JSON parsing error:', error)
   }
-};
+}
 </script>
 
 <style scoped>

@@ -7,42 +7,48 @@
       rows="1"
       placeholder="输入消息... (Shift+Enter 换行)"
     ></textarea>
-    <button @click="handleSend" class="btn btn-primary send-button" :disabled="isLoading">
+    <button
+      @click="handleSend"
+      class="btn btn-primary send-button"
+      :disabled="isLoading"
+    >
       发送
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useConversationStore } from '../store/conversation';
+import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useConversationStore } from '../store/conversation'
 
-const prompt = ref('');
-const conversationStore = useConversationStore();
-const { promptForInput, isLoading } = storeToRefs(conversationStore);
+const prompt = ref('')
+const conversationStore = useConversationStore()
+const { promptForInput, isLoading } = storeToRefs(conversationStore)
 
 // This is a placeholder. In a real app, you'd get this from a settings store or component.
-const AI_MODEL_ID = 1; 
+const AI_MODEL_ID = 1
 
 const handleSend = async () => {
-  if (!prompt.value.trim() || isLoading.value) return;
-  
-  const messageWasSent = await conversationStore.sendMessage(prompt.value, AI_MODEL_ID);
-  
+  if (!prompt.value.trim() || isLoading.value) return
+
+  const messageWasSent = await conversationStore.sendMessage(
+    prompt.value,
+    AI_MODEL_ID,
+  )
+
   if (messageWasSent) {
-    prompt.value = '';
+    prompt.value = ''
   }
-};
+}
 
 watch(promptForInput, (newValue) => {
   if (newValue) {
-    prompt.value = newValue;
+    prompt.value = newValue
     // Reset the store value after consuming it
-    conversationStore.promptForInput = '';
+    conversationStore.promptForInput = ''
   }
-});
-
+})
 </script>
 
 <style scoped>

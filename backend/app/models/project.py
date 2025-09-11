@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text
-from app.models.base import Base
+
+from app.database import Base
+
 
 class Project(Base):
     __tablename__ = "projects"

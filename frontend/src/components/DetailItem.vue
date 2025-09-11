@@ -1,7 +1,9 @@
 <template>
   <div class="detail-item">
     <strong class="detail-label">{{ label }}:</strong>
-    <p v-if="type === 'textarea'" class="detail-value-long">{{ value || 'N/A' }}</p>
+    <p v-if="type === 'textarea'" class="detail-value-long">
+      {{ value || 'N/A' }}
+    </p>
     <span v-else class="detail-value">{{ value || 'N/A' }}</span>
   </div>
 </template>
@@ -11,7 +13,7 @@ defineProps({
   label: String,
   value: [String, Number],
   type: String,
-});
+})
 </script>
 
 <style scoped>

@@ -9,9 +9,9 @@
 </template>
 
 <script setup>
-import ConversationSidebar from '../components/ConversationSidebar.vue';
-import ChatInterface from '../components/ChatInterface.vue';
-import ChatInput from '../components/ChatInput.vue';
+import ConversationSidebar from '../components/ConversationSidebar.vue'
+import ChatInterface from '../components/ChatInterface.vue'
+import ChatInput from '../components/ChatInput.vue'
 </script>
 
 <style scoped>

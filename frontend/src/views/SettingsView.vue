@@ -5,24 +5,28 @@
     <div class="settings-nav">
       <h2 class="nav-title">设定集</h2>
       <ul>
-        <li 
-          @click="activeTab = 'worldview'" 
-          :class="{ active: activeTab === 'worldview' }">
+        <li
+          @click="activeTab = 'worldview'"
+          :class="{ active: activeTab === 'worldview' }"
+        >
           世界观设定
         </li>
-        <li 
-          @click="activeTab = 'style'" 
-          :class="{ active: activeTab === 'style' }">
+        <li
+          @click="activeTab = 'style'"
+          :class="{ active: activeTab === 'style' }"
+        >
           文风设定
         </li>
-        <li 
-          @click="activeTab = 'templates'" 
-          :class="{ active: activeTab === 'templates' }">
+        <li
+          @click="activeTab = 'templates'"
+          :class="{ active: activeTab === 'templates' }"
+        >
           AI 提示词模板
         </li>
         <li
           @click="activeTab = 'aimodels'"
-          :class="{ active: activeTab === 'aimodels' }">
+          :class="{ active: activeTab === 'aimodels' }"
+        >
           AI 模型设定
         </li>
       </ul>
@@ -39,13 +43,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import WorldviewSettings from '../components/settings/WorldviewSettings.vue';
-import WritingStyleSettings from '../components/settings/WritingStyleSettings.vue';
-import PromptTemplates from '../components/settings/PromptTemplates.vue';
-import AIModelSettings from '../components/settings/AIModelSettings.vue';
+import { ref } from 'vue'
+import WorldviewSettings from '../components/settings/WorldviewSettings.vue'
+import WritingStyleSettings from '../components/settings/WritingStyleSettings.vue'
+import PromptTemplates from '../components/settings/PromptTemplates.vue'
+import AIModelSettings from '../components/settings/AIModelSettings.vue'
 
-const activeTab = ref('worldview'); // Default active tab
+const activeTab = ref('worldview') // Default active tab
 </script>
 
 <style scoped>

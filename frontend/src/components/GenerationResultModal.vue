@@ -8,14 +8,21 @@
       </div>
       <div class="form-actions">
         <button type="button" class="btn" @click="close">关闭</button>
-        <button v-if="!isReadOnly" type="button" class="btn btn-primary" @click="save">保存</button>
+        <button
+          v-if="!isReadOnly"
+          type="button"
+          class="btn btn-primary"
+          @click="save"
+        >
+          保存
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 const props = defineProps({
   show: {
@@ -34,21 +41,21 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-});
+})
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save'])
 
 const formattedContent = computed(() => {
-  return JSON.stringify(props.content, null, 2);
-});
+  return JSON.stringify(props.content, null, 2)
+})
 
 const close = () => {
-  emit('close');
-};
+  emit('close')
+}
 
 const save = () => {
-  emit('save');
-};
+  emit('save')
+}
 </script>
 
 <style scoped>

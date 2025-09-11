@@ -1,5 +1,7 @@
-from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel, ConfigDict
+
 
 # Shared properties
 class CharacterBase(BaseModel):
@@ -13,25 +15,29 @@ class CharacterBase(BaseModel):
     background_story: Optional[Dict[str, Any]] = None
     custom_fields: Optional[Dict[str, Any]] = None
 
+
 # Properties to receive on item creation
 class CharacterCreate(CharacterBase):
     name: str
 
+
 # Properties to receive on item update
 class CharacterUpdate(CharacterBase):
     pass
+
 
 # Properties shared by models stored in DB
 class CharacterInDBBase(CharacterBase):
     id: int
     name: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 # Properties to return to client
 class Character(CharacterInDBBase):
     pass
+
 
 # Properties stored in DB
 class CharacterInDB(CharacterInDBBase):

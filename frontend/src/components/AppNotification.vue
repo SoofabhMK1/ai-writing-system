@@ -2,9 +2,9 @@
 <template>
   <div class="notification-container">
     <transition-group name="notification-fade" tag="div">
-      <div 
-        v-for="notification in notifications.items" 
-        :key="notification.id" 
+      <div
+        v-for="notification in notifications.items"
+        :key="notification.id"
         :class="['notification', `notification-${notification.type}`]"
       >
         {{ notification.message }}
@@ -14,8 +14,8 @@
 </template>
 
 <script setup>
-import { useNotificationStore } from '@/store/notification.js';
-const notifications = useNotificationStore();
+import { useNotificationStore } from '@/store/notification.js'
+const notifications = useNotificationStore()
 </script>
 
 <style scoped>

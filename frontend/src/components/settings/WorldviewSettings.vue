@@ -3,25 +3,33 @@
   <div class="setting-card">
     <div class="setting-header">
       <h3 class="setting-title">世界观设定</h3>
-      <button @click="handleAddNew" class="btn btn-primary">＋ 添加新世界观</button>
+      <button @click="handleAddNew" class="btn btn-primary">
+        ＋ 添加新世界观
+      </button>
     </div>
     <p class="setting-description">
       管理和编辑多个世界观。每个世界观都可以有详细的描述和规则，方便在不同项目中复用。
     </p>
-    
+
     <div v-if="loading" class="status-info">正在加载...</div>
     <div v-if="error" class="status-info error">{{ error }}</div>
 
     <!-- List of existing worldviews -->
     <div v-if="worldviews.length > 0" class="setting-item-list">
-      <div v-for="worldview in worldviews" :key="worldview.id" class="setting-item">
+      <div
+        v-for="worldview in worldviews"
+        :key="worldview.id"
+        class="setting-item"
+      >
         <div class="item-content">
           <h4>{{ worldview.name }}</h4>
           <p>{{ worldview.description || '暂无描述' }}</p>
         </div>
         <div class="item-actions">
           <button @click="handleEdit(worldview)" class="btn">编辑</button>
-          <button @click="handleDelete(worldview.id)" class="btn btn-danger">删除</button>
+          <button @click="handleDelete(worldview.id)" class="btn btn-danger">
+            删除
+          </button>
         </div>
       </div>
     </div>
@@ -41,107 +49,137 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { worldviewService } from '@/services/settingService';
-import { useModalStore } from '@/store/modal';
-import { useNotificationStore } from '@/store/notification';
-import SettingsFormModal from './SettingsFormModal.vue';
+import { ref, onMounted, computed } from 'vue'
+import { worldviewService } from '@/services/settingService'
+import { useModalStore } from '@/store/modal'
+import { useNotificationStore } from '@/store/notification'
+import SettingsFormModal from './SettingsFormModal.vue'
 
-const modalStore = useModalStore();
-const notification = useNotificationStore();
+const modalStore = useModalStore()
+const notification = useNotificationStore()
 
-const worldviews = ref([]);
-const loading = ref(true);
-const error = ref(null);
-const isModalOpen = ref(false);
-const currentWorldview = ref(null);
-const isEditing = ref(false);
+const worldviews = ref([])
+const loading = ref(true)
+const error = ref(null)
+const isModalOpen = ref(false)
+const currentWorldview = ref(null)
+const isEditing = ref(false)
 
-const modalTitle = computed(() => isEditing.value ? '编辑世界观' : '添加新世界观');
+const modalTitle = computed(() =>
+  isEditing.value ? '编辑世界观' : '添加新世界观',
+)
 
 const modalFields = [
   { key: 'name', label: '名称', placeholder: '例如：赛博朋克未来' },
-  { key: 'description', label: '描述', type: 'textarea', placeholder: '对这个世界观进行简短的描述' },
+  {
+    key: 'description',
+    label: '描述',
+    type: 'textarea',
+    placeholder: '对这个世界观进行简短的描述',
+  },
   { key: 'genre', label: '类型', placeholder: '例如：科幻、奇幻' },
   { key: 'time_period', label: '时代', placeholder: '例如：23世纪、中世纪' },
-  { key: 'technology_level', label: '技术水平', placeholder: '例如：信息时代、星际时代' },
-  { key: 'magic_system', label: '魔法体系', type: 'textarea', placeholder: '描述魔法的规则和特点' },
-  { key: 'additional_details', label: '额外细节 (JSON)', type: 'json', placeholder: '输入 JSON 格式的额外信息' },
-];
+  {
+    key: 'technology_level',
+    label: '技术水平',
+    placeholder: '例如：信息时代、星际时代',
+  },
+  {
+    key: 'magic_system',
+    label: '魔法体系',
+    type: 'textarea',
+    placeholder: '描述魔法的规则和特点',
+  },
+  {
+    key: 'additional_details',
+    label: '额外细节 (JSON)',
+    type: 'json',
+    placeholder: '输入 JSON 格式的额外信息',
+  },
+]
 
 const fetchWorldviews = async () => {
   try {
-    loading.value = true;
-    const response = await worldviewService.getAll();
-    worldviews.value = response.data;
+    loading.value = true
+    const response = await worldviewService.getAll()
+    worldviews.value = response.data
   } catch (err) {
-    error.value = '加载世界观失败，请稍后重试。';
-    console.error(err);
+    error.value = '加载世界观失败，请稍后重试。'
+    console.error(err)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-const openModal = () => { isModalOpen.value = true; };
-const closeModal = () => { isModalOpen.value = false; };
+const openModal = () => {
+  isModalOpen.value = true
+}
+const closeModal = () => {
+  isModalOpen.value = false
+}
 
 const handleAddNew = () => {
-  isEditing.value = false;
-  currentWorldview.value = { 
-    name: '', 
-    description: '', 
-    genre: '', 
-    time_period: '', 
-    technology_level: '', 
+  isEditing.value = false
+  currentWorldview.value = {
+    name: '',
+    description: '',
+    genre: '',
+    time_period: '',
+    technology_level: '',
     magic_system: '',
-    additional_details: {} 
-  };
-  openModal();
-};
+    additional_details: {},
+  }
+  openModal()
+}
 
 const handleEdit = (worldview) => {
-  isEditing.value = true;
-  currentWorldview.value = { ...worldview };
-  openModal();
-};
+  isEditing.value = true
+  currentWorldview.value = { ...worldview }
+  openModal()
+}
 
 const saveWorldview = async (data) => {
   try {
     if (isEditing.value) {
-      const response = await worldviewService.update(currentWorldview.value.id, data);
-      const index = worldviews.value.findIndex(w => w.id === currentWorldview.value.id);
+      const response = await worldviewService.update(
+        currentWorldview.value.id,
+        data,
+      )
+      const index = worldviews.value.findIndex(
+        (w) => w.id === currentWorldview.value.id,
+      )
       if (index !== -1) {
-        worldviews.value[index] = response.data;
+        worldviews.value[index] = response.data
       }
-      notification.show('世界观已更新', 'success');
+      notification.show('世界观已更新', 'success')
     } else {
-      const response = await worldviewService.create(data);
-      worldviews.value.unshift(response.data);
-      notification.show('世界观已创建', 'success');
+      const response = await worldviewService.create(data)
+      worldviews.value.unshift(response.data)
+      notification.show('世界观已创建', 'success')
     }
-  } catch (err) {
-    notification.show(isEditing.value ? '更新失败' : '创建失败', 'error');
+  } catch {
+    notification.show(isEditing.value ? '更新失败' : '创建失败', 'error')
   }
-};
+}
 
 const handleDelete = async (id) => {
   try {
-    await modalStore.show('确认删除', '你确定要删除这个世界观吗？');
-    await worldviewService.delete(id);
-    worldviews.value = worldviews.value.filter(w => w.id !== id);
-    notification.show('世界观已删除', 'success');
-  } catch (err) {
-    if (err.isCanceled) {
-      notification.show('删除操作已取消', 'info');
+    await modalStore.show('确认删除', '你确定要删除这个世界观吗？')
+    await worldviewService.delete(id)
+    worldviews.value = worldviews.value.filter((w) => w.id !== id)
+    notification.show('世界观已删除', 'success')
+  } catch (error) {
+    if (error.isCanceled) {
+      notification.show('删除操作已取消', 'info')
     } else {
-      notification.show('删除失败', 'error');
+      notification.show('删除失败', 'error')
     }
   }
-};
+}
 
 onMounted(() => {
-  fetchWorldviews();
-});
+  fetchWorldviews()
+})
 </script>
 
 <style scoped>

@@ -15,8 +15,8 @@
 </template>
 
 <script setup>
-import { useModalStore } from '@/store/modal.js';
-const modal = useModalStore();
+import { useModalStore } from '@/store/modal.js'
+const modal = useModalStore()
 </script>
 
 <style scoped>

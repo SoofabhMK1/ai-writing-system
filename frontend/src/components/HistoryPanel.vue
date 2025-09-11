@@ -10,8 +10,15 @@
           <small>{{ new Date(item.created_at).toLocaleString() }}</small>
         </div>
         <div class="history-item-actions">
-          <button @click="$emit('preview', item)" class="btn btn-sm">预览</button>
-          <button @click="$emit('delete', item.id)" class="btn btn-sm btn-danger">删除</button>
+          <button @click="$emit('preview', item)" class="btn btn-sm">
+            预览
+          </button>
+          <button
+            @click="$emit('delete', item.id)"
+            class="btn btn-sm btn-danger"
+          >
+            删除
+          </button>
         </div>
       </li>
     </ul>
@@ -29,9 +36,9 @@ defineProps({
     type: Boolean,
     default: false,
   },
-});
+})
 
-defineEmits(['preview', 'delete']);
+defineEmits(['preview', 'delete'])
 </script>
 
 <style scoped>
