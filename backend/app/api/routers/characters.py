@@ -31,3 +31,51 @@ def create_character(
     """
     character = crud.character.create(db=db, obj_in=character_in)
     return character
+
+
+@router.get("/{character_id}", response_model=schemas.Character)
+def read_character(
+    *,
+    db: Session = Depends(get_db),
+    character_id: int,
+) -> Any:
+    """
+    Get character by ID.
+    """
+    character = crud.character.get(db=db, id=character_id)
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
+    return character
+
+
+@router.put("/{character_id}", response_model=schemas.Character)
+def update_character(
+    *,
+    db: Session = Depends(get_db),
+    character_id: int,
+    character_in: schemas.CharacterUpdate,
+) -> Any:
+    """
+    Update a character.
+    """
+    character = crud.character.get(db=db, id=character_id)
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
+    character = crud.character.update(db=db, db_obj=character, obj_in=character_in)
+    return character
+
+
+@router.delete("/{character_id}", response_model=schemas.Character)
+def delete_character(
+    *,
+    db: Session = Depends(get_db),
+    character_id: int,
+) -> Any:
+    """
+    Delete a character.
+    """
+    character = crud.character.get(db=db, id=character_id)
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
+    character = crud.character.remove(db=db, id=character_id)
+    return character

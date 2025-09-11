@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export const useModalStore = defineStore('modal', () => {
   // State for the original ConfirmationModal
@@ -15,12 +15,25 @@ export const useModalStore = defineStore('modal', () => {
   let previewResolve = null;
   let previewReject = null;
 
+  // --- Generic Modal State ---
+  const activeModals = ref(0);
+  const isAnyModalOpen = computed(() => activeModals.value > 0);
+
+  const setActive = (isActive) => {
+    if (isActive) {
+      activeModals.value++;
+    } else {
+      activeModals.value--;
+    }
+  };
+
   // --- Methods for ConfirmationModal ---
 
   const show = (newTitle, newMessage) => {
     title.value = newTitle;
     message.value = newMessage;
     isOpen.value = true;
+    setActive(true);
 
     return new Promise((resolve, reject) => {
       resolvePromise = resolve;
@@ -33,6 +46,7 @@ export const useModalStore = defineStore('modal', () => {
       resolvePromise(true);
     }
     isOpen.value = false;
+    setActive(false);
     resetConfirmationState();
   };
 
@@ -43,6 +57,7 @@ export const useModalStore = defineStore('modal', () => {
       rejectPromise(error);
     }
     isOpen.value = false;
+    setActive(false);
     resetConfirmationState();
   };
 
@@ -56,6 +71,7 @@ export const useModalStore = defineStore('modal', () => {
   const showPreview = (content) => {
     previewContent.value = content;
     isPreviewOpen.value = true;
+    setActive(true);
 
     return new Promise((resolve, reject) => {
       previewResolve = resolve;
@@ -68,6 +84,7 @@ export const useModalStore = defineStore('modal', () => {
       previewResolve(true);
     }
     isPreviewOpen.value = false;
+    setActive(false);
     resetPreviewState();
   };
 
@@ -78,6 +95,7 @@ export const useModalStore = defineStore('modal', () => {
       previewReject(error);
     }
     isPreviewOpen.value = false;
+    setActive(false);
     resetPreviewState();
   };
 
@@ -102,5 +120,9 @@ export const useModalStore = defineStore('modal', () => {
     showPreview,
     confirmPreview,
     cancelPreview,
+
+    // For Generic Modal State
+    isAnyModalOpen,
+    setActive,
   };
 });

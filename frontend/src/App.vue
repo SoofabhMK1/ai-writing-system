@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import NavBar from './components/NavBar.vue';
 import ConfirmationModal from './components/ConfirmationModal.vue';
@@ -24,7 +25,15 @@ import PreviewSendModal from './components/PreviewSendModal.vue';
 import { useModalStore } from './store/modal';
 
 const modal = useModalStore();
-const { isPreviewOpen, previewContent } = storeToRefs(modal);
+const { isPreviewOpen, previewContent, isAnyModalOpen } = storeToRefs(modal);
+
+watch(isAnyModalOpen, (newValue) => {
+  if (newValue) {
+    document.body.classList.add('modal-open');
+  } else {
+    document.body.classList.remove('modal-open');
+  }
+});
 </script>
 
 <style>

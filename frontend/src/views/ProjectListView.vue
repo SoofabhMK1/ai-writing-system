@@ -30,7 +30,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useModalStore } from '@/store/modal';
 import CreateProjectModal from '../components/CreateProjectModal.vue';
 import ProjectList from '../components/ProjectList.vue';
 import OutlineEditor from '../components/OutlineEditor.vue';
@@ -38,6 +39,11 @@ import OutlineEditor from '../components/OutlineEditor.vue';
 const projectList = ref(null);
 const selectedProject = ref(null);
 const showCreateModal = ref(false);
+const modalStore = useModalStore();
+
+watch(showCreateModal, (newValue) => {
+  modalStore.setActive(newValue);
+});
 
 const onProjectCreated = (newProject) => {
   if (projectList.value) {

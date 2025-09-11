@@ -5,6 +5,7 @@ export const useCharacterStore = defineStore('character', {
   state: () => ({
     characters: [],
     isLoading: false,
+    selectedCharacter: null,
   }),
   actions: {
     async fetchCharacters() {
@@ -31,5 +32,34 @@ export const useCharacterStore = defineStore('character', {
         this.isLoading = false;
       }
     },
+    async fetchCharacter(id) {
+      this.isLoading = true;
+      try {
+        const response = await characterService.getCharacterById(id);
+        this.selectedCharacter = response.data;
+      } catch (error) {
+        console.error('Failed to fetch character:', error);
+        this.selectedCharacter = null;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async deleteCharacter(id) {
+      this.isLoading = true;
+      try {
+        await characterService.deleteCharacter(id);
+        this.characters = this.characters.filter(c => c.id !== id);
+        if (this.selectedCharacter && this.selectedCharacter.id === id) {
+          this.selectedCharacter = null;
+        }
+      } catch (error) {
+        console.error('Failed to delete character:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    clearSelectedCharacter() {
+      this.selectedCharacter = null;
+    }
   },
 });

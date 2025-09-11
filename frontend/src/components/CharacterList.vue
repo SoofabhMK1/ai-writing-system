@@ -6,7 +6,12 @@
       No characters found. Create one to get started!
     </div>
     <div v-else class="grid">
-      <div v-for="character in characterStore.characters" :key="character.id" class="character-card">
+      <div 
+        v-for="character in characterStore.characters" 
+        :key="character.id" 
+        class="character-card"
+        @click="viewCharacter(character.id)"
+      >
         <h3 class="character-name">{{ character.name }}</h3>
         <p class="character-details">{{ character.age }} | {{ character.occupation }}</p>
         <p class="character-intro">{{ character.brief_introduction }}</p>
@@ -19,11 +24,16 @@
 import { onMounted } from 'vue';
 import { useCharacterStore } from '@/store/character';
 
+const emit = defineEmits(['view-character']);
 const characterStore = useCharacterStore();
 
 onMounted(() => {
   characterStore.fetchCharacters();
 });
+
+const viewCharacter = (id) => {
+  emit('view-character', id);
+};
 </script>
 
 <style scoped>
@@ -52,10 +62,12 @@ onMounted(() => {
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition: box-shadow 0.3s;
+  transition: box-shadow 0.3s, transform 0.2s;
+  cursor: pointer;
 }
 .character-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
 }
 .character-name {
   font-size: 1.4rem;
