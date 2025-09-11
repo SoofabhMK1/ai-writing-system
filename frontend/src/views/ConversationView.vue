@@ -22,8 +22,8 @@ import ChatInput from '../components/ChatInput.vue'
 }
 
 .sidebar-panel {
-  width: 320px;
-  min-width: 280px;
+  width: 280px;
+  min-width: 240px;
   flex-shrink: 0;
 }
 

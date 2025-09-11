@@ -11,13 +11,13 @@ class ConversationBase(BaseModel):
 
 
 class ConversationCreate(ConversationBase):
-    project_id: int
+    project_id: Optional[int] = None
     messages: List[MessageCreate]
 
 
 class Conversation(ConversationBase):
     id: int
-    project_id: int
+    project_id: Optional[int] = None
     created_at: datetime
     messages: List[Message] = []
 

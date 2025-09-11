@@ -101,7 +101,7 @@ defineExpose({
 <style scoped>
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: var(--spacing-6);
 }
 
@@ -132,6 +132,9 @@ defineExpose({
   font-size: var(--font-size-lg);
   color: var(--color-text);
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .project-card p {

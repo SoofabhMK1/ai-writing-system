@@ -77,8 +77,8 @@ const onProjectDeleted = (deletedProjectId) => {
 }
 
 .left-panel {
-  width: 380px;
-  min-width: 320px;
+  width: 280px;
+  min-width: 240px;
   display: flex;
   flex-direction: column;
   background-color: var(--color-surface);

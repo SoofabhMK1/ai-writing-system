@@ -4,6 +4,7 @@
     <div class="navbar-container">
       <router-link to="/" class="navbar-logo"> AI Writer </router-link>
       <div class="navbar-menu">
+        <router-link to="/conversation" class="navbar-link">对话</router-link>
         <router-link to="/characters" class="navbar-link">角色库</router-link>
         <router-link to="/settings" class="navbar-link">设定集</router-link>
       </div>

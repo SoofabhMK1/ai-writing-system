@@ -7,8 +7,8 @@ const conversationService = {
     return api.post(BASE_URL + '/', conversationData)
   },
 
-  getByProject(projectId) {
-    return api.get(`${BASE_URL}/project/${projectId}`)
+  getAll() {
+    return api.get(BASE_URL + '/')
   },
 
   get(id) {

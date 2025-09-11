@@ -19,15 +19,13 @@ async def create_conversation(
     conversation = await crud.conversation.create(db=db, obj_in=conversation_in)
     return conversation
 
-@router.get("/project/{project_id}", response_model=List[schemas.Conversation])
-async def read_conversations_by_project(
-    project_id: int,
+@router.get("/", response_model=List[schemas.Conversation])
+async def read_conversations(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
         select(crud.conversation.model)
         .options(selectinload(crud.conversation.model.messages))
-        .filter(crud.conversation.model.project_id == project_id)
     )
     conversations = result.scalars().unique().all()
     return conversations

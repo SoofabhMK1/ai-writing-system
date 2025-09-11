@@ -10,19 +10,21 @@
 ### **核心工作流程 (Core Workflows)**
 
 #### **AI 对话与内容生成**
-1.  **前端 (`OutlineEditor.vue`)**: 用户在 AI 配置面板 (`GenerationConfigPanel.vue`) 中选择配置，并点击“生成大纲”按钮。
-2.  **前端 (`OutlineEditor.vue`)**: 调用 `aiGenerationService` 获取初始提示词，然后导航到独立的对话页面 (`ConversationView.vue`)，并将提示词暂存。
-3.  **前端 (`ConversationView.vue`)**: 这是一个支持多轮对话的独立页面。
-    *   左侧的 `ConversationSidebar.vue` 显示历史对话列表，并提供“使用初始 Prompt”的按钮。
-    *   用户点击按钮，初始 Prompt 被填充到 `ChatInput.vue` 中。
-4.  **前端 (`ChatInput.vue`)**: 用户确认或修改后，点击发送。
-5.  **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 被调用。
-    *   **发送前预览**: 如果用户在 `ConversationSidebar.vue` 中勾选了“发送前预览”，`conversation.js` 会调用 `modal.js` store 来弹出一个 `PreviewSendModal.vue` 模态框，显示即将发送的完整内容。
-    *   **发送请求**: 用户在预览后点击“继续”，或如果未开启预览，`sendMessage` action 会通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求，请求体中包含**完整的消息历史**。
-6.  **Nginx & 后端**: 请求通过 Nginx 转发到后端 `ai_generation.py` 路由，并调用 `ai_service.py`。
-7.  **前后端数据流**: 后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式向前端实时推送 AI 的回复。
-8.  **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 解析 SSE 流，并持续更新 `ChatInterface.vue` 中显示的 AI 回复内容。
-9.  **前端 (`ConversationSidebar.vue`)**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息）通过 `conversationService` 保存到后端数据库。
+1.  **访问**: 用户通过顶部导航栏的“对话”链接，直接进入独立的对话页面 (`ConversationView.vue`)。
+2.  **配置对话**: 在 `ConversationSidebar.vue` 中，用户可以：
+    *   选择要使用的 **AI 模型**。
+    *   （可选）选择一个“**系统前缀**”提示词模板，该模板内容会作为 `system` 角色的消息被添加到后续每次对话的最前面。
+    *   开启或关闭“**发送前预览**”功能。
+    *   浏览、加载或删除**历史对话**。
+3.  **发送消息**:
+    *   用户在 `ChatInput.vue` 中输入消息并点击发送。
+    *   `conversation.js` Pinia store 的 `sendMessage` action 被调用。
+    *   如果开启了预览，`PreviewSendModal.vue` 会弹出，显示包含系统前缀（如果已选择）和完整消息历史的最终请求内容。
+4.  **请求与响应**:
+    *   确认发送后，`sendMessage` action 通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求。请求体中包含完整的消息历史（以及系统前缀）。
+    *   后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式向前端实时推送 AI 的回复。
+    *   `conversation.js` store 解析 SSE 流，并持续更新 `ChatInterface.vue` 中显示的 AI 回复内容。
+5.  **保存对话**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息）通过 `conversationService` 保存到后端数据库。
 
 #### **角色库管理**
 1.  **访问**: 用户通过顶部导航栏的“角色库”链接，进入 `CharacterLibraryView.vue` 页面。
@@ -230,9 +232,9 @@
 *   `frontend/`: 前端应用的根目录，基于 Vue.js 3 和 Vite。
     *   `src/`: 前端应用的核心源代码目录。
         *   `components/`: 存放可复用的 Vue 组件。
-            *   `OutlineEditor.vue`: **核心工作区组件**。当用户选择一个项目后，此组件作为主界面，整合了 `GenerationConfigPanel`（AI配置）, `ProjectInfoPanel`（项目信息）和 `HistoryPanel`（历史记录）。现在，它负责**发起 AI 对话**，将用户导航到独立的对话页面。
+            *   `OutlineEditor.vue`: **核心工作区组件**。当用户选择一个项目后，此组件作为主界面，整合了 `GenerationConfigPanel`（AI配置）, `ProjectInfoPanel`（项目信息）和 `HistoryPanel`（历史记录）。
             *   **对话页面组件**:
-                *   `ConversationSidebar.vue`: 对话页面的左侧边栏，用于管理和导航对话历史。现在还包含一个**“发送前预览”的切换开关**。
+                *   `ConversationSidebar.vue`: 对话页面的左侧边栏，用于管理和导航对话历史。现在还包含 **AI 模型选择**、**系统前缀选择**、**发送前预览开关**和**可折叠的历史对话列表**。
                 *   `ChatInterface.vue`: 对话页面的核心区域，用于展示用户与 AI 之间的消息。
                 *   `ChatInput.vue`: 对话页面的底部输入区域，包含文本输入框和发送按钮。
             *   `GenerationConfigPanel.vue`: 左侧的AI生成配置面板。
@@ -257,10 +259,11 @@
         *   `store/`: 存放 Pinia 的全局状态管理模块。
             *   `modal.js`: 管理全局模态框的状态和逻辑，现在支持**多种类型的模态框**（如 `ConfirmationModal` 和 `PreviewSendModal`）。
             *   `notification.js`, `prompt.js`: 分别管理通知和输入提示框的状态。
-            *   `conversation.js`: 负责管理当前对话的状态，包括消息历史、加载状态，并处理与后端的流式通信。现在还包含**触发发送前预览的核心逻辑**。
+            *   `conversation.js`: 负责管理当前对话的状态，包括消息历史、加载状态、选中的AI模型和系统前缀，并处理与后端的流式通信及发送前预览逻辑。
         *   `views/`: 存放页面级别的 Vue 组件。
-            *   `ProjectListView.vue`: **项目列表页**。此页面是应用的主要入口和工作区，采用双栏布局，左侧是项目列表 (`ProjectList.vue`)，右侧是选中项目的工作区 (`OutlineEditor.vue`)。
-            *   `ConversationView.vue`: **对话页面**。一个独立的、支持多轮对话的 AI 交互界面，包含对话历史侧边栏和主聊天窗口。
+            *   `ProjectListView.vue`: **项目列表页**。此页面是应用的主要入口，展示所有项目。
+            *   `ProjectDetailView.vue`: **项目详情页**。当用户从列表页选择一个项目后进入此页面，采用双栏布局，左侧是项目列表 (`ProjectList.vue`)，右侧是选中项目的工作区 (`OutlineEditor.vue`)。
+            *   `ConversationView.vue`: **独立的对话页面**。一个支持多轮对话的 AI 交互界面，包含功能丰富的侧边栏和主聊天窗口。
             *   `SettingsView.vue`: 应用的设置页面，允许用户管理AI模型、世界观、文风等。
         *   `App.vue`: Vue 应用的根组件，是所有页面的容器。
         *   `main.js`: 前端应用的入口文件，负责初始化Vue实例、Pinia和Vue Router。

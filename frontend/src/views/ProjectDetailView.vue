@@ -186,14 +186,23 @@ onMounted(() => {
 
 <style scoped>
 .project-detail-layout {
-  display: grid;
-  grid-template-columns: 400px 1fr;
+  display: flex;
   gap: var(--spacing-8);
   height: 100%;
 }
 
-.outline-panel,
+.outline-panel {
+  width: 280px;
+  min-width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
 .content-panel {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   height: 100%;

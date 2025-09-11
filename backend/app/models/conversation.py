@@ -11,7 +11,7 @@ class Conversation(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     project_id = Column(
-        Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=True
     )
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

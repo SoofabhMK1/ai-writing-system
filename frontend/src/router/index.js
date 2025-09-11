@@ -17,7 +17,7 @@ const routes = [
     component: ProjectDetailView,
   },
   {
-    path: '/projects/:projectId/conversation/:conversationId?',
+    path: '/conversation/:conversationId?',
     name: 'Conversation',
     component: ConversationView,
     props: true,

@@ -8,7 +8,6 @@
         :writing-styles="writingStyles"
         :ai-models="aiModels"
         :is-generating="isGenerating"
-        @generate="handleGenerate"
       />
 
       <div class="right-panel">
@@ -37,18 +36,15 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   worldviewService,
   writingStyleService,
   generatedOutlineService,
   aiModelService,
-  aiGenerationService,
 } from '@/services/settingService'
 import projectService from '@/services/projectService'
 import { useNotificationStore } from '@/store/notification'
 import { useModalStore } from '@/store/modal'
-import { useConversationStore } from '@/store/conversation'
 import GenerationResultModal from './GenerationResultModal.vue'
 import GenerationConfigPanel from './GenerationConfigPanel.vue'
 import ProjectInfoPanel from './ProjectInfoPanel.vue'
@@ -56,8 +52,6 @@ import HistoryPanel from './HistoryPanel.vue'
 
 const notification = useNotificationStore()
 const modal = useModalStore()
-const router = useRouter()
-const conversationStore = useConversationStore()
 
 const props = defineProps({
   project: {
@@ -152,37 +146,6 @@ const updateProject = async () => {
   } catch (error) {
     console.error('Failed to update project:', error)
     notification.show('项目信息保存失败', 'error')
-  }
-}
-
-const handleGenerate = async () => {
-  if (!generationConfig.value.ai_model_id) {
-    notification.show('请先选择一个 AI 模型', 'error')
-    return
-  }
-  if (!editableProject.value.core_concept) {
-    notification.show('请先填写核心构想', 'error')
-    return
-  }
-
-  try {
-    const requestBody = {
-      project_id: props.project.id,
-      ...generationConfig.value,
-    }
-    const response = await aiGenerationService.getInitialPrompt(requestBody)
-    const initialPrompt = response.data
-
-    conversationStore.startNewConversation()
-    conversationStore.setCachedInitialPrompt(initialPrompt)
-
-    router.push({
-      name: 'Conversation',
-      params: { projectId: props.project.id },
-    })
-  } catch (error) {
-    notification.show('获取 Prompt 失败', 'error')
-    console.error('Failed to get initial prompt:', error)
   }
 }
 

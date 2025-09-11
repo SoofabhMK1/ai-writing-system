@@ -11,6 +11,8 @@ export const useConversationStore = defineStore('conversation', () => {
   const cachedInitialPrompt = ref('')
   const promptForInput = ref('')
   const previewBeforeSending = ref(false)
+  const selectedAiModel = ref(null)
+  const selectedSystemPrefix = ref(null)
 
   const modal = useModalStore()
 
@@ -30,15 +32,18 @@ export const useConversationStore = defineStore('conversation', () => {
     const assistantMessage = { role: 'assistant', content: '' }
     messages.value.push(assistantMessage)
 
+    const messagesToSend = [...messages.value.slice(0, -1)]
+    if (selectedSystemPrefix.value) {
+      messagesToSend.unshift({ role: 'system', content: selectedSystemPrefix.value })
+    }
+
     try {
       const res = await fetch('/api/v1/ai/chat-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ai_model_id: aiModelId,
-          messages: messages.value
-            .slice(0, -1)
-            .map(({ role, content }) => ({ role, content })),
+          messages: messagesToSend.map(({ role, content }) => ({ role, content })),
         }),
       })
 
@@ -85,8 +90,12 @@ export const useConversationStore = defineStore('conversation', () => {
 
     if (previewBeforeSending.value) {
       try {
+        const messagesToSend = [...messages.value, userMessage]
+        if (selectedSystemPrefix.value) {
+          messagesToSend.unshift({ role: 'system', content: selectedSystemPrefix.value })
+        }
         // Construct the full content to be sent
-        const fullContent = [...messages.value, userMessage]
+        const fullContent = messagesToSend
           .map((m) => `## ${m.role}\n\n${m.content}`)
           .join('\n\n---\n\n')
 
@@ -113,9 +122,9 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  async function loadConversationHistory(projectId) {
+  async function loadConversationHistory() {
     try {
-      const response = await conversationService.getByProject(projectId)
+      const response = await conversationService.getAll()
       historyList.value = response.data
     } catch (error) {
       console.error('Failed to load conversation history:', error)
@@ -132,11 +141,10 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  async function saveCurrentConversation(projectId) {
+  async function saveCurrentConversation() {
     if (!messages.value.length) return
 
     const conversationData = {
-      project_id: projectId,
       title: messages.value[0].content.substring(0, 50),
       messages: messages.value.map(({ role, content }) => ({ role, content })),
     }
@@ -152,7 +160,7 @@ export const useConversationStore = defineStore('conversation', () => {
         response = await conversationService.create(conversationData)
       }
       currentConversationId.value = response.data.id
-      await loadConversationHistory(projectId)
+      await loadConversationHistory()
     } catch (error) {
       console.error('Failed to save conversation:', error)
     }
@@ -185,6 +193,8 @@ export const useConversationStore = defineStore('conversation', () => {
     cachedInitialPrompt,
     promptForInput,
     previewBeforeSending,
+    selectedAiModel,
+    selectedSystemPrefix,
     setCachedInitialPrompt,
     fillInputWithCachedPrompt,
     sendMessage,

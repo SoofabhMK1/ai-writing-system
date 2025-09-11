@@ -24,17 +24,16 @@ import { useConversationStore } from '../store/conversation'
 
 const prompt = ref('')
 const conversationStore = useConversationStore()
-const { promptForInput, isLoading } = storeToRefs(conversationStore)
-
-// This is a placeholder. In a real app, you'd get this from a settings store or component.
-const AI_MODEL_ID = 1
+const { promptForInput, isLoading, selectedAiModel } = storeToRefs(
+  conversationStore,
+)
 
 const handleSend = async () => {
   if (!prompt.value.trim() || isLoading.value) return
 
   const messageWasSent = await conversationStore.sendMessage(
     prompt.value,
-    AI_MODEL_ID,
+    selectedAiModel.value,
   )
 
   if (messageWasSent) {
