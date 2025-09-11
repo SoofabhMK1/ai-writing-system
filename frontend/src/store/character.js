@@ -58,6 +58,27 @@ export const useCharacterStore = defineStore('character', {
         this.isLoading = false;
       }
     },
+    async updateCharacter({ id, data }) {
+      this.isLoading = true;
+      try {
+        const response = await characterService.updateCharacter(id, data);
+        // Update the selected character details
+        this.selectedCharacter = response.data;
+        // Update the character in the list
+        const index = this.characters.findIndex(c => c.id === id);
+        if (index !== -1) {
+          this.characters[index] = response.data;
+        }
+      } catch (error) {
+        console.error('Failed to update character:', error);
+        // Optionally, re-fetch the original data to revert changes on failure
+        if (this.selectedCharacter && this.selectedCharacter.id === id) {
+          this.fetchCharacter(id);
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
     clearSelectedCharacter() {
       this.selectedCharacter = null;
     }
