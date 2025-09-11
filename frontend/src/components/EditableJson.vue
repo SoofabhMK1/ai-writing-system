@@ -2,7 +2,12 @@
   <div class="editable-json">
     <div v-for="(value, key) in editableData" :key="key" class="json-row">
       <input type="text" :value="key" @input="updateKey(key, $event.target.value)" class="json-key-input" />
-      <input type="text" :value="value" @input="editableData[key] = $event.target.value" class="json-value-input" />
+      <input 
+        type="text" 
+        :value="formatValueForInput(value)" 
+        @change="updateValue(key, $event.target.value)" 
+        class="json-value-input" 
+      />
       <button @click="removeField(key)" class="remove-btn">&times;</button>
     </div>
     <button @click="addField" class="add-btn">+ Add Field</button>
@@ -34,6 +39,23 @@ watch(() => props.modelValue, (newValue) => {
 watch(editableData, (newValue) => {
   emit('update:modelValue', newValue);
 }, { deep: true });
+
+const formatValueForInput = (value) => {
+  if (Array.isArray(value) || typeof value === 'object' && value !== null) {
+    return JSON.stringify(value);
+  }
+  return value;
+};
+
+const updateValue = (key, stringValue) => {
+  try {
+    // Try to parse it as JSON (for arrays/objects)
+    editableData.value[key] = JSON.parse(stringValue);
+  } catch (e) {
+    // If it fails, treat it as a plain string
+    editableData.value[key] = stringValue;
+  }
+};
 
 const addField = () => {
   const newKey = `new_key_${Object.keys(editableData.value).length + 1}`;

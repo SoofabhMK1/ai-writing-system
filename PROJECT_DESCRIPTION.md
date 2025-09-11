@@ -1,15 +1,15 @@
----
 ### **项目概览 (Project Overview)**
 *   **项目名称**: ai-writing-system
-*   **核心目标**: 一个AI辅助写作系统，提供从项目创建、大纲编辑到AI生成内容的全流程支持。
+*   **核心目标**: 一个AI辅助写作系统，提供从项目创建、大纲编辑、角色管理到AI生成内容的全流程支持。
 *   **技术栈**: 
     *   **后端**: Python, FastAPI, SQLAlchemy, PostgreSQL, Alembic, Pydantic, Uvicorn, OpenAI API
     *   **前端**: Vue.js 3, Vite, Vue Router, Pinia, Axios
     *   **容器化**: Docker, Docker Compose, Nginx
 *   **项目架构**: 前后端分离架构。前端是Vue.js单页应用（SPA），后端是FastAPI提供RESTful API。通过Docker Compose统一编排和部署，其中Nginx作为前端静态文件的Web服务器和后端的反向代理。
 
-### **核心工作流程 (Core Workflow)**
-以“AI 对话与内容生成”功能为例，数据流如下：
+### **核心工作流程 (Core Workflows)**
+
+#### **AI 对话与内容生成**
 1.  **前端 (`OutlineEditor.vue`)**: 用户在 AI 配置面板 (`GenerationConfigPanel.vue`) 中选择配置，并点击“生成大纲”按钮。
 2.  **前端 (`OutlineEditor.vue`)**: 调用 `aiGenerationService` 获取初始提示词，然后导航到独立的对话页面 (`ConversationView.vue`)，并将提示词暂存。
 3.  **前端 (`ConversationView.vue`)**: 这是一个支持多轮对话的独立页面。
@@ -17,17 +17,50 @@
     *   用户点击按钮，初始 Prompt 被填充到 `ChatInput.vue` 中。
 4.  **前端 (`ChatInput.vue`)**: 用户确认或修改后，点击发送。
 5.  **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 被调用。
-    *   **（新功能）发送前预览**: 如果用户在 `ConversationSidebar.vue` 中勾选了“发送前预览”，`conversation.js` 会调用 `modal.js` store 来弹出一个 `PreviewSendModal.vue` 模态框，显示即将发送的完整内容。
+    *   **发送前预览**: 如果用户在 `ConversationSidebar.vue` 中勾选了“发送前预览”，`conversation.js` 会调用 `modal.js` store 来弹出一个 `PreviewSendModal.vue` 模态框，显示即将发送的完整内容。
     *   **发送请求**: 用户在预览后点击“继续”，或如果未开启预览，`sendMessage` action 会通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求，请求体中包含**完整的消息历史**。
-6.  **Nginx**: 作为反向代理，将请求无缝转发到 `backend` 服务。
-7.  **后端 (`api/routers/ai_generation.py`)**: 新的 `chat-stream` 路由接收到请求，并调用 `ai_service`。
-8.  **后端 (`services/ai_service.py`)**: `generate_chat_completion` 服务接收消息历史，并向 AI 模型发出流式请求。
-9.  **前后端数据流**: 后端通过 `StreamingResponse` 以**服务器发送事件 (Server-Sent Events, SSE)** 的格式向前端实时推送 AI 的回复。
-10. **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 解析 SSE 流，并持续更新 `ChatInterface.vue` 中显示的 AI 回复内容。
-11. **前端 (`ConversationSidebar.vue`)**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息）通过 `conversationService` 保存到后端数据库。
+6.  **Nginx & 后端**: 请求通过 Nginx 转发到后端 `ai_generation.py` 路由，并调用 `ai_service.py`。
+7.  **前后端数据流**: 后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式向前端实时推送 AI 的回复。
+8.  **前端 (`conversation.js` Pinia Store)**: `sendMessage` action 解析 SSE 流，并持续更新 `ChatInterface.vue` 中显示的 AI 回复内容。
+9.  **前端 (`ConversationSidebar.vue`)**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息）通过 `conversationService` 保存到后端数据库。
+
+#### **角色库管理**
+1.  **访问**: 用户通过顶部导航栏的“角色库”链接，进入 `CharacterLibraryView.vue` 页面。
+2.  **创建角色**:
+    *   用户点击左侧的“创建新角色”按钮，会弹出一个 `CreateCharacterModal.vue` 模态框。
+    *   用户在模态框的文本域中输入或粘贴 JSON 格式的角色数据，点击保存。
+    *   前端通过 `characterService` 向后端的 `POST /api/v1/characters/` 发送请求。
+3.  **查看与删除**:
+    *   `CharacterList.vue` 以卡片形式展示所有角色。
+    *   点击任意角色卡片，会弹出 `CharacterDetailModal.vue`，其中使用 Tab 布局展示角色的详细信息。
+    *   在详情模态框中，用户可以点击“删除”按钮，并通过一个二次确认弹窗 (`ConfirmationModal.vue`) 来最终删除角色。
+4.  **更新角色**:
+    *   在详情模态框中，用户点击“更新”按钮，界面会切换到“编辑模式”。
+    *   在编辑模式下，所有字段都变为可编辑状态，包括可以动态增删键值对的 JSON 字段。
+    *   保存后，前端通过 `characterService` 向后端的 `PUT /api/v1/characters/{id}` 发送请求。
+
+### **架构亮点与设计模式**
+
+#### **后端**
+1.  **智能化的 `CRUDBase`**:
+    *   **位置**: `app/crud/base.py`
+    *   **设计**: 通用的 `CRUDBase` 中的 `update` 方法被重构，使其能够**自动检测**目标列的类型。当更新一个 **JSONB** 类型的字段时，它会自动执行**合并（Merge）**操作，而不是简单地覆盖。
+    *   **价值**: 极大地提升了代码的复用性。任何需要对 JSONB 字段进行部分更新的 CRUD 服务，都无需重写 `update` 方法，直接继承 `CRUDBase` 即可获得此能力。
+2.  **声明式的 API 依赖项**:
+    *   **位置**: `app/api/routers/characters.py`
+    *   **设计**: 使用 FastAPI 的依赖注入系统，创建了 `get_character_or_404` 这样的可复用依赖项。
+    *   **价值**: 将“根据 ID 获取对象，如果不存在则抛出 404 异常”的重复逻辑进行封装，使 API 路由函数更简洁、更具声明性，提升了代码的可读性和可维护性。
+
+#### **前端**
+1.  **单一职责的组件设计**:
+    *   **示例**: 复杂的 `CharacterDetailModal.vue` 被拆分为 `CharacterDetailDisplay.vue` (只读显示) 和 `CharacterDetailEdit.vue` (编辑表单) 两个职责单一的子组件。
+    *   **价值**: 遵循了“单一职责原则”，使得每个组件的代码都更少、更易于理解和维护。
+2.  **全局滚动锁定机制**:
+    *   **问题**: 解决了在显示模态框时，背景页面仍然可以滚动的“滚动穿透”问题。
+    *   **设计**: 通过扩展 `store/modal.js` 增加一个全局模态框计数器，并在根组件 `App.vue` 中 `watch` 这个状态，动态地为 `<body>` 添加或移除一个 `overflow: hidden` 的 CSS 类。
+    *   **价值**: 提供了一个优雅、集中且可扩展的全局 UI 问题解决方案。任何模态框（无论是全局还是局部），只需上报其状态给 `modalStore`，即可自动被纳入滚动锁定管理。
 
 ### **文件结构与核心职责 (File Structure & Core Responsibilities)**
-这是一个对大语言模型友好的项目文件结构树。在未来进行代码修改时，请务必参考此结构以理解各部分的功能和相互关系。
 
 ```plaintext
 .
@@ -48,6 +81,7 @@
 │       │   ├── __init__.py
 │       │   └── routers/
 │       │       ├── ai_generation.py
+│       │       ├── characters.py
 │       │       ├── conversations.py
 │       │       ├── outline_nodes.py
 │       │       ├── projects.py
@@ -58,6 +92,7 @@
 │       ├── crud/
 │       │   ├── __init__.py
 │       │   ├── base.py
+│       │   ├── crud_character.py
 │       │   ├── crud_conversation.py
 │       │   ├── crud_message.py
 │       │   ├── crud_outline_node.py
@@ -66,6 +101,7 @@
 │       ├── models/
 │       │   ├── __init__.py
 │       │   ├── base.py
+│       │   ├── character.py
 │       │   ├── conversation.py
 │       │   ├── message.py
 │       │   ├── outline_node.py
@@ -73,6 +109,7 @@
 │       │   └── setting.py
 │       ├── schemas/
 │       │   ├── __init__.py
+│       │   ├── character.py
 │       │   ├── conversation.py
 │       │   ├── message.py
 │       │   ├── outline_node.py
@@ -92,38 +129,57 @@
         ├── App.vue
         ├── main.js
         ├── style.css
+        ├── assets/
+        │   └── vue.svg
         ├── components/
-│   ├── ChatInput.vue
-│   ├── ChatInterface.vue
-│   ├── ConfirmationModal.vue
-│   ├── ConversationSidebar.vue
-│   ├── CreateProjectModal.vue
-│   ├── PreviewSendModal.vue
+        │   ├── CharacterDetailDisplay.vue
+        │   ├── CharacterDetailEdit.vue
+        │   ├── CharacterDetailModal.vue
+        │   ├── CharacterList.vue
+        │   ├── ChatInput.vue
+        │   ├── ChatInterface.vue
+        │   ├── ConfirmationModal.vue
+        │   ├── ConversationSidebar.vue
+        │   ├── CreateCharacterModal.vue
+        │   ├── CreateProjectModal.vue
+        │   ├── DetailItem.vue
+        │   ├── EditableField.vue
+        │   ├── EditableJson.vue
         │   ├── GenerationConfigPanel.vue
         │   ├── GenerationResultModal.vue
         │   ├── HistoryPanel.vue
+        │   ├── JsonViewer.vue
         │   ├── NavBar.vue
         │   ├── Notification.vue
         │   ├── OutlineEditor.vue
         │   ├── OutlineNodeItem.vue
+        │   ├── PreviewSendModal.vue
         │   ├── ProjectInfoPanel.vue
         │   ├── ProjectList.vue
         │   ├── PromptModal.vue
         │   └── settings/
+        │       ├── AIModelSettings.vue
+        │       ├── PromptTemplates.vue
+        │       ├── SettingsFormModal.vue
+        │       ├── WorldviewSettings.vue
+        │       └── WritingStyleSettings.vue
         ├── router/
         │   └── index.js
         ├── services/
         │   ├── api.js
+        │   ├── characterService.js
         │   ├── conversationService.js
         │   ├── outlineNodeService.js
         │   ├── projectService.js
         │   └── settingService.js
         ├── store/
+        │   ├── character.js
         │   ├── conversation.js
         │   ├── modal.js
         │   ├── notification.js
         │   └── prompt.js
         └── views/
+            ├── CharacterLibraryView.vue
             ├── ConversationView.vue
             ├── ProjectDetailView.vue
             ├── ProjectListView.vue
@@ -182,7 +238,7 @@
             *   `NavBar.vue`: 应用顶部的导航栏。
             *   **模态框组件**:
                 *   `ConfirmationModal.vue`: 通用的二次确认模态框。
-                *   `PreviewSendModal.vue`: **（新增）** 用于在发送前向用户展示完整请求内容的模态框。
+                *   `PreviewSendModal.vue`: 用于在发送前向用户展示完整请求内容的模态框。
                 *   `CreateProjectModal.vue`: 创建新项目的模态框。
                 *   `GenerationResultModal.vue`: 用于预览历史版本大纲的模态框。
                 *   `PromptModal.vue`: 通用的、需要用户输入的提示框。
@@ -214,4 +270,3 @@
 *   `.env`: 存储环境变量，如数据库连接信息、用于加密的 `SECRET_KEY` 等。**此文件不应提交到版本控制中。**
 *   `docker-compose.yml`: Docker Compose 编排文件，定义并统一管理 `db` (PostgreSQL), `backend` (FastAPI), 和 `frontend` (Nginx) 三个服务，实现一键启动整个应用。
 *   `.gitignore`: 定义了 Git 应忽略的文件和目录，如 `node_modules`, `__pycache__`, `.env` 等。
----

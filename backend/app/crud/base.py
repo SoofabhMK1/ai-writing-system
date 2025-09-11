@@ -1,6 +1,8 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import inspect
+from sqlalchemy.dialects.postgresql import JSONB
 from app.database import Base
 
 ModelType = TypeVar("ModelType", bound=Base) # type: ignore
@@ -38,10 +40,21 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             update_data = obj_in
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
-            
-        for field in update_data:
+
+        for field, value in update_data.items():
             if hasattr(db_obj, field):
-                setattr(db_obj, field, update_data[field])
+                # Check if the column type is JSONB
+                column_type = inspect(self.model).columns[field].type
+                current_value = getattr(db_obj, field)
+                
+                if isinstance(column_type, JSONB) and isinstance(current_value, dict) and isinstance(value, dict):
+                    # Merge JSONB fields
+                    merged_value = current_value.copy()
+                    merged_value.update(value)
+                    setattr(db_obj, field, merged_value)
+                else:
+                    # Otherwise, just overwrite
+                    setattr(db_obj, field, value)
                 
         db.add(db_obj)
         db.commit()

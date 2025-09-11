@@ -7,6 +7,12 @@ from app.database import get_db
 
 router = APIRouter()
 
+def get_character_or_404(character_id: int, db: Session = Depends(get_db)) -> models.Character:
+    character = crud.character.get(db=db, id=character_id)
+    if not character:
+        raise HTTPException(status_code=404, detail="Character not found")
+    return character
+
 @router.get("/", response_model=List[schemas.Character])
 def read_characters(
     db: Session = Depends(get_db),
@@ -36,15 +42,11 @@ def create_character(
 @router.get("/{character_id}", response_model=schemas.Character)
 def read_character(
     *,
-    db: Session = Depends(get_db),
-    character_id: int,
+    character: models.Character = Depends(get_character_or_404),
 ) -> Any:
     """
     Get character by ID.
     """
-    character = crud.character.get(db=db, id=character_id)
-    if not character:
-        raise HTTPException(status_code=404, detail="Character not found")
     return character
 
 
@@ -52,15 +54,12 @@ def read_character(
 def update_character(
     *,
     db: Session = Depends(get_db),
-    character_id: int,
+    character: models.Character = Depends(get_character_or_404),
     character_in: schemas.CharacterUpdate,
 ) -> Any:
     """
     Update a character.
     """
-    character = crud.character.get(db=db, id=character_id)
-    if not character:
-        raise HTTPException(status_code=404, detail="Character not found")
     character = crud.character.update(db=db, db_obj=character, obj_in=character_in)
     return character
 
@@ -69,13 +68,10 @@ def update_character(
 def delete_character(
     *,
     db: Session = Depends(get_db),
-    character_id: int,
+    character: models.Character = Depends(get_character_or_404),
 ) -> Any:
     """
     Delete a character.
     """
-    character = crud.character.get(db=db, id=character_id)
-    if not character:
-        raise HTTPException(status_code=404, detail="Character not found")
-    character = crud.character.remove(db=db, id=character_id)
+    character = crud.character.remove(db=db, id=character.id)
     return character
