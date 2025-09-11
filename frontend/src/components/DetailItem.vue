@@ -15,8 +15,28 @@ defineProps({
 </script>
 
 <style scoped>
-.detail-item { margin-bottom: 15px; line-height: 1.6; }
-.detail-label { font-weight: 600; color: #333; margin-right: 10px; }
-.detail-value { color: #555; }
-.detail-value-long { background: #f9f9f9; border-radius: 6px; padding: 10px; margin-top: 5px; white-space: pre-wrap; word-break: break-word; }
+.detail-item {
+  margin-bottom: var(--spacing-5);
+  line-height: 1.6;
+  font-size: var(--font-size-base);
+}
+.detail-label {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-right: var(--spacing-2);
+}
+.detail-value {
+  color: var(--color-text-muted);
+}
+.detail-value-long {
+  display: block;
+  background: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-top: var(--spacing-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text-muted);
+  border: var(--border-width) solid var(--color-border);
+}
 </style>

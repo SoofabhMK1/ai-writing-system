@@ -12,6 +12,7 @@
             v-model="editableData[field.key]"
             type="text"
             :placeholder="field.placeholder || ''"
+            class="form-control"
           />
           <textarea
             v-if="field.type === 'textarea'"
@@ -19,6 +20,7 @@
             v-model="editableData[field.key]"
             :placeholder="field.placeholder || ''"
             rows="4"
+            class="form-control"
           ></textarea>
           <textarea
             v-if="field.type === 'json'"
@@ -28,14 +30,15 @@
             :class="{ 'invalid-json': jsonErrorField === field.key }"
             :placeholder="field.placeholder || 'Enter valid JSON'"
             rows="6"
+            class="form-control"
           ></textarea>
           <p v-if="jsonErrorField === field.key" class="json-error-message">
             JSON 格式无效
           </p>
         </div>
         <div class="form-actions">
-          <button type="button" class="btn-cancel" @click="close">取消</button>
-          <button type="submit" class="btn-save">保存</button>
+          <button type="button" class="btn" @click="close">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
         </div>
       </form>
     </div>
@@ -114,120 +117,101 @@ const handleSubmit = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050;
 }
 
 .modal-card {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background-color: var(--color-surface);
+  padding: var(--spacing-8);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  border: var(--border-width) solid var(--color-border);
 }
 
 .modal-card h3 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  font-weight: 500;
+  margin: 0 0 var(--spacing-6) 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text);
   text-align: center;
 }
 
 .form-content {
   overflow-y: auto;
-  padding-right: 1rem; /* For scrollbar */
-  margin-right: -1rem;
+  padding-right: var(--spacing-4);
+  margin-right: calc(-1 * var(--spacing-4));
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-5);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-2);
   font-weight: 500;
-  color: #333;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
 }
 
-.form-group input,
-.form-group textarea {
+.form-control {
   width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: var(--transition-base);
   box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.form-control:focus {
   outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.2);
 }
 
-.form-group textarea {
+textarea.form-control {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+textarea.form-control[rows="6"] {
+  min-height: 180px;
   font-family: 'Courier New', Courier, monospace;
 }
 
 .invalid-json {
-  border-color: #e94b3c;
-  box-shadow: 0 0 0 3px rgba(233, 75, 60, 0.2);
+  border-color: var(--color-danger);
+}
+
+.invalid-json:focus {
+  box-shadow: 0 0 0 3px rgba(var(--color-danger), 0.2);
 }
 
 .json-error-message {
-  color: #e94b3c;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-2);
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.btn-save, .btn-cancel {
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn-save {
-  background-color: #4a90e2;
-  color: white;
-}
-
-.btn-save:hover {
-  background-color: #357abd;
-  transform: translateY(-2px);
-}
-
-.btn-cancel {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.btn-cancel:hover {
-  background-color: #e0e0e0;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-6);
+  border-top: var(--border-width) solid var(--color-border);
 }
 </style>

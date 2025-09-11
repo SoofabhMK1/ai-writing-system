@@ -39,6 +39,18 @@ defineProps({
 </script>
 
 <style scoped>
-.tab-content { padding: 30px; overflow-y: auto; flex-grow: 1; }
-.json-subtitle { font-size: 1.2rem; font-weight: 600; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+.tab-content {
+  padding: var(--spacing-8);
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.json-subtitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-top: var(--spacing-8);
+  margin-bottom: var(--spacing-4);
+  padding-bottom: var(--spacing-2);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
 </style>

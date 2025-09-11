@@ -4,11 +4,11 @@
       v-model="prompt"
       @keydown.enter.exact.prevent="handleSend"
       class="chat-textarea"
-      rows="3"
-      placeholder="Type your message... (Shift+Enter for new line)"
+      rows="1"
+      placeholder="输入消息... (Shift+Enter 换行)"
     ></textarea>
-    <button @click="handleSend" class="send-button" :disabled="isLoading">
-      Send
+    <button @click="handleSend" class="btn btn-primary send-button" :disabled="isLoading">
+      发送
     </button>
   </div>
 </template>
@@ -48,39 +48,34 @@ watch(promptForInput, (newValue) => {
 <style scoped>
 .chat-input-area {
   flex-shrink: 0;
-  padding: 1rem;
-  background-color: #f1f3f5;
-  border-top: 1px solid #e0e0e0;
+  padding: var(--spacing-4);
+  background-color: var(--color-background);
+  border-top: var(--border-width) solid var(--color-border);
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-end;
+  gap: var(--spacing-4);
 }
 .chat-textarea {
   flex-grow: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
   font-family: inherit;
+  background-color: var(--color-surface);
+  color: var(--color-text);
   resize: none;
-  overflow-y: auto; /* Show scrollbar when content overflows */
-  max-height: 150px; /* Limit max height */
+  overflow-y: auto;
+  max-height: 200px;
+  line-height: 1.5;
+  transition: var(--transition-base);
+}
+.chat-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.2);
 }
 .send-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  background-color: #4a90e2;
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.send-button:hover {
-  background-color: #357abd;
-}
-.send-button:disabled {
-  background-color: #a0c7e8;
-  cursor: not-allowed;
+  flex-shrink: 0;
 }
 </style>

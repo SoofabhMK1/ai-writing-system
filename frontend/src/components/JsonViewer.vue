@@ -22,13 +22,14 @@ const formattedJson = computed(() => {
 
 <style scoped>
 .json-viewer {
-  background: #f4f4f4;
-  border-radius: 6px;
-  padding: 15px;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  padding: var(--spacing-4);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width) solid var(--color-border);
   white-space: pre-wrap;
   word-break: break-word;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9rem;
-  border: 1px solid #e0e0e0;
+  font-size: var(--font-size-sm);
 }
 </style>

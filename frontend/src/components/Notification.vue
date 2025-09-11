@@ -21,43 +21,49 @@ const notifications = useNotificationStore();
 <style scoped>
 .notification-container {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: var(--spacing-8);
+  right: var(--spacing-8);
   z-index: 2000;
-  width: 320px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
 }
 
 .notification {
-  background-color: #fff;
-  color: #fff;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  padding: var(--spacing-4) var(--spacing-5);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-lg);
   font-weight: 500;
-  text-align: center;
+  font-size: var(--font-size-base);
+  text-align: left;
+  border: var(--border-width) solid transparent;
 }
 
 .notification-success {
-  background-color: #4CAF50;
+  background-color: var(--color-success);
+  border-color: var(--color-success);
 }
 
 .notification-error {
-  background-color: #e94b3c;
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .notification-info {
-  background-color: #4a90e2;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .notification-fade-enter-active,
 .notification-fade-leave-active {
-  transition: all 0.5s ease;
+  transition: all 0.3s ease-in-out;
 }
 
 .notification-fade-enter-from,
 .notification-fade-leave-to {
   opacity: 0;
-  transform: translateX(30px);
+  transform: translateX(100%);
 }
 </style>

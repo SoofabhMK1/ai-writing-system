@@ -51,110 +51,67 @@ const activeTab = ref('worldview'); // Default active tab
 <style scoped>
 .settings-container {
   display: flex;
-  height: calc(100vh - 60px); /* Adjust based on NavBar height */
-  background-color: #f7f8fa;
-  padding: 1rem;
-  gap: 1rem;
+  height: 100%;
+  gap: var(--spacing-8);
 }
 
 .settings-nav {
   width: 280px;
   min-width: 240px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 1.5rem;
+  flex-shrink: 0;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-6);
 }
 
 .nav-title {
-  font-size: 1.5rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  color: #333;
-  margin: 0 0 2rem 0;
-  text-align: center;
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-6) 0;
+  padding-bottom: var(--spacing-4);
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .settings-nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
 }
 
 .settings-nav li {
-  padding: 1rem 1.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 8px;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
-  color: #555;
-  transition: background-color 0.3s, color 0.3s;
+  color: var(--color-text-muted);
+  transition: var(--transition-base);
 }
 
 .settings-nav li:hover {
-  background-color: #f0f5ff;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .settings-nav li.active {
-  background-color: #4a90e2;
-  color: white;
+  background-color: var(--color-primary);
+  color: #ffffff;
   font-weight: 600;
 }
 
 .settings-content {
   flex-grow: 1;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-8);
   overflow-y: auto;
-}
-
-.setting-card {
-  max-width: 800px;
-}
-
-.setting-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 1rem;
-}
-
-.setting-card p {
-  font-size: 1rem;
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.setting-item-placeholder {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-
-.setting-item-placeholder span {
-  font-weight: 500;
-}
-
-.setting-item-placeholder button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  background-color: #4a90e2;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.setting-item-placeholder button:hover {
-  background-color: #357abd;
 }
 </style>

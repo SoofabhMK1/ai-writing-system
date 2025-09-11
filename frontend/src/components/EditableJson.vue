@@ -1,16 +1,17 @@
 <template>
   <div class="editable-json">
     <div v-for="(value, key) in editableData" :key="key" class="json-row">
-      <input type="text" :value="key" @input="updateKey(key, $event.target.value)" class="json-key-input" />
+      <input type="text" :value="key" @input="updateKey(key, $event.target.value)" class="form-control json-key-input" placeholder="Key" />
       <input 
         type="text" 
         :value="formatValueForInput(value)" 
         @change="updateValue(key, $event.target.value)" 
-        class="json-value-input" 
+        class="form-control json-value-input" 
+        placeholder="Value"
       />
-      <button @click="removeField(key)" class="remove-btn">&times;</button>
+      <button @click="removeField(key)" class="btn btn-danger remove-btn">&times;</button>
     </div>
-    <button @click="addField" class="add-btn">+ Add Field</button>
+    <button @click="addField" class="btn add-btn">+ 添加字段</button>
   </div>
 </template>
 
@@ -76,12 +77,29 @@ const updateKey = (oldKey, newKey) => {
 </script>
 
 <style scoped>
-.editable-json { display: flex; flex-direction: column; gap: 10px; }
-.json-row { display: flex; gap: 10px; align-items: center; }
-.json-key-input, .json-value-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; }
-.json-key-input { width: 150px; }
-.json-value-input { flex-grow: 1; }
-.remove-btn, .add-btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
-.remove-btn { background-color: #fdd; color: #c53030; }
-.add-btn { background-color: #e6fffa; color: #2c7a7b; margin-top: 10px; align-self: flex-start; }
+.editable-json {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.json-row {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+.json-key-input {
+  width: 200px;
+  flex-shrink: 0;
+}
+.json-value-input {
+  flex-grow: 1;
+}
+.remove-btn {
+  padding: var(--spacing-2) var(--spacing-3);
+  line-height: 1;
+}
+.add-btn {
+  margin-top: var(--spacing-2);
+  align-self: flex-start;
+}
 </style>

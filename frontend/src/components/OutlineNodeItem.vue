@@ -14,8 +14,8 @@
       />
 
       <div class="node-actions">
-        <button @click="emitAddChild(node.id)">添加子节点</button>
-        <button class="delete-btn" @click="emitDeleteNode(node.id)">删除</button>
+        <button @click="emitAddChild(node.id)" class="btn btn-sm">＋</button>
+        <button class="btn btn-sm btn-danger" @click="emitDeleteNode(node.id)">－</button>
       </div>
     </div>
 
@@ -81,46 +81,58 @@ const emitUpdateTitle = (payload) => emit('updateTitle', payload);
 
 <style scoped>
 .node-item {
-  padding-left: 20px;
+  padding-left: var(--spacing-6);
   position: relative;
 }
 .node-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  border: 1px solid #eee;
-  border-radius: 5px;
-  margin-top: 5px;
-  background-color: white;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-2);
+  background-color: var(--color-surface);
+  transition: var(--transition-base);
+}
+.node-content:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-background);
 }
 .node-title {
-  font-weight: bold;
+  font-weight: 500;
   cursor: pointer;
+  flex-grow: 1;
+  padding: var(--spacing-1) 0;
 }
-.node-title:hover {
-  background-color: #eef;
+.node-actions {
+  display: flex;
+  gap: var(--spacing-2);
+  opacity: 0;
+  transition: var(--transition-base);
 }
-.node-actions button {
-  margin-left: 10px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
+.node-content:hover .node-actions {
+  opacity: 1;
 }
-.delete-btn {
-  background-color: #fdd;
-  border: 1px solid #f99;
+.btn-sm {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-xs);
 }
 .node-children {
-  border-left: 2px solid #ddd;
-  margin-top: 5px;
+  border-left: 2px solid var(--color-border);
+  margin-top: var(--spacing-2);
 }
 .title-input {
-  font-weight: bold;
-  font-size: 1em; /* 保持和 span 字体大小一致 */
-  padding: 2px 5px;
-  border: 1px solid #007bff;
-  border-radius: 3px;
-  flex-grow: 1; /* 占据更多空间 */
+  font-weight: 500;
+  font-size: 1em;
+  padding: var(--spacing-1) 0;
+  border: none;
+  border-bottom: 2px solid var(--color-primary);
+  background-color: transparent;
+  color: var(--color-text);
+  flex-grow: 1;
+}
+.title-input:focus {
+  outline: none;
 }
 </style>

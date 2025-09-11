@@ -3,14 +3,14 @@
   <div class="setting-card">
     <div class="setting-header">
       <h3 class="setting-title">AI 模型设定</h3>
-      <button @click="handleAddNew" class="btn-add-new">＋ 添加新模型</button>
+      <button @click="handleAddNew" class="btn btn-primary">＋ 添加新模型</button>
     </div>
     <p class="setting-description">
       管理可用于生成内容的 AI 模型。所有模型都应与 OpenAI API 兼容。
     </p>
     
-    <div v-if="loading" class="loading-info">正在加载...</div>
-    <div v-if="error" class="error-info">{{ error }}</div>
+    <div v-if="loading" class="status-info">正在加载...</div>
+    <div v-if="error" class="status-info error">{{ error }}</div>
 
     <div v-if="aiModels.length > 0" class="setting-item-list">
       <div v-for="model in aiModels" :key="model.id" class="setting-item">
@@ -19,13 +19,13 @@
           <p><strong>Model:</strong> {{ model.model_name }} | <strong>URL:</strong> {{ model.api_url }}</p>
         </div>
         <div class="item-actions">
-          <button @click="handleTest(model)" class="btn-test">测试</button>
-          <button @click="handleEdit(model)" class="btn-edit">编辑</button>
-          <button @click="handleDelete(model.id)" class="btn-delete">删除</button>
+          <button @click="handleTest(model)" class="btn btn-secondary">测试</button>
+          <button @click="handleEdit(model)" class="btn">编辑</button>
+          <button @click="handleDelete(model.id)" class="btn btn-danger">删除</button>
         </div>
       </div>
     </div>
-    <div v-else-if="!loading" class="empty-info">
+    <div v-else-if="!loading" class="status-info">
       还没有任何 AI 模型设定，点击右上角添加一个吧！
     </div>
 
@@ -145,92 +145,77 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.setting-card {
-  max-width: 900px;
-}
 .setting-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 1rem;
+  margin-bottom: var(--spacing-4);
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-bottom: var(--spacing-4);
 }
 .setting-title {
-  font-size: 1.8rem;
+  font-size: var(--font-size-xl);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
   margin: 0;
 }
-.btn-add-new {
-  padding: 0.6rem 1.2rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
 .setting-description {
-  font-size: 1rem;
-  color: #666;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
   line-height: 1.6;
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--spacing-8);
 }
 .setting-item-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--spacing-5);
 }
 .setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  background-color: #fafafa;
+  padding: var(--spacing-5);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-background);
+  transition: var(--transition-base);
+}
+.setting-item:hover {
+  border-color: var(--color-primary);
 }
 .item-content h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
+  margin: 0 0 var(--spacing-2) 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
 }
 .item-content p {
   margin: 0;
-  font-size: 0.9rem;
-  color: #777;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 .item-actions {
   display: flex;
-  gap: 0.8rem;
+  gap: var(--spacing-3);
 }
-.item-actions button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: #ffffff;
+  border-color: var(--color-secondary);
 }
-.btn-test {
-  background-color: #ffc107;
-  color: #333;
+.btn-secondary:hover:not(:disabled) {
+  opacity: 0.9;
 }
-.btn-edit {
-  background-color: #4a90e2;
-  color: white;
-}
-.btn-delete {
-  background-color: #e94b3c;
-  color: white;
-}
-.loading-info, .error-info, .empty-info {
+.status-info {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-  color: #888;
+  padding: var(--spacing-12) var(--spacing-8);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
 }
-.error-info {
-  color: #e94b3c;
+.status-info.error {
+  color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: var(--border-width) solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-4);
 }
 </style>

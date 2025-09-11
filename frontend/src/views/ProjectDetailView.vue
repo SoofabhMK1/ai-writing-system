@@ -1,17 +1,17 @@
 <template>
   <div class="project-detail-layout">
     <!-- 左栏：大纲编辑器 -->
-    <div class="outline-panel">
+    <div class="outline-panel card">
       <div class="panel-header">
         <h3>大纲</h3>
-        <button v-if="outline.length > 0" @click="handleAddNode(null)">添加顶级节点</button>
+        <button v-if="outline.length > 0" @click="handleAddNode(null)" class="btn btn-sm">添加顶级节点</button>
       </div>
 
-      <div v-if="loading" class="loading">加载中...</div>
-      <div v-else-if="error" class="error">{{ error }}</div>
-      <div v-else-if="outline.length === 0" class="no-outline">
+      <div v-if="loading" class="status-info">加载中...</div>
+      <div v-else-if="error" class="status-info error">{{ error }}</div>
+      <div v-else-if="outline.length === 0" class="no-outline status-info">
         <p>此项目还没有大纲。</p>
-        <button @click="handleAddNode(null)">创建第一个节点</button>
+        <button @click="handleAddNode(null)" class="btn btn-primary">创建第一个节点</button>
       </div>
       <div v-else class="outline-tree">
         <OutlineNodeItem
@@ -26,11 +26,11 @@
     </div>
 
     <!-- 右栏：内容工作区 -->
-    <div class="content-panel">
+    <div class="content-panel card">
       <!-- 1. 内容区 -->
       <div class="content-editor-wrapper">
         <textarea 
-          class="content-textarea"
+          class="content-textarea form-control"
           placeholder="AI 生成的内容将显示在这里..."
         ></textarea>
       </div>
@@ -39,13 +39,14 @@
       <div class="ai-settings-wrapper">
         <div class="setting-item">
           <label for="word-count">目标字数</label>
-          <input id="word-count" type="number" placeholder="例如: 800">
+          <input id="word-count" type="number" class="form-control" placeholder="例如: 800">
         </div>
         <div class="setting-item">
           <label for="brief">内容蓝图 / 写作指令</label>
           <textarea 
             id="brief"
             rows="5"
+            class="form-control"
             placeholder="请输入对本小节的核心要求、关键词、写作风格等..."
           ></textarea>
         </div>
@@ -53,8 +54,8 @@
 
       <!-- 3. 操作按钮区 -->
       <div class="action-buttons-wrapper">
-        <button class="run-btn">运行</button>
-        <button class="check-btn" disabled>检查 (暂不可用)</button>
+        <button class="btn btn-primary">运行</button>
+        <button class="btn" disabled>检查 (暂不可用)</button>
       </div>
     </div>
   </div>
@@ -164,139 +165,97 @@ onMounted(() => {
 
 <style scoped>
 .project-detail-layout {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: var(--spacing-8);
+  height: 100%;
 }
 
-.outline-panel {
-  flex: 0 0 350px; /* 固定宽度侧边栏: 不放大，不缩小，基础宽度减小到350px */
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  height: calc(100vh - 120px); /* 调整高度以适应padding */
-  overflow-y: auto;
-}
-
-.content-panel {
-  flex: 1 1 auto; /* 自适应主内容区: 放大，缩小，自动计算基础宽度 */
-  min-width: 0; /* 防止内容溢出的关键 */
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  /* 新增flex布局，让内部三块垂直排列 */
+.outline-panel, .content-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  height: calc(100vh - 100px);
+  height: 100%;
+  min-height: 0;
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
-  /* 让header不随滚动条滚动 */
+  margin-bottom: var(--spacing-4);
+  padding-bottom: var(--spacing-4);
+  border-bottom: var(--border-width) solid var(--color-border);
   flex-shrink: 0;
 }
 
 .panel-header h3 {
   margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
 }
 
-/* === 右栏新增样式 === */
+.outline-tree {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.content-panel {
+  gap: var(--spacing-6);
+}
+
 .content-editor-wrapper {
-  flex-grow: 1; /* 占据所有剩余垂直空间 */
-  display: flex; /* 使用flex布局让textarea充满容器 */
+  flex-grow: 1;
+  display: flex;
 }
 
 .content-textarea {
-  width: 100%;
   height: 100%;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 1rem;
-  font-size: 1rem;
-  resize: none; /* 通常由父容器控制大小，禁用手动resize */
-  box-sizing: border-box;
+  resize: none;
 }
 
 .ai-settings-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  flex-shrink: 0; /* 不收缩 */
+  gap: var(--spacing-4);
+  flex-shrink: 0;
 }
 
 .setting-item label {
   display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.setting-item input,
-.setting-item textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: var(--spacing-2);
+  font-size: var(--font-size-sm);
 }
 
 .action-buttons-wrapper {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-  margin-top: auto; /* 将按钮推到底部 */
-  flex-shrink: 0; /* 不收缩 */
+  gap: var(--spacing-4);
+  border-top: var(--border-width) solid var(--color-border);
+  padding-top: var(--spacing-6);
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
-.action-buttons-wrapper button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.run-btn {
-  background-color: #007bff;
-  color: white;
-}
-.run-btn:hover {
-  background-color: #0056b3;
-}
-
-.check-btn {
-  background-color: #ccc;
-  color: #666;
-  cursor: not-allowed;
-}
-
-/* === 保留并调整的旧样式 === */
-.loading, .error {
+.status-info {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
+  padding: var(--spacing-12) var(--spacing-8);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-4);
 }
 
-.error {
-  color: red;
+.status-info.error {
+  color: var(--color-danger);
 }
 
 .no-outline {
-  text-align: center;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
 }
-
-
 </style>

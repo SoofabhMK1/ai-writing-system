@@ -2,18 +2,18 @@
   <div class="sidebar-container">
     <div class="sidebar-header">
       <button @click="startNewConversation" class="btn btn-primary">
-        New Conversation
+        新对话
       </button>
       <button
         v-if="cachedInitialPrompt"
         @click="fillInputWithCachedPrompt"
-        class="btn btn-secondary"
+        class="btn"
       >
-        Use Initial Prompt
+        使用初始 Prompt
       </button>
       <div class="preview-toggle-container">
-        <input type="checkbox" id="preview-toggle" v-model="previewBeforeSending" />
-        <label for="preview-toggle">Preview before sending</label>
+        <input type="checkbox" id="preview-toggle" v-model="previewBeforeSending" class="custom-checkbox" />
+        <label for="preview-toggle">发送前预览</label>
       </div>
     </div>
     <ul class="history-list">
@@ -23,13 +23,13 @@
         class="history-item"
         :class="{ 'active': item.id === currentConversationId }"
       >
-        <span @click="loadConversation(item.id)" class="history-item-title">{{ item.title || 'Untitled Conversation' }}</span>
-        <button @click.stop="handleDelete(item.id)" class="btn-delete">X</button>
+        <span @click="loadConversation(item.id)" class="history-item-title">{{ item.title || '未命名对话' }}</span>
+        <button @click.stop="handleDelete(item.id)" class="btn-delete">×</button>
       </li>
     </ul>
     <div class="sidebar-footer">
       <button @click="handleSave" class="btn btn-success">
-        Save Conversation
+        保存对话
       </button>
     </div>
   </div>
@@ -83,48 +83,73 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .sidebar-header {
-  padding: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  padding: var(--spacing-6);
+  border-bottom: var(--border-width) solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--spacing-4);
 }
 .preview-toggle-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  font-size: 0.9rem;
-  color: #333;
-}
-.preview-toggle-container input {
-  margin: 0;
-  cursor: pointer;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 .preview-toggle-container label {
   cursor: pointer;
 }
+.custom-checkbox {
+  appearance: none;
+  background-color: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition-base);
+}
+.custom-checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.custom-checkbox:checked::after {
+  content: '✔';
+  position: absolute;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8em;
+}
 .history-list {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 0.5rem;
+  padding: var(--spacing-4);
   list-style: none;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
 }
 .history-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: var(--transition-base);
+  color: var(--color-text-muted);
 }
 .history-item-title {
   white-space: nowrap;
@@ -135,66 +160,51 @@ onMounted(() => {
 .btn-delete {
   background: none;
   border: none;
-  color: #aaa;
+  color: var(--color-text-muted);
   cursor: pointer;
   font-weight: bold;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  font-size: 1.2em;
+  padding: 0 var(--spacing-2);
+  border-radius: var(--border-radius-full);
   flex-shrink: 0;
-  margin-left: 0.5rem;
-  visibility: hidden; /* Hide by default */
+  margin-left: var(--spacing-3);
+  visibility: hidden;
+  opacity: 0;
+  transition: var(--transition-base);
 }
 .history-item:hover .btn-delete {
-  visibility: visible; /* Show on hover */
+  visibility: visible;
+  opacity: 1;
 }
 .btn-delete:hover {
-  color: #e53e3e;
-  background-color: #fed7d7;
+  color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.1);
 }
 .history-item:hover {
-  background-color: #f0f5ff;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 .history-item.active {
-  background-color: #4a90e2;
+  background-color: var(--color-primary);
   color: white;
   font-weight: 500;
 }
+.history-item.active .history-item-title {
+  color: white;
+}
 .sidebar-footer {
-  padding: 1rem;
-  border-top: 1px solid #e0e0e0;
+  padding: var(--spacing-6);
+  border-top: var(--border-width) solid var(--color-border);
 }
 .btn {
   width: 100%;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.3s, transform 0.2s;
-}
-.btn:hover {
-  transform: translateY(-2px);
-}
-.btn-primary {
-  background-color: #4a90e2;
-  color: white;
-}
-.btn-primary:hover {
-  background-color: #357abd;
-}
-.btn-secondary {
-  background-color: #f0ad4e;
-  color: white;
-}
-.btn-secondary:hover {
-  background-color: #ec971f;
 }
 .btn-success {
-  background-color: #5cb85c;
-  color: white;
+  background-color: var(--color-success);
+  color: #ffffff;
+  border-color: var(--color-success);
 }
-.btn-success:hover {
-  background-color: #449d44;
+.btn-success:hover:not(:disabled) {
+  opacity: 0.9;
 }
 </style>

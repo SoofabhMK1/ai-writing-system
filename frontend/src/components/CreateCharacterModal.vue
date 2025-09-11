@@ -1,29 +1,29 @@
 <template>
-  <div class="modal-overlay">
+  <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
-      <h2 class="modal-title">Create Character via JSON</h2>
+      <h2 class="modal-title">通过 JSON 创建角色</h2>
       <p class="modal-description">
-        Paste your character data in JSON format below.
+        请在下方粘贴角色的 JSON 数据。
       </p>
       <textarea
         v-model="jsonInput"
-        class="json-textarea"
+        class="json-textarea form-control"
         placeholder='{
-  "name": "Character Name",
-  "gender": "Female",
+  "name": "角色姓名",
+  "gender": "女性",
   "age": 28,
-  "occupation": "Detective",
-  "brief_introduction": "A sharp and witty detective.",
-  "physical_attributes": {"height": "170cm"},
-  "personality_traits": {"mbti": "INTJ"},
+  "occupation": "侦探",
+  "brief_introduction": "一位精明风趣的侦探。",
+  "physical_attributes": {"身高": "170cm"},
+  "personality_traits": {"MBTI": "INTJ"},
   "background_story": {},
   "custom_fields": {}
 }'
       ></textarea>
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
       <div class="modal-actions">
-        <button @click="$emit('close')" class="cancel-button">Cancel</button>
-        <button @click="saveCharacter" class="save-button">Save</button>
+        <button @click="$emit('close')" class="btn">取消</button>
+        <button @click="saveCharacter" class="btn btn-primary">保存</button>
       </div>
     </div>
   </div>
@@ -58,74 +58,54 @@ const saveCharacter = async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050;
 }
 
 .modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
+  background: var(--color-surface);
+  padding: var(--spacing-8);
+  border-radius: var(--border-radius-lg);
   width: 90%;
   max-width: 600px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
+  border: var(--border-width) solid var(--color-border);
 }
 
 .modal-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-2);
 }
 
 .modal-description {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 20px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-6);
 }
 
 .json-textarea {
   width: 100%;
   height: 300px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   resize: vertical;
-  box-sizing: border-box; /* Add this line */
 }
 
 .error-message {
-  color: #e53e3e;
-  margin-top: 10px;
+  color: var(--color-danger);
+  margin-top: var(--spacing-3);
+  font-size: var(--font-size-sm);
 }
 
 .modal-actions {
-  margin-top: 20px;
+  margin-top: var(--spacing-6);
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-}
-
-.cancel-button, .save-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.cancel-button {
-  background-color: #e2e8f0;
-  color: #2d3748;
-}
-
-.save-button {
-  background-color: #4a90e2;
-  color: white;
+  gap: var(--spacing-4);
 }
 </style>

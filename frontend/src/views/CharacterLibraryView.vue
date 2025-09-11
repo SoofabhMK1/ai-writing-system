@@ -1,7 +1,7 @@
 <template>
-  <div class="page-container">
+  <div class="workspace-container">
     <div class="left-panel">
-      <button @click="isCreateModalOpen = true" class="create-button">Create New Character</button>
+      <button @click="isCreateModalOpen = true" class="btn btn-primary create-button">创建新角色</button>
     </div>
     <div class="right-panel">
       <CharacterList @view-character="handleViewCharacter" />
@@ -47,50 +47,33 @@ const handleCloseDetailModal = () => {
 </script>
 
 <style scoped>
-.page-container {
+.workspace-container {
   display: flex;
-  height: calc(100vh - 60px); /* 假设 NavBar 高度为 60px */
-  background-color: #f7f8fa;
-  padding: 1rem;
-  gap: 1rem;
+  height: 100%;
+  gap: var(--spacing-8);
 }
 
 .left-panel {
   width: 280px;
-  flex-shrink: 0; /* Prevent this panel from shrinking */
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  flex-shrink: 0;
+  padding: var(--spacing-6);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .create-button {
   width: 100%;
-  padding: 0.8rem 1.5rem;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.create-button:hover {
-  background-color: #357abd;
-  transform: translateY(-2px);
 }
 
 .right-panel {
   flex-grow: 1;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   overflow-y: auto;
+  padding: var(--spacing-6);
 }
 </style>

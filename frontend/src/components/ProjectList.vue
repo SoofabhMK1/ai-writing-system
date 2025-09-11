@@ -91,100 +91,101 @@ defineExpose({
 <style scoped>
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-6);
 }
 
 .project-card {
   position: relative;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  transition: var(--transition-base);
   cursor: pointer;
 }
 
 .project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-color: #4a90e2;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
 }
 
 .project-card-content {
-  padding: 1.5rem;
+  padding: var(--spacing-6);
 }
 
 .project-card h2 {
   margin-top: 0;
-  margin-bottom: 0.75rem;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.card-actions {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 0.5rem;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-.project-card:hover .card-actions {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.btn-action {
-  padding: 0.3rem 0.6rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.btn-detail {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-detail:hover {
-  background-color: #218838;
+  margin-bottom: var(--spacing-2);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .project-card p {
   margin: 0;
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
   line-height: 1.5;
 }
 
+.card-actions {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: flex;
+  gap: var(--spacing-2);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: var(--transition-base);
+}
+
+.project-card:hover .card-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-action {
+  padding: var(--spacing-1) var(--spacing-2);
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  transition: var(--transition-base);
+  color: #ffffff;
+}
+
+.btn-detail {
+  background-color: var(--color-secondary);
+}
+
+.btn-detail:hover {
+  opacity: 0.8;
+}
+
 .btn-delete {
-  background-color: #e94b3c;
-  color: white;
+  background-color: var(--color-danger);
 }
 
 .btn-delete:hover {
-  background-color: #d93a2b;
+  opacity: 0.8;
 }
 
 .status-info {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-  color: #666;
+  padding: var(--spacing-12) var(--spacing-8);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
 }
 
 .error {
-  color: #e94b3c;
-  background-color: rgba(233, 75, 60, 0.05);
-  border: 1px solid rgba(233, 75, 60, 0.2);
-  border-radius: 8px;
+  color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: var(--border-width) solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-4);
 }
 </style>

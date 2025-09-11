@@ -237,78 +237,31 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.editor-container { height: 100%; }
-.workspace { display: flex; gap: 1rem; height: 100%; }
-.card { background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
-
-.left-panel {
-  width: 400px;
-  min-width: 350px;
-  display: flex;
-  flex-direction: column;
-}
-.right-panel {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-height: 0;
-}
-
-.generation-config {
-  display: flex;
-  flex-direction: column;
+.editor-container {
   height: 100%;
 }
-.config-scroll-area {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding-right: 10px;
-  margin-right: -10px;
+.workspace {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: var(--spacing-8);
+  height: 100%;
 }
-
-.creation-core { flex-shrink: 0; }
-.history-panel { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; }
-
-.form-group { margin-bottom: 1rem; }
-.form-group:last-child { margin-bottom: 0; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
-.form-group input, .form-group textarea { width: 100%; padding: 0.8rem 1rem; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-.form-group textarea { resize: vertical; }
-
-.form-group-inline {
+.right-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--spacing-8);
+  min-height: 0;
+}
+.placeholder {
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  height: 100%;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
 }
-.form-group-inline label {
-  flex-basis: 30%;
-  margin-bottom: 0;
-  font-weight: 500;
-}
-.form-group-inline select, .form-group-inline input {
-  flex-basis: 68%;
-  width: auto;
-  padding: 0.6rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-
-.panel-title { margin: 0 0 1.5rem 0; font-size: 1.3rem; font-weight: 600; border-bottom: 1px solid #e8e8e8; padding-bottom: 1rem; }
-.btn-generate { margin-top: 1rem; padding: 0.8rem 1.5rem; background-color: #4a90e2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: background-color 0.3s; flex-shrink: 0; }
-.btn-generate:disabled { background-color: #a0c7e8; cursor: not-allowed; }
-.history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
-.history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-radius: 6px; transition: background-color 0.2s; }
-.history-item:hover { background-color: #f0f5ff; }
-.history-item-info { display: flex; flex-direction: column; }
-.history-item small { color: #888; font-size: 0.8rem; margin-top: 0.25rem; }
-.history-item-actions { display: flex; gap: 0.5rem; }
-.btn-action { padding: 0.4rem 0.8rem; font-size: 0.8rem; border: none; border-radius: 6px; cursor: pointer; }
-.btn-preview { background-color: #6c757d; color: white; }
-.btn-preview:hover { background-color: #5a6268; }
-.btn-delete { background-color: #e94b3c; color: white; }
-.btn-delete:hover { background-color: #d93a2b; }
-.placeholder, .loading-info, .empty-info { display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; color: #888; font-size: 1.2rem; }
 </style>

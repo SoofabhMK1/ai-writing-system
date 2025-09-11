@@ -6,7 +6,7 @@
         <h3>{{ modal.title }}</h3>
         <p>{{ modal.message }}</p>
         <div class="modal-actions">
-          <button @click="modal.cancel" class="btn btn-secondary">取消</button>
+          <button @click="modal.cancel" class="btn">取消</button>
           <button @click="modal.confirm" class="btn btn-danger">确认</button>
         </div>
       </div>
@@ -26,81 +26,80 @@ const modal = useModalStore();
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050; /* Ensure it's above other content */
 }
 
 .modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background-color: var(--color-surface);
+  padding: var(--spacing-8);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   width: 90%;
-  max-width: 400px;
+  max-width: 420px;
   text-align: center;
+  border: var(--border-width) solid var(--color-border);
+  /* Add transition for the content itself */
+  transition: all 0.3s ease;
+  transform: scale(0.95);
 }
 
 .modal-content h3 {
   margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+  margin-bottom: var(--spacing-3);
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
 }
 
 .modal-content p {
-  margin-bottom: 2rem;
-  color: #666;
-  font-size: 1.1rem;
+  margin-bottom: var(--spacing-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
 }
 
 .modal-actions {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-end; /* Align buttons to the right for a more standard feel */
+  gap: var(--spacing-3);
 }
 
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ccc;
-}
-
-.btn-secondary:hover {
-  background-color: #e0e0e0;
-}
-
+/* Use global button styles from style.css */
 .btn-danger {
-  background-color: #e94b3c;
-  color: white;
+  background-color: var(--color-danger);
+  color: #ffffff;
+  border-color: var(--color-danger);
+}
+.btn-danger:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
-.btn-danger:hover {
-  background-color: #d93a2b;
-}
-
+/* Transition classes */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
+.modal-fade-enter-active .modal-content,
+.modal-fade-leave-active .modal-content {
+  transition: all 0.3s ease;
+}
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
+}
+
+.modal-fade-enter-from .modal-content,
+.modal-fade-leave-to .modal-content {
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+.modal-fade-enter-to .modal-content {
+  transform: scale(1);
 }
 </style>

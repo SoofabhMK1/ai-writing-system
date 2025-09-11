@@ -1,8 +1,10 @@
 <template>
-  <NavBar />
-  <main class="main-container">
-    <router-view></router-view>
-  </main>
+  <div id="app-layout">
+    <NavBar />
+    <main class="main-content">
+      <router-view></router-view>
+    </main>
+  </div>
   <ConfirmationModal />
   <Notification />
   <PromptModal />
@@ -36,21 +38,20 @@ watch(isAnyModalOpen, (newValue) => {
 });
 </script>
 
-<style>
-/* 将样式移出 scoped，使其成为全局样式 */
-body {
-  margin: 0;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  background-color: #f4f7f9;
+<style scoped>
+#app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-.main-container {
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--spacing-8);
   width: 100%;
-  box-sizing: border-box; /* 确保 padding 不会撑大容器 */
+  max-width: 1400px; /* Optional: constrain max width for very large screens */
   margin: 0 auto;
-  padding: 20px;
+  box-sizing: border-box;
 }
 </style>

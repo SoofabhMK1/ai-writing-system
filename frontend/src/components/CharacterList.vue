@@ -38,47 +38,55 @@ const viewCharacter = (id) => {
 
 <style scoped>
 .character-list-container {
-  padding: 20px;
+  height: 100%;
 }
 .list-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 .loading, .no-characters {
   text-align: center;
-  color: #666;
-  font-size: 1.2rem;
-  margin-top: 40px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+  margin-top: var(--spacing-12);
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-6);
 }
 .character-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition: box-shadow 0.3s, transform 0.2s;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
   cursor: pointer;
 }
 .character-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  border-color: var(--color-primary);
 }
 .character-name {
-  font-size: 1.4rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  margin-bottom: 10px;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-2);
 }
 .character-details {
-  color: #6b7280;
-  margin-bottom: 15px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-4);
 }
 .character-intro {
-  color: #374151;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
 }
 </style>

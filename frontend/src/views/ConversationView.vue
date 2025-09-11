@@ -17,8 +17,8 @@ import ChatInput from '../components/ChatInput.vue';
 <style scoped>
 .conversation-workspace {
   display: flex;
-  height: calc(100vh - 100px); /* 60px for NavBar + 40px for main container padding */
-  gap: 1rem;
+  height: 100%;
+  gap: var(--spacing-8);
 }
 
 .sidebar-panel {
@@ -32,9 +32,10 @@ import ChatInput from '../components/ChatInput.vue';
   display: flex;
   flex-direction: column;
   min-height: 0; /* Crucial for flex-grow to work in a flex column */
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 </style>

@@ -4,7 +4,7 @@
     <!-- Left Panel -->
     <div class="left-panel">
       <div class="left-panel-header">
-        <button @click="showCreateModal = true" class="btn-add-project">+ 创建新项目</button>
+        <button @click="showCreateModal = true" class="btn btn-primary btn-add-project">+ 创建新项目</button>
       </div>
       <div class="project-list-container">
         <ProjectList 
@@ -67,54 +67,40 @@ const onProjectDeleted = (deletedProjectId) => {
 <style scoped>
 .workspace-container {
   display: flex;
-  height: calc(100vh - 60px); /* 假设 NavBar 高度为 60px */
-  background-color: #f7f8fa;
-  padding: 1rem;
-  gap: 1rem;
+  height: 100%; /* Fill the .main-content area */
+  gap: var(--spacing-8);
 }
 
 .left-panel {
-  width: 400px;
-  min-width: 350px;
+  width: 380px;
+  min-width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
 .left-panel-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
+  padding: var(--spacing-6);
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .btn-add-project {
+  /* This button now inherits from .btn and .btn-primary from style.css */
   width: 100%;
-  padding: 0.8rem 1.5rem;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn-add-project:hover {
-  background-color: #357abd;
-  transform: translateY(-2px);
 }
 
 .project-list-container {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 0 1.5rem 1.5rem;
+  padding: var(--spacing-6);
 }
 
 .right-panel {
   flex-grow: 1;
+  /* The OutlineEditor will sit here, it should have its own styling */
 }
 </style>

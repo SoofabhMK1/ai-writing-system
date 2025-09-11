@@ -3,14 +3,14 @@
   <div class="setting-card">
     <div class="setting-header">
       <h3 class="setting-title">世界观设定</h3>
-      <button @click="handleAddNew" class="btn-add-new">＋ 添加新世界观</button>
+      <button @click="handleAddNew" class="btn btn-primary">＋ 添加新世界观</button>
     </div>
     <p class="setting-description">
       管理和编辑多个世界观。每个世界观都可以有详细的描述和规则，方便在不同项目中复用。
     </p>
     
-    <div v-if="loading" class="loading-info">正在加载...</div>
-    <div v-if="error" class="error-info">{{ error }}</div>
+    <div v-if="loading" class="status-info">正在加载...</div>
+    <div v-if="error" class="status-info error">{{ error }}</div>
 
     <!-- List of existing worldviews -->
     <div v-if="worldviews.length > 0" class="setting-item-list">
@@ -20,12 +20,12 @@
           <p>{{ worldview.description || '暂无描述' }}</p>
         </div>
         <div class="item-actions">
-          <button @click="handleEdit(worldview)" class="btn-edit">编辑</button>
-          <button @click="handleDelete(worldview.id)" class="btn-delete">删除</button>
+          <button @click="handleEdit(worldview)" class="btn">编辑</button>
+          <button @click="handleDelete(worldview.id)" class="btn btn-danger">删除</button>
         </div>
       </div>
     </div>
-    <div v-else-if="!loading" class="empty-info">
+    <div v-else-if="!loading" class="status-info">
       还没有任何世界观设定，点击右上角添加一个吧！
     </div>
 
@@ -145,124 +145,73 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.setting-card {
-  max-width: 900px;
-}
-
 .setting-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 1rem;
+  margin-bottom: var(--spacing-4);
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-bottom: var(--spacing-4);
 }
-
 .setting-title {
-  font-size: 1.8rem;
+  font-size: var(--font-size-xl);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
   margin: 0;
 }
-
-.btn-add-new {
-  padding: 0.6rem 1.2rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn-add-new:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
-}
-
 .setting-description {
-  font-size: 1rem;
-  color: #666;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
   line-height: 1.6;
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--spacing-8);
 }
-
 .setting-item-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--spacing-5);
 }
-
 .setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  background-color: #fafafa;
-  transition: box-shadow 0.3s;
+  padding: var(--spacing-5);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-background);
+  transition: var(--transition-base);
 }
-
 .setting-item:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-color: var(--color-primary);
 }
-
 .item-content h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #444;
+  margin: 0 0 var(--spacing-2) 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
 }
-
 .item-content p {
   margin: 0;
-  font-size: 0.95rem;
-  color: #777;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
 }
-
 .item-actions {
   display: flex;
-  gap: 0.8rem;
+  gap: var(--spacing-3);
 }
-
-.item-actions button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.btn-edit {
-  background-color: #4a90e2;
-  color: white;
-}
-
-.btn-edit:hover {
-  background-color: #357abd;
-}
-
-.btn-delete {
-  background-color: #e94b3c;
-  color: white;
-}
-
-.btn-delete:hover {
-  background-color: #d93a2b;
-}
-
-.loading-info, .error-info, .empty-info {
+.status-info {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-  color: #888;
+  padding: var(--spacing-12) var(--spacing-8);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
 }
-
-.error-info {
-  color: #e94b3c;
+.status-info.error {
+  color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: var(--border-width) solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-4);
 }
 </style>

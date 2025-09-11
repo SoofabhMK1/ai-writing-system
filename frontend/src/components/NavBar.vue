@@ -18,54 +18,65 @@
 
 <style scoped>
 .navbar {
-  background-color: #ffffff;
-  height: 60px;
+  background-color: var(--color-surface);
+  height: 64px; /* Consistent height */
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
   position: sticky;
   top: 0;
-  z-index: 999;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-bottom: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 var(--spacing-8);
+  transition: background-color var(--transition-base);
 }
 
 .navbar-container {
   display: flex;
   justify-content: space-between;
-  height: 60px;
-  z-index: 1;
+  align-items: center;
   width: 100%;
-  max-width: 1100px;
-  padding: 0 24px;
 }
 
 .navbar-logo {
-  color: #2c3e50;
-  justify-self: flex-start;
+  color: var(--color-text);
   cursor: pointer;
   text-decoration: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
   display: flex;
   align-items: center;
-  font-weight: bold;
+  transition: color var(--transition-base);
+}
+
+.navbar-logo:hover {
+  color: var(--color-primary);
 }
 
 .navbar-menu {
   display: flex;
   align-items: center;
+  gap: var(--spacing-4);
 }
 
 .navbar-link {
-  color: #2c3e50;
+  color: var(--color-text-muted);
   text-decoration: none;
-  padding: 0 1rem;
-  font-size: 1rem;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-base);
   font-weight: 500;
-  transition: color 0.3s;
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-base);
 }
 
 .navbar-link:hover {
-  color: #4a90e2;
+  color: var(--color-text);
+  background-color: var(--color-surface-hover, rgba(255, 255, 255, 0.05)); /* Fallback for hover */
+}
+
+.navbar-link.router-link-exact-active {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 </style>

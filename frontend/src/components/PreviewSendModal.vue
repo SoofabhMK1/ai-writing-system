@@ -2,13 +2,13 @@
   <transition name="modal-fade">
     <div v-if="isOpen" class="modal-backdrop" @click="cancel">
       <div class="modal-content" @click.stop>
-        <h3>Confirm Content to Send</h3>
+        <h3>确认发送内容</h3>
         <div class="preview-content">
           <pre>{{ content }}</pre>
         </div>
         <div class="modal-actions">
-          <button @click="cancel" class="btn btn-secondary">Cancel</button>
-          <button @click="confirm" class="btn btn-primary">Continue</button>
+          <button @click="cancel" class="btn">取消</button>
+          <button @click="confirm" class="btn btn-primary">继续</button>
         </div>
       </div>
     </div>
@@ -31,40 +31,42 @@ defineProps({
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050;
 }
 
 .modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background-color: var(--color-surface);
+  padding: var(--spacing-8);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   width: 90%;
   max-width: 600px;
   display: flex;
   flex-direction: column;
   max-height: 80vh;
+  border: var(--border-width) solid var(--color-border);
 }
 
 .modal-content h3 {
   margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+  margin-bottom: var(--spacing-6);
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
   text-align: center;
 }
 
 .preview-content {
   flex-grow: 1;
   overflow-y: auto;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 2rem;
+  background-color: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
 }
 
 .preview-content pre {
@@ -72,46 +74,14 @@ defineProps({
   word-wrap: break-word;
   margin: 0;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ccc;
-}
-
-.btn-secondary:hover {
-  background-color: #e0e0e0;
-}
-
-.btn-primary {
-  background-color: #4a90e2;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #357abd;
+  gap: var(--spacing-4);
 }
 
 .modal-fade-enter-active,

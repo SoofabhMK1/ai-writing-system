@@ -10,11 +10,11 @@
             ref="inputRef"
             v-model="inputValue"
             type="text"
-            class="prompt-input"
+            class="form-control"
             required
           />
           <div class="modal-actions">
-            <button type="button" @click="handleCancel" class="btn btn-secondary">取消</button>
+            <button type="button" @click="handleCancel" class="btn">取消</button>
             <button type="submit" class="btn btn-primary">确认</button>
           </div>
         </form>
@@ -57,81 +57,60 @@ const handleCancel = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050;
 }
 
 .modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background-color: var(--color-surface);
+  padding: var(--spacing-8);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   width: 90%;
   max-width: 450px;
   text-align: center;
+  border: var(--border-width) solid var(--color-border);
 }
 
 .modal-content h3 {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-3);
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
 }
 
 .modal-content p {
-  margin-bottom: 1.5rem;
-  color: #666;
+  margin-bottom: var(--spacing-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
 }
 
-.prompt-input {
+.form-control {
   width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: var(--transition-base);
   box-sizing: border-box;
 }
 
-.prompt-input:focus {
+.form-control:focus {
   outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.2);
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-}
-
-.btn {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn-secondary {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.btn-secondary:hover {
-  background-color: #e0e0e0;
-}
-
-.btn-primary {
-  background-color: #4a90e2;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #357abd;
+  gap: var(--spacing-4);
 }
 
 .modal-fade-enter-active,
