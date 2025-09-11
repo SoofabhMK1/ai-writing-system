@@ -6,6 +6,7 @@
         AI Writer
       </router-link>
       <div class="navbar-menu">
+        <router-link to="/characters" class="navbar-link">角色库</router-link>
         <router-link to="/settings" class="navbar-link">设定集</router-link>
       </div>
     </div>

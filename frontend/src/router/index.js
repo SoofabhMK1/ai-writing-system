@@ -3,6 +3,7 @@ import ProjectListView from '../views/ProjectListView.vue';
 import ProjectDetailView from '../views/ProjectDetailView.vue';
 import SettingsView from '../views/SettingsView.vue';
 import ConversationView from '../views/ConversationView.vue';
+import CharacterLibraryView from '../views/CharacterLibraryView.vue';
 
 const routes = [
     {
@@ -25,6 +26,11 @@ const routes = [
       path: '/settings',
       name: 'Settings',
       component: SettingsView
+    },
+    {
+      path: '/characters',
+      name: 'CharacterLibrary',
+      component: CharacterLibraryView
     }
 ];
 

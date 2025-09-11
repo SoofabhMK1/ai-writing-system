@@ -1,6 +1,6 @@
 <!-- frontend/src/components/GenerationResultModal.vue -->
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="close">
+  <div v-if="show" class="modal-overlay">
     <div class="modal-card">
       <h3>{{ title }}</h3>
       <div class="modal-content">

@@ -1,6 +1,6 @@
 <!-- frontend/src/components/CreateProjectModal.vue -->
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="close">
+  <div v-if="show" class="modal-overlay">
     <div class="modal-card">
       <h3>创建新项目</h3>
       <form @submit.prevent="handleCreateProject" class="create-form">
