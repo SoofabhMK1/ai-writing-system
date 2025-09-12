@@ -2,7 +2,7 @@
 *   **项目名称**: ai-writing-system
 *   **核心目标**: 一个AI辅助写作系统，提供从项目创建、大纲编辑、角色管理到AI生成内容的全流程支持。
 *   **技术栈**: 
-    *   **后端**: Python, FastAPI, SQLAlchemy, PostgreSQL, Alembic, Pydantic, Uvicorn, OpenAI API
+    *   **后端**: Python, FastAPI, SQLAlchemy (Async), PostgreSQL, Alembic, Pydantic V2, Uvicorn, OpenAI API
     *   **前端**: Vue.js 3, Vite, Vue Router, Pinia, Axios
     *   **容器化**: Docker, Docker Compose, Nginx
 *   **项目架构**: 前后端分离架构。前端是Vue.js单页应用（SPA），后端是FastAPI提供RESTful API。通过Docker Compose统一编排和部署，其中Nginx作为前端静态文件的Web服务器和后端的反向代理。
@@ -10,25 +10,39 @@
 ### **核心工作流程 (Core Workflows)**
 
 #### **AI 对话与内容生成**
-1.  **访问**: 用户通过顶部导航栏的“对话”链接，直接进入独立的对话页面 (`ConversationView.vue`)。
+1.  **访问**: 用户通过顶部导航栏的“对话”链接，进入独立的对话页面 (`ConversationView.vue`)。
 2.  **配置对话**: 在 `ConversationSidebar.vue` 中，用户可以：
     *   选择要使用的 **AI 模型**。
-    *   （可选）选择一个“**系统前缀**”提示词模板，该模板内容会作为 `system` 角色的消息被添加到后续每次对话的最前面。
+    *   选择一个“**对话预设 (Prompt Preset)**”。一个预设封装了固定的系统提示、COT指导和其他指令。
     *   开启或关闭“**发送前预览**”功能。
     *   浏览、加载或删除**历史对话**。
 3.  **发送消息**:
     *   用户在 `ChatInput.vue` 中输入消息并点击发送。
     *   `conversation.js` Pinia store 的 `sendMessage` action 被调用。
-    *   如果开启了预览，`PreviewSendModal.vue` 会弹出，显示包含系统前缀（如果已选择）和完整消息历史的最终请求内容。
-4.  **请求与响应**:
-    *   确认发送后，`sendMessage` action 通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求。请求体中包含完整的消息历史（以及系统前缀）。
-    *   后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式向前端实时推送 AI 的回复。后端会发送两种类型的事件：`event: reasoning`（代表思考过程）和 `event: content`（代表最终答案）。
-    *   `conversation.js` store 调用 `aiStreamService` 来处理 SSE 流。该服务现在能够解析带有事件名的 SSE，并为 `reasoning` 和 `content` 事件提供了不同的回调函数。
-    *   `ChatInterface.vue` 组件现在可以展示 AI 的思考过程（默认折叠），使用户能够了解其推理步骤，同时保持对话界面的整洁。
-5.  **优化对话历史**:
-    *   在将对话历史发送回 AI 以进行下一轮对话时，`messageBuilder.js` 工具函数会**自动过滤**掉先前所有 AI 回复中的“思考过程”部分。
-    *   **价值**: 这一优化显著减少了发送给 AI 的上下文长度，节省了 token 消耗，并避免了 AI 因其自身的思考过程而感到困惑，从而提高了后续回复的质量和相关性。
-6.  **保存对话**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息，以及 AI 的思考过程）通过 `conversationService` 保存到后端数据库。
+4.  **结构化消息构建**:
+    *   `utils/messageBuilder.js` 工具函数被调用，它会执行以下核心操作：
+        *   获取当前选中的“对话预设”。
+        *   将当前对话内容拆分为“历史信息”和“用户当次输入”。
+        *   过滤掉历史信息中所有AI回复的“思考过程”部分。
+        *   按照预设，构建一个结构化的、由多条消息组成的数组。
+    *   **消息结构**:
+        ```json
+        [
+          { "role": "system", "content": "..." },
+          { "role": "system", "content": "..." },
+          { 
+            "role": "user", 
+            "content": "<history>...</history>\n<user_input>...</user_input>" 
+          },
+          { "role": "system", "content": "..." }
+        ]
+        ```
+    *   **价值**: 这种结构通过标签明确告知AI各部分的角色，使COT指导能够精确引用上下文，极大地提升了AI回复的可控性和质量。
+5.  **请求与响应**:
+    *   `sendMessage` action 通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求。
+    *   后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式实时返回AI的思考过程 (`event: reasoning`) 和最终答案 (`event: content`)。
+    *   `ChatInterface.vue` 组件负责展示这些流式数据，包括可折叠的思考过程。
+6.  **保存对话**: 用户可以保存当前对话，所有消息（包括思考过程）都会被存入数据库。
 
 #### **角色库管理**
 1.  **访问**: 用户通过顶部导航栏的“角色库”链接，进入 `CharacterLibraryView.vue` 页面。
@@ -48,7 +62,11 @@
 ### **架构亮点与设计模式**
 
 #### **后端**
-1.  **智能化的 `CRUDBase`**:
+1.  **全异步数据库操作**:
+    *   **位置**: `app/database.py`, `app/crud/base.py`
+    *   **设计**: 项目的数据库层完全基于 `asyncio`。`database.py` 使用 `create_async_engine` 创建异步引擎，并提供一个 `get_db` 依赖项来分发 `AsyncSession`。`CRUDBase` 中的所有方法（`get`, `create`, `update` 等）都是 `async` 函数，确保了所有数据库交互都是非阻塞的。
+    *   **价值**: 充分利用了FastAPI的异步特性，在高并发场景下能提供更高的性能。
+2.  **智能化的 `CRUDBase`**:
     *   **位置**: `app/crud/base.py`
     *   **设计**: 通用的 `CRUDBase` 中的 `update` 方法被重构，使其能够**自动检测**目标列的类型。当更新一个 **JSONB** 类型的字段时，它会自动执行**合并（Merge）**操作，而不是简单地覆盖。
     *   **价值**: 极大地提升了代码的复用性。任何需要对 JSONB 字段进行部分更新的 CRUD 服务，都无需重写 `update` 方法，直接继承 `CRUDBase` 即可获得此能力。
@@ -72,8 +90,8 @@
 4.  **模块化的前端服务**:
     *   **问题**: 随着功能的增加，`conversation.js` Pinia store 变得越来越臃肿，混合了状态管理、API 调用和数据处理逻辑。
     *   **设计**: 对核心对话逻辑进行了重构，将不同的职责拆分到独立的模块中：
-        *   `services/aiStreamService.js`: 专门负责处理从后端发来的 SSE（服务器发送事件）流。它能够解析标准的 SSE 格式，区分 `event: reasoning` 和 `event: content` 等不同的事件类型，并为每种事件类型调用相应的回调函数。
-        *   `utils/messageBuilder.js`: 负责构建发送到 AI API 的最终消息负载。它处理系统前缀的添加，并且最重要的是，它会**过滤掉 AI 历史消息中的“思考过程”**，只保留最终答案。
+        *   `services/aiStreamService.js`: 专门负责处理从后端发来的 SSE（服务器发送事件）流。它能够解析标准的 SSE 格式，区分 `event: reasoning` 和 `content` 等不同的事件类型，并为每种事件类型调用相应的回调函数。
+        *   `utils/messageBuilder.js`: 负责构建发送给 AI 的最终消息负载。它会根据用户选择的“对话预设”，将系统提示、COT指导、历史记录和用户当前输入整合成一个结构化的消息数组。
     *   **价值**: 这种关注点分离的设计使得 `conversation.js` store 的职责更加清晰（专注于状态管理），代码更易于维护和测试，并为未来扩展更复杂的消息处理逻辑（如动态插入上下文、摘要等）打下了坚实的基础。
 
 ### **文件结构与核心职责 (File Structure & Core Responsibilities)**
@@ -101,6 +119,7 @@
 │       │       ├── conversations.py
 │       │       ├── outline_nodes.py
 │       │       ├── projects.py
+│       │       ├── prompt_presets.py
 │       │       └── settings.py
 │       ├── core/
 │       │   ├── config.py
@@ -113,15 +132,16 @@
 │       │   ├── crud_message.py
 │       │   ├── crud_outline_node.py
 │       │   ├── crud_project.py
+│       │   ├── crud_prompt_preset.py
 │       │   └── crud_setting.py
 │       ├── models/
 │       │   ├── __init__.py
-│       │   ├── base.py
 │       │   ├── character.py
 │       │   ├── conversation.py
 │       │   ├── message.py
 │       │   ├── outline_node.py
 │       │   ├── project.py
+│       │   ├── prompt_preset.py
 │       │   └── setting.py
 │       ├── schemas/
 │       │   ├── __init__.py
@@ -130,6 +150,7 @@
 │       │   ├── message.py
 │       │   ├── outline_node.py
 │       │   ├── project.py
+│       │   ├── prompt_preset.py
 │       │   └── setting.py
 │       └── services/
 │           ├── ai_service.py
@@ -175,6 +196,7 @@
         │   ├── PromptModal.vue
         │   └── settings/
         │       ├── AIModelSettings.vue
+        │       ├── PromptPresets.vue
         │       ├── PromptTemplates.vue
         │       ├── SettingsFormModal.vue
         │       ├── WorldviewSettings.vue
@@ -188,13 +210,15 @@
         │   ├── conversationService.js
         │   ├── outlineNodeService.js
         │   ├── projectService.js
+        │   ├── promptPresetService.js
         │   └── settingService.js
         ├── store/
         │   ├── character.js
         │   ├── conversation.js
         │   ├── modal.js
         │   ├── notification.js
-        │   └── prompt.js
+        │   ├── prompt.js
+        │   └── promptPreset.js
         └── views/
             ├── CharacterLibraryView.vue
             ├── ConversationView.vue
@@ -206,31 +230,15 @@
 #### **后端 (Backend)**
 *   `backend/`: 后端应用的根目录，基于 Python FastAPI 框架。
     *   `alembic/`: 数据库迁移脚本目录，由 Alembic 管理。
-        *   `env.py`: Alembic 的运行时环境配置。核心是设置 `target_metadata = Base.metadata`，并确保所有模型都被导入，以便 Alembic 能够自动检测模型变化。
-        *   `versions/`: 存放具体的数据库版本脚本。
     *   `app/`: FastAPI 应用的核心代码目录。
-        *   `api/`: 存放 API 路由层。该目录遵循模块化设计，将不同资源的路由拆分到独立的模块中。
-            *   `routers/`: 包含所有独立的路由模块。
-                *   `projects.py`: 负责所有与“项目”相关的CRUD操作。
-                *   `outline_nodes.py`: 负责所有与“大纲节点”相关的CRUD操作。
-                *   `settings.py`: 负责所有与“设置”相关的端点（世界观、文风、AI模型等），并使用工厂模式来减少重复代码。
-                *   `ai_generation.py`: 负责所有与AI内容生成相关的端点，包括支持多轮对话历史的流式聊天端点。
-                *   `conversations.py`: 负责对话历史的 CRUD 操作。
+        *   `api/routers/`: 包含所有独立的路由模块，如 `projects.py`, `settings.py`, 以及 `prompt_presets.py`。
         *   `core/`: 存放应用的核心配置和安全相关模块。
-            *   `config.py`: 使用 Pydantic 的 `BaseSettings` 管理环境变量，是配置的唯一来源。
-            *   `security.py`: 使用 `cryptography.fernet` 对敏感数据（如AI模型的API密钥）进行对称加密和解密。
-        *   `crud/`: 包含所有数据库的 CRUD (Create, Read, Update, Delete) 操作逻辑。
-            *   `base.py`: 定义了一个通用的 `CRUDBase` 类，封装了基本的数据库操作，以实现代码复用。
-            *   `crud_*.py`: 继承自 `CRUDBase`，用于实现特定模型（如Project, OutlineNode, Conversation）的数据库操作。
-        *   `models/`: 定义 SQLAlchemy 的 ORM 数据模型，每个文件对应一个数据表。
-            *   `__init__.py`: 作为 `models` 包的入口，负责导出所有模型类，以便其他模块可以统一从 `app.models` 导入。
-            *   `base.py`: 声明所有模型都应继承的 `Base` 类。
-            *   `project.py`, `outline_node.py`, `setting.py`: 分别定义项目、大纲节点和设置的数据表模型。
-            *   `conversation.py`, `message.py`: 定义对话和消息的数据模型，支持存储多轮对话历史。
-        *   `schemas/`: 定义 Pydantic 数据校验模型，用于API请求和响应的数据验证。
-            *   `__init__.py`: 作为 `schemas` 包的入口，导出所有 Pydantic 模型。
-            *   `project.py`, `outline_node.py`, `setting.py`: 分别定义与模型对应的Pydantic Schema。
-            *   `conversation.py`, `message.py`: 为对话和消息定义 Pydantic Schemas。
+        *   `crud/`: 包含所有数据库的 CRUD 操作逻辑。`base.py` 定义了通用的异步 `CRUDBase`，`crud_*.py` 文件实现了具体模型的数据库操作。
+        *   `models/`: 定义 SQLAlchemy 的 ORM 数据模型。`__init__.py` 负责导出所有模型。
+        *   `schemas/`: 定义 Pydantic 数据校验模型。`__init__.py` 负责导出所有 schemas。
+        *   `services/`: 存放核心业务逻辑服务。
+        *   `database.py`: 初始化 SQLAlchemy 异步引擎和会话，并定义了所有模型继承的 `Base` 类。
+        *   `main.py`: FastAPI 应用的入口文件，聚合所有 API 路由。
         *   `services/`: 存放核心业务逻辑服务。
             *   `ai_service.py`: 封装与大语言模型 API 的交互逻辑。它现在包含一个 `generate_chat_completion` 方法，可以接收完整的消息历史，并以**服务器发送事件 (SSE)** 的格式处理流式响应。
             *   `prompt_service.py`: 负责动态构建发送给AI的结构化提示（Prompt）。目前，它会引导AI生成一个包含核心矛盾、主角任务、故事大纲等元素的“小说蓝图”，而不仅仅是章节列表。
@@ -243,37 +251,13 @@
 *   `frontend/`: 前端应用的根目录，基于 Vue.js 3 和 Vite。
     *   `src/`: 前端应用的核心源代码目录。
         *   `components/`: 存放可复用的 Vue 组件。
-            *   `OutlineEditor.vue`: **核心工作区组件**。当用户选择一个项目后，此组件作为主界面，整合了 `GenerationConfigPanel`（AI配置）, `ProjectInfoPanel`（项目信息）和 `HistoryPanel`（历史记录）。
-            *   **对话页面组件**:
-                *   `ConversationSidebar.vue`: 对话页面的左侧边栏，用于管理和导航对话历史。现在还包含 **AI 模型选择**、**系统前缀选择**、**发送前预览开关**和**可折叠的历史对话列表**。
-                *   `ChatInterface.vue`: 对话页面的核心区域，用于展示用户与 AI 之间的消息。
-                *   `ChatInput.vue`: 对话页面的底部输入区域，包含文本输入框和发送按钮。
-            *   `GenerationConfigPanel.vue`: 左侧的AI生成配置面板。
-            *   `ProjectInfoPanel.vue`: 右上角的项目核心信息编辑面板。
-            *   `HistoryPanel.vue`: 右下角的大纲历史版本列表面板。
-            *   `ProjectList.vue`: 在项目列表页 (`ProjectListView`) 中，以卡片形式展示所有项目，并处理项目选择和删除的逻辑。
-            *   `NavBar.vue`: 应用顶部的导航栏。
-            *   **模态框组件**:
-                *   `ConfirmationModal.vue`: 通用的二次确认模态框。
-                *   `PreviewSendModal.vue`: 用于在发送前向用户展示完整请求内容的模态框。
-                *   `CreateProjectModal.vue`: 创建新项目的模态框。
-                *   `GenerationResultModal.vue`: 用于预览历史版本大纲的模态框。
-                *   `PromptModal.vue`: 通用的、需要用户输入的提示框。
-            *   **设置页面组件 (`settings/`)**:
-                *   `AIModelSettings.vue`, `WorldviewSettings.vue`, `WritingStyleSettings.vue`, `PromptTemplates.vue`: 分别对应设置页面中的不同配置项的管理界面。
-        *   `router/`: 存放 Vue Router 的配置，定义了应用的页面路由。
-        *   `services/`: 存放与后端 API 通信的逻辑。
-            *   `api.js`: 配置一个全局的 Axios 实例，设置了基础 URL (`/api/v1`)。
-            *   `projectService.js`, `outlineNodeService.js`: 分别封装了与项目、大纲节点相关的API调用。
-            *   `settingService.js`: 一个复合服务，导出了多个与设置相关的子服务。
-            *   `conversationService.js`: 封装了与对话历史相关的 CRUD API 调用。
-            *   `aiStreamService.js`: **（新）** 封装了处理 SSE 流的底层逻辑，将原始数据流转换为可用的数据块。
-        *   `utils/`: **（新）** 存放可复用的工具函数。
-            *   `messageBuilder.js`: **（新）** 负责构建发送给 AI 的消息数组，包括添加系统前缀和**过滤掉 AI 的思考过程**。
-        *   `store/`: 存放 Pinia 的全局状态管理模块。
-            *   `modal.js`: 管理全局模态框的状态和逻辑，现在支持**多种类型的模态框**（如 `ConfirmationModal` 和 `PreviewSendModal`）。
-            *   `notification.js`, `prompt.js`: 分别管理通知和输入提示框的状态。
-            *   `conversation.js`: **（重构后）** 职责更清晰，专注于管理对话状态（消息、历史、加载状态等），并将消息构建和流处理的复杂逻辑委托给 `messageBuilder` 和 `aiStreamService`。
+            *   `ConversationSidebar.vue`: 对话页面的左侧边栏，包含AI模型和对话预设的选择。
+            *   `settings/`: 包含所有设置页面的组件，如 `WorldviewSettings.vue` 和 `PromptPresets.vue`。
+        *   `router/`: 存放 Vue Router 的配置。
+        *   `services/`: 存放与后端 API 通信的逻辑，如 `projectService.js` 和 `promptPresetService.js`。
+        *   `store/`: 存放 Pinia 的全局状态管理模块，如 `conversation.js` 和 `promptPreset.js`。
+        *   `utils/`: 存放可复用的工具函数，如 `messageBuilder.js`。
+        *   `views/`: 存放页面级别的 Vue 组件，如 `ConversationView.vue` 和 `SettingsView.vue`。
         *   `views/`: 存放页面级别的 Vue 组件。
             *   `ProjectListView.vue`: **项目列表页**。此页面是应用的主要入口，展示所有项目。
             *   `ProjectDetailView.vue`: **项目详情页**。当用户从列表页选择一个项目后进入此页面，采用双栏布局，左侧是项目列表 (`ProjectList.vue`)，右侧是选中项目的工作区 (`OutlineEditor.vue`)。

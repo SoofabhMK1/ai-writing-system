@@ -9,6 +9,7 @@ from app.api.routers import (
     outline_nodes,
     projects,
     settings,
+    prompt_presets,
 )
 
 app = FastAPI(
@@ -38,6 +39,9 @@ app.include_router(
     conversations.router, prefix="/api/v1/conversations", tags=["conversations"]
 )
 app.include_router(characters.router, prefix="/api/v1/characters", tags=["characters"])
+app.include_router(
+    prompt_presets.router, prefix="/api/v1/prompt-presets", tags=["prompt_presets"]
+)
 
 
 @app.get("/")

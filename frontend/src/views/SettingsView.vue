@@ -29,6 +29,12 @@
         >
           AI 模型设定
         </li>
+        <li
+          @click="activeTab = 'presets'"
+          :class="{ active: activeTab === 'presets' }"
+        >
+          对话预设
+        </li>
       </ul>
     </div>
 
@@ -38,6 +44,7 @@
       <WritingStyleSettings v-if="activeTab === 'style'" />
       <PromptTemplates v-if="activeTab === 'templates'" />
       <AIModelSettings v-if="activeTab === 'aimodels'" />
+      <PromptPresets v-if="activeTab === 'presets'" />
     </div>
   </div>
 </template>
@@ -48,6 +55,7 @@ import WorldviewSettings from '../components/settings/WorldviewSettings.vue'
 import WritingStyleSettings from '../components/settings/WritingStyleSettings.vue'
 import PromptTemplates from '../components/settings/PromptTemplates.vue'
 import AIModelSettings from '../components/settings/AIModelSettings.vue'
+import PromptPresets from '../components/settings/PromptPresets.vue'
 
 const activeTab = ref('worldview') // Default active tab
 </script>

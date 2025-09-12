@@ -29,11 +29,11 @@
         </select>
       </div>
       <div class="model-selector-container">
-        <label for="prefix-selector">系统前缀:</label>
-        <select id="prefix-selector" v-model="selectedSystemPrefix" class="custom-select">
+        <label for="preset-selector">对话预设:</label>
+        <select id="preset-selector" v-model="selectedPresetId" class="custom-select">
           <option :value="null">无</option>
-          <option v-for="prefix in systemPrefixes" :key="prefix.id" :value="prefix.template_text">
-            {{ prefix.name }}
+          <option v-for="preset in presets" :key="preset.id" :value="preset.id">
+            {{ preset.name }}
           </option>
         </select>
       </div>
@@ -70,9 +70,11 @@ import { onMounted, ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useConversationStore } from '../store/conversation'
 import { useModalStore } from '../store/modal'
-import { aiModelService, promptTemplateService } from '../services/settingService'
+import { usePromptPresetStore } from '@/store/promptPreset';
+import { aiModelService } from '../services/settingService'
 
 const conversationStore = useConversationStore()
+const presetStore = usePromptPresetStore();
 const modal = useModalStore()
 const {
   historyList,
@@ -80,8 +82,9 @@ const {
   cachedInitialPrompt,
   previewBeforeSending,
   selectedAiModel,
-  selectedSystemPrefix,
+  selectedPresetId,
 } = storeToRefs(conversationStore)
+const { presets } = storeToRefs(presetStore);
 const {
   loadConversationHistory,
   loadConversation,
@@ -92,12 +95,7 @@ const {
 } = conversationStore
 
 const aiModels = ref([])
-const promptTemplates = ref([])
 const isHistoryVisible = ref(true)
-
-const systemPrefixes = computed(() =>
-  promptTemplates.value.filter((p) => p.category === 'SYSTEM_PROMPT'),
-)
 
 const handleSave = () => {
   saveCurrentConversation()
@@ -129,8 +127,7 @@ onMounted(async () => {
       // Set a default model if none is selected
       conversationStore.selectedAiModel = aiModels.value[0].id
     }
-    const templatesResponse = await promptTemplateService.getAll()
-    promptTemplates.value = templatesResponse.data
+    await presetStore.fetchPresets();
   } catch (error) {
     console.error('Failed to fetch settings:', error)
   }

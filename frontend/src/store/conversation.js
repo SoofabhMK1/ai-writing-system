@@ -14,7 +14,7 @@ export const useConversationStore = defineStore('conversation', () => {
   const promptForInput = ref('')
   const previewBeforeSending = ref(false)
   const selectedAiModel = ref(null)
-  const selectedSystemPrefix = ref(null)
+  const selectedPresetId = ref(null)
 
   const modal = useModalStore()
 
@@ -35,8 +35,7 @@ export const useConversationStore = defineStore('conversation', () => {
     messages.value.push(assistantMessage)
 
     const messagesForApi = prepareMessagesForApi(
-      messages.value.slice(0, -1),
-      selectedSystemPrefix.value,
+      messages.value.slice(0, -1)
     )
 
     const callbacks = {
@@ -71,8 +70,7 @@ export const useConversationStore = defineStore('conversation', () => {
     if (previewBeforeSending.value) {
       try {
         const messagesForPreview = prepareMessagesForApi(
-          [...messages.value, userMessage],
-          selectedSystemPrefix.value,
+          [...messages.value, userMessage]
         )
         // Construct the full content to be sent
         const fullContent = messagesForPreview
@@ -150,6 +148,7 @@ export const useConversationStore = defineStore('conversation', () => {
   function startNewConversation() {
     currentConversationId.value = null
     messages.value = []
+    selectedPresetId.value = null
   }
 
   async function deleteConversation(conversationId) {
@@ -175,7 +174,7 @@ export const useConversationStore = defineStore('conversation', () => {
     promptForInput,
     previewBeforeSending,
     selectedAiModel,
-    selectedSystemPrefix,
+    selectedPresetId,
     setCachedInitialPrompt,
     fillInputWithCachedPrompt,
     sendMessage,
