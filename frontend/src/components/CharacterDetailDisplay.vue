@@ -12,13 +12,20 @@
       />
     </div>
     <div v-if="activeTab === '外貌特征'">
+      <h3 class="json-subtitle">外貌属性</h3>
       <JsonViewer :data="character.physical_attributes" />
+      <h3 class="json-subtitle">身体细节</h3>
+      <JsonViewer :data="character.body_details" />
+      <h3 class="json-subtitle">衣着风格</h3>
+      <JsonViewer :data="character.clothing_style_and_habits" />
     </div>
     <div v-if="activeTab === '性格与背景'">
       <h3 class="json-subtitle">性格特质</h3>
       <JsonViewer :data="character.personality_traits" />
       <h3 class="json-subtitle">背景故事</h3>
       <JsonViewer :data="character.background_story" />
+      <h3 class="json-subtitle">性偏好与行为</h3>
+      <JsonViewer :data="character.sexual_preferences_and_behaviors" />
     </div>
     <div v-if="activeTab === '其他'">
       <JsonViewer :data="character.custom_fields" />

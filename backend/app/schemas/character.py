@@ -11,8 +11,11 @@ class CharacterBase(BaseModel):
     occupation: Optional[str] = None
     brief_introduction: Optional[str] = None
     physical_attributes: Optional[Dict[str, Any]] = None
+    body_details: Optional[Dict[str, Any]] = None
+    clothing_style_and_habits: Optional[Dict[str, Any]] = None
     personality_traits: Optional[Dict[str, Any]] = None
     background_story: Optional[Dict[str, Any]] = None
+    sexual_preferences_and_behaviors: Optional[Dict[str, Any]] = None
     custom_fields: Optional[Dict[str, Any]] = None
 
 

@@ -18,13 +18,20 @@
       />
     </div>
     <div v-if="activeTab === '外貌特征'">
+      <h3 class="json-subtitle">外貌属性</h3>
       <EditableJson :modelValue="editableCharacter.physical_attributes" @update:modelValue="updateField('physical_attributes', $event)" />
+      <h3 class="json-subtitle">身体细节</h3>
+      <EditableJson :modelValue="editableCharacter.body_details" @update:modelValue="updateField('body_details', $event)" />
+      <h3 class="json-subtitle">衣着风格</h3>
+      <EditableJson :modelValue="editableCharacter.clothing_style_and_habits" @update:modelValue="updateField('clothing_style_and_habits', $event)" />
     </div>
     <div v-if="activeTab === '性格与背景'">
       <h3 class="json-subtitle">性格特质</h3>
       <EditableJson :modelValue="editableCharacter.personality_traits" @update:modelValue="updateField('personality_traits', $event)" />
       <h3 class="json-subtitle">背景故事</h3>
       <EditableJson :modelValue="editableCharacter.background_story" @update:modelValue="updateField('background_story', $event)" />
+      <h3 class="json-subtitle">性偏好与行为</h3>
+      <EditableJson :modelValue="editableCharacter.sexual_preferences_and_behaviors" @update:modelValue="updateField('sexual_preferences_and_behaviors', $event)" />
     </div>
     <div v-if="activeTab === '其他'">
       <EditableJson :modelValue="editableCharacter.custom_fields" @update:modelValue="updateField('custom_fields', $event)" />

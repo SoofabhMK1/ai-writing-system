@@ -13,8 +13,11 @@
   "occupation": "侦探",
   "brief_introduction": "一位精明风趣的侦探。",
   "physical_attributes": {"身高": "170cm"},
+  "body_details": {},
+  "clothing_style_and_habits": {},
   "personality_traits": {"MBTI": "INTJ"},
   "background_story": {},
+  "sexual_preferences_and_behaviors": {},
   "custom_fields": {}
 }'
       ></textarea>

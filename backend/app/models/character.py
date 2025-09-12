@@ -19,6 +19,9 @@ class Character(Base):
     
     # JSONB fields for flexible attributes
     physical_attributes = Column(JSON_TYPE)
+    body_details = Column(JSON_TYPE)  # 身体细节
+    clothing_style_and_habits = Column(JSON_TYPE)  # 衣着风格与穿衣习惯
     personality_traits = Column(JSON_TYPE)
     background_story = Column(JSON_TYPE)
+    sexual_preferences_and_behaviors = Column(JSON_TYPE)  # 性偏好与行为
     custom_fields = Column(JSON_TYPE)
