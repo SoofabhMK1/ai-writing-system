@@ -1,8 +1,10 @@
 // frontend/src/store/prompt.js
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { promptTemplateService } from '@/services/settingService'
 
 export const usePromptStore = defineStore('prompt', () => {
+  // State for the generic prompt modal
   const isOpen = ref(false)
   const title = ref('')
   const message = ref('')
@@ -10,6 +12,39 @@ export const usePromptStore = defineStore('prompt', () => {
 
   let resolvePromise = null
   let rejectPromise = null
+
+  // State for prompt templates
+  const templates = ref([])
+  const isLoading = ref(false)
+  const categoryBlacklist = ['SYSTEM_PROMPT']; // Category blacklist
+
+  const groupedTemplates = computed(() => {
+    const filteredTemplates = templates.value.filter(t => t.category && !categoryBlacklist.includes(t.category));
+    const grouped = filteredTemplates.reduce((acc, template) => {
+      const category = template.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(template);
+      return acc;
+    }, {});
+    console.log('Grouped Templates:', grouped);
+    return grouped;
+  })
+
+  const fetchTemplates = async () => {
+    if (templates.value.length > 0) return // Avoid re-fetching
+    isLoading.value = true
+    try {
+      const response = await promptTemplateService.getAll()
+      templates.value = response.data
+    } catch (error) {
+      console.error('Failed to fetch prompt templates:', error)
+      // Optionally, use a notification store to show an error to the user
+    } finally {
+      isLoading.value = false
+    }
+  }
 
   const show = (newTitle, newMessage, initialValue = '') => {
     title.value = newTitle
@@ -37,5 +72,20 @@ export const usePromptStore = defineStore('prompt', () => {
     isOpen.value = false
   }
 
-  return { isOpen, title, message, defaultValue, show, confirm, cancel }
+  return {
+    // Generic prompt modal
+    isOpen,
+    title,
+    message,
+    defaultValue,
+    show,
+    confirm,
+    cancel,
+
+    // Prompt templates
+    templates,
+    groupedTemplates,
+    isLoading,
+    fetchTemplates,
+  }
 })

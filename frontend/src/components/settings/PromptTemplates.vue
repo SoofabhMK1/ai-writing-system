@@ -75,7 +75,16 @@ const modalFields = [
     type: 'textarea',
     placeholder: '对这个模板进行简短的描述',
   },
-  { key: 'category', label: '分类', placeholder: '例如：角色、情节、世界观' },
+  { 
+    key: 'category', 
+    label: '分类', 
+    type: 'select',
+    options: [
+      { value: 'SYSTEM_PROMPT', text: '系统提示' },
+      { value: 'CHARACTER_PROMPT', text: '角色提示' },
+      { value: 'PROJECT_PROMPT', text: '项目提示' },
+    ]
+  },
   {
     key: 'template_text',
     label: '模板内容',

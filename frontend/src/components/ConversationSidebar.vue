@@ -96,7 +96,7 @@ const promptTemplates = ref([])
 const isHistoryVisible = ref(true)
 
 const systemPrefixes = computed(() =>
-  promptTemplates.value.filter((p) => p.category === '系统前缀'),
+  promptTemplates.value.filter((p) => p.category === 'SYSTEM_PROMPT'),
 )
 
 const handleSave = () => {

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text, ARRAY, ForeignKey, DateTime
+import enum
+from sqlalchemy import Column, Integer, String, Text, ARRAY, ForeignKey, DateTime, Enum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.database import Base
@@ -31,13 +32,18 @@ class WritingStyle(Base):
     reference_works = Column(Text)
     guidelines = Column(JSON_TYPE)
 
+class PromptCategory(str, enum.Enum):
+    SYSTEM_PROMPT = "SYSTEM_PROMPT"
+    CHARACTER_PROMPT = "CHARACTER_PROMPT"
+    PROJECT_PROMPT = "PROJECT_PROMPT"
+
 class PromptTemplate(Base):
     __tablename__ = "prompt_templates"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(Text)
-    category = Column(String)
+    category = Column(Enum(PromptCategory))
     template_text = Column(Text, nullable=False)
     variables = Column(JSON_TYPE)
 

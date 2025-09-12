@@ -1,7 +1,7 @@
 # backend/app/schemas/setting.py
 from typing import Any, Dict, List, Optional
-
 from pydantic import BaseModel
+from app.models.setting import PromptCategory
 
 
 # --- Worldview Schemas ---
@@ -51,7 +51,7 @@ class WritingStyleInDB(WritingStyleBase):
 class PromptTemplateBase(BaseModel):
     name: str
     description: Optional[str] = None
-    category: Optional[str] = None
+    category: Optional[PromptCategory] = None
     template_text: str
     variables: Optional[Dict[str, Any]] = None
 

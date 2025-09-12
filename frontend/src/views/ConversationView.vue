@@ -1,7 +1,7 @@
 <template>
-  <div class="conversation-workspace">
-    <ConversationSidebar class="sidebar-panel" />
-    <div class="chat-panel">
+  <div class="workspace-container">
+    <ConversationSidebar class="left-panel" />
+    <div class="right-panel">
       <ChatInterface />
       <ChatInput />
     </div>
@@ -15,19 +15,24 @@ import ChatInput from '../components/ChatInput.vue'
 </script>
 
 <style scoped>
-.conversation-workspace {
+.workspace-container {
   display: flex;
   height: 100%;
   gap: var(--spacing-8);
 }
 
-.sidebar-panel {
+.left-panel {
   width: 280px;
   min-width: 240px;
   flex-shrink: 0;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
-.chat-panel {
+.right-panel {
   flex-grow: 1;
   display: flex;
   flex-direction: column;

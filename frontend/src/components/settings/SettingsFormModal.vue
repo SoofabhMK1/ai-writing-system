@@ -14,6 +14,17 @@
             :placeholder="field.placeholder || ''"
             class="form-control"
           />
+          <select
+            v-if="field.type === 'select'"
+            :id="field.key"
+            v-model="editableData[field.key]"
+            class="form-control"
+          >
+            <option disabled value="">请选择一个分类</option>
+            <option v-for="option in field.options" :key="option.value" :value="option.value">
+              {{ option.text }}
+            </option>
+          </select>
           <textarea
             v-if="field.type === 'textarea'"
             :id="field.key"

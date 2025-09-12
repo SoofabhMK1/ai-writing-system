@@ -8,6 +8,13 @@
       placeholder="输入消息... (Shift+Enter 换行)"
     ></textarea>
     <button
+      @click="isAssistantModalVisible = true"
+      class="btn"
+      title="输入辅助"
+    >
+      辅助
+    </button>
+    <button
       @click="handleSend"
       class="btn btn-primary send-button"
       :disabled="isLoading"
@@ -15,18 +22,29 @@
       发送
     </button>
   </div>
+  <InputAssistantModal
+    v-if="isAssistantModalVisible"
+    @close="isAssistantModalVisible = false"
+    @confirm="handleAssistantConfirm"
+  />
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import InputAssistantModal from './InputAssistantModal.vue'
 import { storeToRefs } from 'pinia'
 import { useConversationStore } from '../store/conversation'
 
 const prompt = ref('')
+const isAssistantModalVisible = ref(false)
 const conversationStore = useConversationStore()
 const { promptForInput, isLoading, selectedAiModel } = storeToRefs(
   conversationStore,
 )
+
+const handleAssistantConfirm = (content) => {
+  prompt.value = content
+}
 
 const handleSend = async () => {
   if (!prompt.value.trim() || isLoading.value) return
@@ -58,7 +76,7 @@ watch(promptForInput, (newValue) => {
   border-top: var(--border-width) solid var(--color-border);
   display: flex;
   align-items: flex-end;
-  gap: var(--spacing-4);
+  gap: var(--spacing-2);
 }
 .chat-textarea {
   flex-grow: 1;
