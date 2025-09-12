@@ -13,10 +13,17 @@
         <div class="avatar">
           {{ message.role === 'user' ? 'U' : 'AI' }}
         </div>
-        <div
-          class="message-content prose"
-          v-html="renderMarkdown(message.content)"
-        ></div>
+        <div class="message-content">
+          <div v-if="message.role === 'assistant' && message.thinking">
+            <div class="thinking-header" @click="toggleThinking(index)">
+              <strong>Thinking...</strong>
+              <span>{{ expandedThinking.has(index) ? '[-]' : '[+]' }}</span>
+            </div>
+            <div v-if="expandedThinking.has(index)" class="thinking-content prose" v-html="renderMarkdown(message.thinking)">
+            </div>
+          </div>
+          <div class="prose" v-html="renderMarkdown(message.content)"></div>
+        </div>
       </div>
       <div v-if="isLoading" class="message-group role-assistant">
         <div class="avatar">AI</div>
@@ -37,6 +44,15 @@ import { marked } from 'marked'
 const chatContainer = ref(null)
 const conversationStore = useConversationStore()
 const { messages, isLoading } = storeToRefs(conversationStore)
+const expandedThinking = ref(new Set())
+
+const toggleThinking = (index) => {
+  if (expandedThinking.value.has(index)) {
+    expandedThinking.value.delete(index)
+  } else {
+    expandedThinking.value.add(index)
+  }
+}
 
 const renderMarkdown = (content) => {
   return marked.parse(content || '')
@@ -121,6 +137,23 @@ watch(isLoading, (newValue) => {
   background-color: var(--color-background);
   border: var(--border-width) solid var(--color-border);
   line-height: 1.6;
+}
+.thinking-header {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.thinking-content {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-2);
+  margin-top: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  opacity: 0.8;
 }
 /* Styling for markdown content */
 .prose {

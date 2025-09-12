@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import conversationService from '../services/conversationService'
 import { ref } from 'vue'
 import { useModalStore } from './modal'
+import { prepareMessagesForApi } from '../utils/messageBuilder.js'
+import { handleStreamedChat } from '../services/aiStreamService.js'
 
 export const useConversationStore = defineStore('conversation', () => {
   const currentConversationId = ref(null)
@@ -29,55 +31,33 @@ export const useConversationStore = defineStore('conversation', () => {
 
   async function _performStreamedChat(aiModelId) {
     isLoading.value = true
-    const assistantMessage = { role: 'assistant', content: '' }
+    const assistantMessage = { role: 'assistant', thinking: '', content: '' }
     messages.value.push(assistantMessage)
 
-    const messagesToSend = [...messages.value.slice(0, -1)]
-    if (selectedSystemPrefix.value) {
-      messagesToSend.unshift({ role: 'system', content: selectedSystemPrefix.value })
+    const messagesForApi = prepareMessagesForApi(
+      messages.value.slice(0, -1),
+      selectedSystemPrefix.value,
+    )
+
+    const callbacks = {
+      onReasoning: (chunk) => {
+        assistantMessage.thinking += chunk
+      },
+      onContent: (chunk) => {
+        assistantMessage.content += chunk
+      },
+      onError: (error) => {
+        console.error('Stream error:', error)
+        assistantMessage.content += `\n\nError: ${error}`
+      },
     }
 
     try {
-      const res = await fetch('/api/v1/ai/chat-stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ai_model_id: aiModelId,
-          messages: messagesToSend.map(({ role, content }) => ({ role, content })),
-        }),
-      })
-
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop()
-
-        for (const line of lines) {
-          if (line.startsWith('data:')) {
-            const dataStr = line.substring(5).trim()
-            try {
-              const data = JSON.parse(dataStr)
-              if (data.chunk) {
-                assistantMessage.content += data.chunk
-              }
-            } catch (e) {
-              console.error('Failed to parse SSE data:', dataStr, e)
-            }
-          }
-        }
-      }
+      await handleStreamedChat(aiModelId, messagesForApi, callbacks)
     } catch (error) {
-      console.error('Error during chat stream:', error)
-      assistantMessage.content = 'An error occurred. Please try again.'
+      console.error('Error setting up chat stream:', error)
+      assistantMessage.content =
+        'An error occurred while setting up the connection.'
     } finally {
       isLoading.value = false
     }
@@ -90,12 +70,12 @@ export const useConversationStore = defineStore('conversation', () => {
 
     if (previewBeforeSending.value) {
       try {
-        const messagesToSend = [...messages.value, userMessage]
-        if (selectedSystemPrefix.value) {
-          messagesToSend.unshift({ role: 'system', content: selectedSystemPrefix.value })
-        }
+        const messagesForPreview = prepareMessagesForApi(
+          [...messages.value, userMessage],
+          selectedSystemPrefix.value,
+        )
         // Construct the full content to be sent
-        const fullContent = messagesToSend
+        const fullContent = messagesForPreview
           .map((m) => `## ${m.role}\n\n${m.content}`)
           .join('\n\n---\n\n')
 
@@ -141,12 +121,12 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  async function saveCurrentConversation() {
+    async function saveCurrentConversation() {
     if (!messages.value.length) return
 
     const conversationData = {
       title: messages.value[0].content.substring(0, 50),
-      messages: messages.value.map(({ role, content }) => ({ role, content })),
+      messages: messages.value.map(({ role, content, thinking }) => ({ role, content, thinking })),
     }
 
     try {
@@ -165,6 +145,7 @@ export const useConversationStore = defineStore('conversation', () => {
       console.error('Failed to save conversation:', error)
     }
   }
+
 
   function startNewConversation() {
     currentConversationId.value = null

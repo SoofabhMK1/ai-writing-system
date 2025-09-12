@@ -22,9 +22,13 @@
     *   如果开启了预览，`PreviewSendModal.vue` 会弹出，显示包含系统前缀（如果已选择）和完整消息历史的最终请求内容。
 4.  **请求与响应**:
     *   确认发送后，`sendMessage` action 通过 `fetch` API 向后端的流式端点 `/api/v1/ai/chat-stream` 发起 `POST` 请求。请求体中包含完整的消息历史（以及系统前缀）。
-    *   后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式向前端实时推送 AI 的回复。
-    *   `conversation.js` store 解析 SSE 流，并持续更新 `ChatInterface.vue` 中显示的 AI 回复内容。
-5.  **保存对话**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息）通过 `conversationService` 保存到后端数据库。
+    *   后端通过 `StreamingResponse` 以**服务器发送事件 (SSE)** 的格式向前端实时推送 AI 的回复。后端会发送两种类型的事件：`event: reasoning`（代表思考过程）和 `event: content`（代表最终答案）。
+    *   `conversation.js` store 调用 `aiStreamService` 来处理 SSE 流。该服务现在能够解析带有事件名的 SSE，并为 `reasoning` 和 `content` 事件提供了不同的回调函数。
+    *   `ChatInterface.vue` 组件现在可以展示 AI 的思考过程（默认折叠），使用户能够了解其推理步骤，同时保持对话界面的整洁。
+5.  **优化对话历史**:
+    *   在将对话历史发送回 AI 以进行下一轮对话时，`messageBuilder.js` 工具函数会**自动过滤**掉先前所有 AI 回复中的“思考过程”部分。
+    *   **价值**: 这一优化显著减少了发送给 AI 的上下文长度，节省了 token 消耗，并避免了 AI 因其自身的思考过程而感到困惑，从而提高了后续回复的质量和相关性。
+6.  **保存对话**: 用户可以点击“保存对话”按钮，将当前对话（包括所有消息，以及 AI 的思考过程）通过 `conversationService` 保存到后端数据库。
 
 #### **角色库管理**
 1.  **访问**: 用户通过顶部导航栏的“角色库”链接，进入 `CharacterLibraryView.vue` 页面。
@@ -65,6 +69,12 @@
     *   **问题**: 项目初期缺乏统一的视觉和交互规范，导致组件样式不一致，维护困难。
     *   **设计**: 在 `frontend/src/style.css` 中建立了一套轻量级的设计规范。通过 CSS 自定义属性（变量）定义了全局的颜色、字体、间距、圆角和阴影 (Design Tokens)，并支持深色/浅色模式。
     *   **价值**: 确保了整个应用视觉风格的统一性（现代、简约），提高了开发效率（复用规范和通用样式类），并极大地简化了未来的 UI 维护和主题切换。所有核心组件和视图都已基于此规范进行了重构。
+4.  **模块化的前端服务**:
+    *   **问题**: 随着功能的增加，`conversation.js` Pinia store 变得越来越臃肿，混合了状态管理、API 调用和数据处理逻辑。
+    *   **设计**: 对核心对话逻辑进行了重构，将不同的职责拆分到独立的模块中：
+        *   `services/aiStreamService.js`: 专门负责处理从后端发来的 SSE（服务器发送事件）流。它能够解析标准的 SSE 格式，区分 `event: reasoning` 和 `event: content` 等不同的事件类型，并为每种事件类型调用相应的回调函数。
+        *   `utils/messageBuilder.js`: 负责构建发送到 AI API 的最终消息负载。它处理系统前缀的添加，并且最重要的是，它会**过滤掉 AI 历史消息中的“思考过程”**，只保留最终答案。
+    *   **价值**: 这种关注点分离的设计使得 `conversation.js` store 的职责更加清晰（专注于状态管理），代码更易于维护和测试，并为未来扩展更复杂的消息处理逻辑（如动态插入上下文、摘要等）打下了坚实的基础。
 
 ### **文件结构与核心职责 (File Structure & Core Responsibilities)**
 
@@ -172,6 +182,7 @@
         ├── router/
         │   └── index.js
         ├── services/
+        │   ├── aiStreamService.js
         │   ├── api.js
         │   ├── characterService.js
         │   ├── conversationService.js
@@ -256,10 +267,13 @@
             *   `projectService.js`, `outlineNodeService.js`: 分别封装了与项目、大纲节点相关的API调用。
             *   `settingService.js`: 一个复合服务，导出了多个与设置相关的子服务。
             *   `conversationService.js`: 封装了与对话历史相关的 CRUD API 调用。
+            *   `aiStreamService.js`: **（新）** 封装了处理 SSE 流的底层逻辑，将原始数据流转换为可用的数据块。
+        *   `utils/`: **（新）** 存放可复用的工具函数。
+            *   `messageBuilder.js`: **（新）** 负责构建发送给 AI 的消息数组，包括添加系统前缀和**过滤掉 AI 的思考过程**。
         *   `store/`: 存放 Pinia 的全局状态管理模块。
             *   `modal.js`: 管理全局模态框的状态和逻辑，现在支持**多种类型的模态框**（如 `ConfirmationModal` 和 `PreviewSendModal`）。
             *   `notification.js`, `prompt.js`: 分别管理通知和输入提示框的状态。
-            *   `conversation.js`: 负责管理当前对话的状态，包括消息历史、加载状态、选中的AI模型和系统前缀，并处理与后端的流式通信及发送前预览逻辑。
+            *   `conversation.js`: **（重构后）** 职责更清晰，专注于管理对话状态（消息、历史、加载状态等），并将消息构建和流处理的复杂逻辑委托给 `messageBuilder` 和 `aiStreamService`。
         *   `views/`: 存放页面级别的 Vue 组件。
             *   `ProjectListView.vue`: **项目列表页**。此页面是应用的主要入口，展示所有项目。
             *   `ProjectDetailView.vue`: **项目详情页**。当用户从列表页选择一个项目后进入此页面，采用双栏布局，左侧是项目列表 (`ProjectList.vue`)，右侧是选中项目的工作区 (`OutlineEditor.vue`)。
