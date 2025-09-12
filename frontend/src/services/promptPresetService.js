@@ -1,10 +1,10 @@
 import api from './api';
 
-const BASE_URL = '/prompt-presets/';
+const BASE_URL = '/prompt-presets';
 
 export const promptPresetService = {
   getAll() {
-    return api.get(BASE_URL);
+    return api.get(`${BASE_URL}/`);
   },
 
   getById(id) {
@@ -12,7 +12,7 @@ export const promptPresetService = {
   },
 
   create(data) {
-    return api.post(BASE_URL, data);
+    return api.post(`${BASE_URL}/`, data);
   },
 
   update(id, data) {

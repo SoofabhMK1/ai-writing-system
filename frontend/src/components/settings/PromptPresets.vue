@@ -120,12 +120,22 @@ const savePreset = async (data) => {
   }
 };
 
-const confirmDelete = (preset) => {
-  modalStore.openModal('confirmation', {
-    title: '确认删除',
-    message: `您确定要删除预设 "${preset.name}" 吗？此操作无法撤销。`,
-    onConfirm: () => presetStore.deletePreset(preset.id),
-  });
+const confirmDelete = async (preset) => {
+  try {
+    await modalStore.show(
+      '确认删除',
+      `您确定要删除预设 "${preset.name}" 吗？此操作无法撤销。`
+    );
+    // If the user confirms, the promise resolves and we proceed to delete.
+    await presetStore.deletePreset(preset.id);
+  } catch (error) {
+    // If the user cancels, the promise rejects, and we can catch it here.
+    // No action is needed on cancellation, so we can leave this block empty
+    // or log a message for debugging.
+    if (!error.isCanceled) {
+      console.error('An unexpected error occurred during deletion:', error);
+    }
+  }
 };
 </script>
 
