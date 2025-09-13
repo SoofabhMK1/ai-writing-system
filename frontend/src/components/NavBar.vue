@@ -2,8 +2,9 @@
 <template>
   <nav class="navbar">
     <div class="navbar-container">
-      <router-link to="/" class="navbar-logo"> AI Writer </router-link>
+      <div class="navbar-logo">AI Writer</div>
       <div class="navbar-menu">
+        <router-link to="/" class="navbar-link">项目</router-link>
         <router-link to="/conversation" class="navbar-link">对话</router-link>
         <router-link to="/characters" class="navbar-link">角色库</router-link>
         <router-link to="/settings" class="navbar-link">设定集</router-link>
@@ -39,7 +40,7 @@
 
 .navbar-logo {
   color: var(--color-text);
-  cursor: pointer;
+  cursor: default; /* Change cursor to default as it's not clickable */
   text-decoration: none;
   font-size: var(--font-size-xl);
   font-weight: 600;
@@ -49,7 +50,8 @@
 }
 
 .navbar-logo:hover {
-  color: var(--color-primary);
+  /* No hover effect for a non-clickable element */
+  color: var(--color-text);
 }
 
 .navbar-menu {

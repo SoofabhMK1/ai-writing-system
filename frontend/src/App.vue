@@ -1,6 +1,6 @@
 <template>
   <div id="app-layout">
-    <NavBar />
+    <NavBar class="nav-bar" />
     <main class="main-content">
       <router-view></router-view>
     </main>
@@ -43,6 +43,10 @@ watch(isAnyModalOpen, (newValue) => {
   display: flex;
   flex-direction: column;
   height: 100vh;
+}
+
+.nav-bar {
+  flex-shrink: 0;
 }
 
 .main-content {

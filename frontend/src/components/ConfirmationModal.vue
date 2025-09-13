@@ -67,16 +67,6 @@ const modal = useModalStore()
   gap: var(--spacing-3);
 }
 
-/* Use global button styles from style.css */
-.btn-danger {
-  background-color: var(--color-danger);
-  color: #ffffff;
-  border-color: var(--color-danger);
-}
-.btn-danger:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
 /* Transition classes */
 .modal-fade-enter-active,
 .modal-fade-leave-active {

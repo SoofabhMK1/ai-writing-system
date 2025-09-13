@@ -94,22 +94,7 @@ const handleCancel = () => {
 }
 
 .form-control {
-  width: 100%;
-  padding: var(--spacing-3) var(--spacing-4);
   margin-bottom: var(--spacing-6);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-base);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  transition: var(--transition-base);
-  box-sizing: border-box;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.2);
 }
 
 .modal-actions {

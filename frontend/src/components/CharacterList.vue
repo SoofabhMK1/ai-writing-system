@@ -1,18 +1,18 @@
 <template>
   <div class="character-list-container">
     <h2 class="list-title">Character Library</h2>
-    <div v-if="characterStore.isLoading" class="loading">Loading...</div>
-    <div
-      v-else-if="characterStore.characters.length === 0"
-      class="no-characters"
+    <StatusIndicator
+      :loading="characterStore.isLoading"
+      :empty="!characterStore.isLoading && characterStore.characters.length === 0"
+      center
     >
       No characters found. Create one to get started!
-    </div>
-    <div v-else class="grid">
+    </StatusIndicator>
+    <div v-if="!characterStore.isLoading && characterStore.characters.length > 0" class="grid">
       <div
         v-for="character in characterStore.characters"
         :key="character.id"
-        class="character-card"
+        class="character-panel"
         @click="viewCharacter(character.id)"
       >
         <h3 class="character-name">{{ character.name }}</h3>
@@ -28,6 +28,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useCharacterStore } from '@/store/character'
+import StatusIndicator from './common/StatusIndicator.vue'
 
 const emit = defineEmits(['view-character'])
 const characterStore = useCharacterStore()
@@ -53,19 +54,12 @@ const viewCharacter = (id) => {
   padding-bottom: var(--spacing-4);
   border-bottom: var(--border-width) solid var(--color-border);
 }
-.loading,
-.no-characters {
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-base);
-  margin-top: var(--spacing-12);
-}
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--spacing-6);
 }
-.character-card {
+.character-panel {
   background: var(--color-surface);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--border-radius-lg);
@@ -74,7 +68,7 @@ const viewCharacter = (id) => {
   transition: var(--transition-base);
   cursor: pointer;
 }
-.character-card:hover {
+.character-panel:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-4px);
   border-color: var(--color-primary);

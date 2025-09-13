@@ -1,56 +1,58 @@
 <!-- frontend/src/views/SettingsView.vue -->
 <template>
-  <div class="settings-container">
-    <!-- Left Panel: Navigation -->
-    <div class="settings-nav">
-      <h2 class="nav-title">设定集</h2>
-      <ul>
-        <li
-          @click="activeTab = 'worldview'"
-          :class="{ active: activeTab === 'worldview' }"
-        >
-          世界观设定
-        </li>
-        <li
-          @click="activeTab = 'style'"
-          :class="{ active: activeTab === 'style' }"
-        >
-          文风设定
-        </li>
-        <li
-          @click="activeTab = 'templates'"
-          :class="{ active: activeTab === 'templates' }"
-        >
-          AI 提示词模板
-        </li>
-        <li
-          @click="activeTab = 'aimodels'"
-          :class="{ active: activeTab === 'aimodels' }"
-        >
-          AI 模型设定
-        </li>
-        <li
-          @click="activeTab = 'presets'"
-          :class="{ active: activeTab === 'presets' }"
-        >
-          对话预设
-        </li>
-      </ul>
-    </div>
-
-    <!-- Right Panel: Editor -->
-    <div class="settings-content">
-      <WorldviewSettings v-if="activeTab === 'worldview'" />
-      <WritingStyleSettings v-if="activeTab === 'style'" />
-      <PromptTemplates v-if="activeTab === 'templates'" />
-      <AIModelSettings v-if="activeTab === 'aimodels'" />
-      <PromptPresets v-if="activeTab === 'presets'" />
-    </div>
-  </div>
+  <WorkspaceLayout>
+    <template #left>
+      <div class="settings-nav">
+        <h2 class="nav-title">设定集</h2>
+        <ul>
+          <li
+            @click="activeTab = 'worldview'"
+            :class="{ active: activeTab === 'worldview' }"
+          >
+            世界观设定
+          </li>
+          <li
+            @click="activeTab = 'style'"
+            :class="{ active: activeTab === 'style' }"
+          >
+            文风设定
+          </li>
+          <li
+            @click="activeTab = 'templates'"
+            :class="{ active: activeTab === 'templates' }"
+          >
+            AI 提示词模板
+          </li>
+          <li
+            @click="activeTab = 'aimodels'"
+            :class="{ active: activeTab === 'aimodels' }"
+          >
+            AI 模型设定
+          </li>
+          <li
+            @click="activeTab = 'presets'"
+            :class="{ active: activeTab === 'presets' }"
+          >
+            对话预设
+          </li>
+        </ul>
+      </div>
+    </template>
+    <template #right>
+      <div class="settings-content">
+        <WorldviewSettings v-if="activeTab === 'worldview'" />
+        <WritingStyleSettings v-if="activeTab === 'style'" />
+        <PromptTemplates v-if="activeTab === 'templates'" />
+        <AIModelSettings v-if="activeTab === 'aimodels'" />
+        <PromptPresets v-if="activeTab === 'presets'" />
+      </div>
+    </template>
+  </WorkspaceLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import WorkspaceLayout from '@/components/layout/WorkspaceLayout.vue'
 import WorldviewSettings from '../components/settings/WorldviewSettings.vue'
 import WritingStyleSettings from '../components/settings/WritingStyleSettings.vue'
 import PromptTemplates from '../components/settings/PromptTemplates.vue'
@@ -61,21 +63,9 @@ const activeTab = ref('worldview') // Default active tab
 </script>
 
 <style scoped>
-.settings-container {
-  display: flex;
-  height: 100%;
-  gap: var(--spacing-8);
-}
-
 .settings-nav {
-  width: 280px;
-  min-width: 240px;
-  flex-shrink: 0;
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--color-border);
-  box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);
+  height: 100%;
 }
 
 .nav-title {
@@ -118,12 +108,8 @@ const activeTab = ref('worldview') // Default active tab
 }
 
 .settings-content {
-  flex-grow: 1;
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--color-border);
-  box-shadow: var(--shadow-sm);
   padding: var(--spacing-8);
+  height: 100%;
   overflow-y: auto;
 }
 </style>

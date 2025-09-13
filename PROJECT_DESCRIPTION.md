@@ -93,6 +93,13 @@
         *   `services/aiStreamService.js`: 专门负责处理从后端发来的 SSE（服务器发送事件）流。它能够解析标准的 SSE 格式，区分 `event: reasoning` 和 `content` 等不同的事件类型，并为每种事件类型调用相应的回调函数。
         *   `utils/messageBuilder.js`: 负责构建发送给 AI 的最终消息负载。它会根据用户选择的“对话预设”，将系统提示、COT指导、历史记录和用户当前输入整合成一个结构化的消息数组。
     *   **价值**: 这种关注点分离的设计使得 `conversation.js` store 的职责更加清晰（专注于状态管理），代码更易于维护和测试，并为未来扩展更复杂的消息处理逻辑（如动态插入上下文、摘要等）打下了坚实的基础。
+5.  **可复用的布局与UI组件 (Reusable Layout & UI Components)**:
+    *   **背景**: 为了解决多个视图中存在的布局重复和UI元素不一致的问题，我们创建了一系列高度可复用的基础组件。
+    *   **设计**:
+        *   **`WorkspaceLayout.vue`**: 提供了一个标准的双栏工作区布局（左侧固定宽度，右侧自适应），并被 `ProjectListView`, `CharacterLibraryView`, `ConversationView` 等核心视图所采用。
+        *   **`StatusIndicator.vue`**: 一个用于处理异步数据状态（加载中、错误、空状态）的通用组件。它通过 `props` 接收状态，并显示相应的UI，从而统一了整个应用的数据加载反馈。
+        *   **全局表单样式 (`.form-control`)**: 在 `style.css` 中定义了统一的表单控件样式，确保所有输入框、文本域都遵循统一的设计规范。
+    *   **价值**: 这些组件的引入极大地减少了代码冗余，增强了UI的一致性，并为未来快速开发新功能页面提供了坚实的基础。
 
 ### **文件结构与核心职责 (File Structure & Core Responsibilities)**
 

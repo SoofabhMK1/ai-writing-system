@@ -1,32 +1,37 @@
 <template>
-  <div class="workspace-container">
-    <div class="left-panel">
-      <button
-        @click="isCreateModalOpen = true"
-        class="btn btn-primary create-button"
-      >
-        创建新角色
-      </button>
-    </div>
-    <div class="right-panel">
-      <CharacterList @view-character="handleViewCharacter" />
-    </div>
-    <CreateCharacterModal
-      v-if="isCreateModalOpen"
-      @close="isCreateModalOpen = false"
-    />
-    <CharacterDetailModal
-      v-if="selectedCharacterId"
-      :character-id="selectedCharacterId"
-      @close="handleCloseDetailModal"
-    />
-  </div>
+  <WorkspaceLayout>
+    <template #left>
+      <div class="left-panel-inner">
+        <button
+          @click="isCreateModalOpen = true"
+          class="btn btn-primary create-button"
+        >
+          创建新角色
+        </button>
+      </div>
+    </template>
+    <template #right>
+      <div class="right-panel-inner">
+        <CharacterList @view-character="handleViewCharacter" />
+      </div>
+    </template>
+  </WorkspaceLayout>
+  <CreateCharacterModal
+    v-if="isCreateModalOpen"
+    @close="isCreateModalOpen = false"
+  />
+  <CharacterDetailModal
+    v-if="selectedCharacterId"
+    :character-id="selectedCharacterId"
+    @close="handleCloseDetailModal"
+  />
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
 import { useCharacterStore } from '@/store/character'
 import { useModalStore } from '@/store/modal'
+import WorkspaceLayout from '@/components/layout/WorkspaceLayout.vue'
 import CharacterList from '@/components/CharacterList.vue'
 import CreateCharacterModal from '@/components/CreateCharacterModal.vue'
 import CharacterDetailModal from '@/components/CharacterDetailModal.vue'
@@ -55,33 +60,14 @@ const handleCloseDetailModal = () => {
 </script>
 
 <style scoped>
-.workspace-container {
-  display: flex;
-  height: 100%;
-  gap: var(--spacing-8);
-}
-
-.left-panel {
-  width: 280px;
-  flex-shrink: 0;
+.left-panel-inner,
+.right-panel-inner {
   padding: var(--spacing-6);
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+  height: 100%;
+  overflow-y: auto;
 }
 
 .create-button {
   width: 100%;
-}
-
-.right-panel {
-  flex-grow: 1;
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  overflow-y: auto;
-  padding: var(--spacing-6);
 }
 </style>

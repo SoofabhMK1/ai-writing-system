@@ -1,38 +1,40 @@
 <!-- frontend/src/components/ProjectList.vue -->
 <template>
-  <div v-if="loading" class="status-info loading">正在加载项目...</div>
-  <div v-if="error" class="status-info error">加载失败: {{ error }}</div>
+  <StatusIndicator
+    :loading="loading"
+    :error="error"
+    :empty="!loading && !error && projects.length === 0"
+    center
+  >
+    还没有项目，快创建一个开始吧！
+  </StatusIndicator>
 
-  <div v-if="projects.length > 0" class="project-grid">
+  <div v-if="!loading && !error && projects.length > 0" class="project-grid">
     <div
       v-for="project in projects"
       :key="project.id"
-      class="project-card"
+      class="project-panel"
       @click="$emit('project-selected', project)"
     >
-      <div class="project-card-content">
+      <div class="project-panel-content">
         <h2>{{ project.name }}</h2>
         <p>{{ project.description || '暂无描述' }}</p>
       </div>
       <div class="card-actions">
         <button
           @click.stop="goToProjectDetail(project.id)"
-          class="btn-action btn-detail"
+          class="btn btn-secondary btn-sm"
         >
           详情
         </button>
         <button
           @click.stop="handleDeleteProject(project.id)"
-          class="btn-action btn-delete"
+          class="btn btn-danger btn-sm"
         >
           删除
         </button>
       </div>
     </div>
-  </div>
-
-  <div v-else-if="!loading" class="status-info no-projects">
-    还没有项目，快创建一个开始吧！
   </div>
 </template>
 
@@ -40,6 +42,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import projectService from '../services/projectService'
+import StatusIndicator from './common/StatusIndicator.vue'
 import { useModalStore } from '@/store/modal.js'
 import { useNotificationStore } from '@/store/notification.js'
 
@@ -105,7 +108,7 @@ defineExpose({
   gap: var(--spacing-6);
 }
 
-.project-card {
+.project-panel {
   position: relative;
   background-color: var(--color-surface);
   border: var(--border-width) solid var(--color-border);
@@ -116,17 +119,17 @@ defineExpose({
   cursor: pointer;
 }
 
-.project-card:hover {
+.project-panel:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
   border-color: var(--color-primary);
 }
 
-.project-card-content {
+.project-panel-content {
   padding: var(--spacing-6);
 }
 
-.project-card h2 {
+.project-panel h2 {
   margin-top: 0;
   margin-bottom: var(--spacing-2);
   font-size: var(--font-size-lg);
@@ -137,7 +140,7 @@ defineExpose({
   text-overflow: ellipsis;
 }
 
-.project-card p {
+.project-panel p {
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
@@ -155,50 +158,14 @@ defineExpose({
   transition: var(--transition-base);
 }
 
-.project-card:hover .card-actions {
+.project-panel:hover .card-actions {
   opacity: 1;
   transform: translateY(0);
 }
 
-.btn-action {
+.btn-sm {
   padding: var(--spacing-1) var(--spacing-2);
-  border: none;
-  border-radius: var(--border-radius-md);
-  cursor: pointer;
   font-size: var(--font-size-xs);
-  font-weight: 500;
-  transition: var(--transition-base);
-  color: #ffffff;
 }
 
-.btn-detail {
-  background-color: var(--color-secondary);
-}
-
-.btn-detail:hover {
-  opacity: 0.8;
-}
-
-.btn-delete {
-  background-color: var(--color-danger);
-}
-
-.btn-delete:hover {
-  opacity: 0.8;
-}
-
-.status-info {
-  text-align: center;
-  padding: var(--spacing-12) var(--spacing-8);
-  font-size: var(--font-size-base);
-  color: var(--color-text-muted);
-}
-
-.error {
-  color: var(--color-danger);
-  background-color: rgba(239, 68, 68, 0.1);
-  border: var(--border-width) solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-4);
-}
 </style>

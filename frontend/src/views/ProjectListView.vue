@@ -1,42 +1,41 @@
 <!-- frontend/src/views/ProjectListView.vue -->
 <template>
-  <div class="workspace-container">
-    <!-- Left Panel -->
-    <div class="left-panel">
-      <div class="left-panel-header">
-        <button
-          @click="showCreateModal = true"
-          class="btn btn-primary btn-add-project"
-        >
-          + 创建新项目
-        </button>
+  <WorkspaceLayout>
+    <template #left>
+      <div class="left-panel-inner">
+        <div class="left-panel-header">
+          <button
+            @click="showCreateModal = true"
+            class="btn btn-primary btn-add-project"
+          >
+            + 创建新项目
+          </button>
+        </div>
+        <div class="project-list-container">
+          <ProjectList
+            ref="projectList"
+            @project-selected="onProjectSelected"
+            @project-deleted="onProjectDeleted"
+          />
+        </div>
       </div>
-      <div class="project-list-container">
-        <ProjectList
-          ref="projectList"
-          @project-selected="onProjectSelected"
-          @project-deleted="onProjectDeleted"
-        />
-      </div>
-    </div>
-
-    <!-- Right Panel -->
-    <div class="right-panel">
+    </template>
+    <template #right>
       <OutlineEditor :project="selectedProject" />
-    </div>
-
-    <!-- Create Project Modal -->
-    <CreateProjectModal
-      :show="showCreateModal"
-      @close="showCreateModal = false"
-      @project-created="onProjectCreated"
-    />
-  </div>
+    </template>
+  </WorkspaceLayout>
+  <!-- Create Project Modal -->
+  <CreateProjectModal
+    :show="showCreateModal"
+    @close="showCreateModal = false"
+    @project-created="onProjectCreated"
+  />
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
 import { useModalStore } from '@/store/modal'
+import WorkspaceLayout from '@/components/layout/WorkspaceLayout.vue'
 import CreateProjectModal from '../components/CreateProjectModal.vue'
 import ProjectList from '../components/ProjectList.vue'
 import OutlineEditor from '../components/OutlineEditor.vue'
@@ -70,22 +69,10 @@ const onProjectDeleted = (deletedProjectId) => {
 </script>
 
 <style scoped>
-.workspace-container {
-  display: flex;
-  height: 100%; /* Fill the .main-content area */
-  gap: var(--spacing-8);
-}
-
-.left-panel {
-  width: 280px;
-  min-width: 240px;
+.left-panel-inner {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  height: 100%;
 }
 
 .left-panel-header {
@@ -94,7 +81,6 @@ const onProjectDeleted = (deletedProjectId) => {
 }
 
 .btn-add-project {
-  /* This button now inherits from .btn and .btn-primary from style.css */
   width: 100%;
 }
 
@@ -106,6 +92,5 @@ const onProjectDeleted = (deletedProjectId) => {
 
 .right-panel {
   flex-grow: 1;
-  /* The OutlineEditor will sit here, it should have its own styling */
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="project-detail-layout">
     <!-- 左栏：大纲编辑器 -->
-    <div class="outline-panel card">
+    <div class="outline-panel panel">
       <div class="panel-header">
         <h3>大纲</h3>
         <button
@@ -13,15 +13,20 @@
         </button>
       </div>
 
-      <div v-if="loading" class="status-info">加载中...</div>
-      <div v-else-if="error" class="status-info error">{{ error }}</div>
-      <div v-else-if="outline.length === 0" class="no-outline status-info">
-        <p>此项目还没有大纲。</p>
-        <button @click="handleAddNode(null)" class="btn btn-primary">
-          创建第一个节点
-        </button>
-      </div>
-      <div v-else class="outline-tree">
+      <StatusIndicator
+        :loading="loading"
+        :error="error"
+        :empty="!loading && !error && outline.length === 0"
+      >
+        <div class="no-outline">
+          <p>此项目还没有大纲。</p>
+          <button @click="handleAddNode(null)" class="btn btn-primary">
+            创建第一个节点
+          </button>
+        </div>
+      </StatusIndicator>
+
+      <div v-if="!loading && !error && outline.length > 0" class="outline-tree">
         <OutlineNodeItem
           v-for="rootNode in outline"
           :key="rootNode.id"
@@ -34,7 +39,7 @@
     </div>
 
     <!-- 右栏：内容工作区 -->
-    <div class="content-panel card">
+    <div class="content-panel panel">
       <!-- 1. 内容区 -->
       <div class="content-editor-wrapper">
         <textarea
@@ -80,6 +85,7 @@ import { useRoute } from 'vue-router'
 import projectService from '../services/projectService'
 import outlineNodeService from '../services/outlineNodeService'
 import OutlineNodeItem from '../components/OutlineNodeItem.vue'
+import StatusIndicator from '@/components/common/StatusIndicator.vue'
 import { useModalStore } from '@/store/modal.js'
 import { useNotificationStore } from '@/store/notification.js'
 import { usePromptStore } from '@/store/prompt.js'
@@ -268,24 +274,13 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.status-info {
-  text-align: center;
-  padding: var(--spacing-12) var(--spacing-8);
-  font-size: var(--font-size-base);
-  color: var(--color-text-muted);
-  flex-grow: 1;
+.no-outline {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: var(--spacing-4);
-}
-
-.status-info.error {
-  color: var(--color-danger);
-}
-
-.no-outline {
+  padding: var(--spacing-8);
   background-color: var(--color-background);
   border-radius: var(--border-radius-md);
 }

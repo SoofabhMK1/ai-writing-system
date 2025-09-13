@@ -180,12 +180,14 @@ onMounted(() => {
 <style scoped>
 .editor-container {
   height: 100%;
+  overflow: auto; /* Add overflow to handle content that might exceed the viewport */
 }
 .workspace {
   display: grid;
   grid-template-columns: 400px 1fr;
   gap: var(--spacing-8);
   height: 100%;
+  padding: var(--spacing-6);
 }
 .right-panel {
   display: grid;
