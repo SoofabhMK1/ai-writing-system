@@ -96,7 +96,7 @@ ai_model_router = create_settings_router(
     prefix="/ai-models",
     response_model=setting_schemas.AIModelInDB,
     create_schema=setting_schemas.AIModelCreate,
-    update_schema=setting_schemas.AIModelBase,
+    update_schema=setting_schemas.AIModelUpdate,
 )
 
 

@@ -1,7 +1,7 @@
 # backend/app/schemas/setting.py
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
-from app.models.setting import PromptCategory
+from app.models.setting import PromptCategory, ModelType
 
 
 # --- Worldview Schemas ---
@@ -96,15 +96,25 @@ class AIModelBase(BaseModel):
     api_url: str
     api_key: str
     model_name: str
+    model_type: ModelType
 
 
 class AIModelCreate(AIModelBase):
     pass
 
 
+class AIModelUpdate(BaseModel):
+    name: Optional[str] = None
+    api_url: Optional[str] = None
+    api_key: Optional[str] = None
+    model_name: Optional[str] = None
+    model_type: Optional[ModelType] = None
+
+
 class AIModelInDB(AIModelBase):
     id: int
     api_key: str = "********"  # Never send the real key to the client
+    model_type: ModelType
 
     class Config:
         from_attributes = True

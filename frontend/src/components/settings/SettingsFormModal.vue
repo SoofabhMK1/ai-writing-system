@@ -85,8 +85,9 @@ const editableData = ref({})
 watch(
   () => props.initialData,
   (newData) => {
-    // Create a fresh object for the form to bind to
-    editableData.value = { ...newData }
+    // Deep copy the initial data to ensure the form works with a completely
+    // isolated object, preventing any potential reactivity issues with props.
+    editableData.value = JSON.parse(JSON.stringify(newData || {}))
   },
   { immediate: true, deep: true },
 )
@@ -121,7 +122,6 @@ const handleSubmit = () => {
     return
   }
   emit('save', editableData.value)
-  close()
 }
 </script>
 

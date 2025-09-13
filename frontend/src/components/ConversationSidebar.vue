@@ -23,7 +23,7 @@
       <div class="model-selector-container">
         <label for="model-selector">AI 模型:</label>
         <select id="model-selector" v-model="selectedAiModel" class="custom-select">
-          <option v-for="model in aiModels" :key="model.id" :value="model.id">
+          <option v-for="model in filteredAiModels" :key="model.id" :value="model.id">
             {{ model.name }}
           </option>
         </select>
@@ -97,6 +97,13 @@ const {
 const aiModels = ref([])
 const isHistoryVisible = ref(true)
 
+const filteredAiModels = computed(() => {
+  return aiModels.value.filter(
+    (model) =>
+      model.model_type === 'LANGUAGE_MODEL' || model.model_type === 'MULTI_MODAL',
+  )
+})
+
 const handleSave = () => {
   saveCurrentConversation()
 }
@@ -123,9 +130,9 @@ onMounted(async () => {
   try {
     const response = await aiModelService.getAll()
     aiModels.value = response.data
-    if (aiModels.value.length > 0 && !selectedAiModel.value) {
+    if (filteredAiModels.value.length > 0 && !selectedAiModel.value) {
       // Set a default model if none is selected
-      conversationStore.selectedAiModel = aiModels.value[0].id
+      conversationStore.selectedAiModel = filteredAiModels.value[0].id
     }
     await presetStore.fetchPresets();
   } catch (error) {

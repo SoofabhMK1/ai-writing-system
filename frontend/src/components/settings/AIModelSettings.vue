@@ -19,6 +19,7 @@
         <div class="item-content">
           <h4>{{ model.name }}</h4>
           <p>
+            <strong>Type:</strong> {{ model.model_type }} |
             <strong>Model:</strong> {{ model.model_name }} |
             <strong>URL:</strong> {{ model.api_url }}
           </p>
@@ -79,6 +80,17 @@ const modalFields = [
   },
   { key: 'api_key', label: 'API Key', placeholder: '请输入您的 API Key' },
   { key: 'model_name', label: '模型名称', placeholder: '例如：deepseek-chat' },
+  {
+    key: 'model_type',
+    label: '模型类型',
+    type: 'select',
+    options: [
+      { value: 'LANGUAGE_MODEL', text: '语言模型' },
+      { value: 'IMAGE_GENERATION', text: '文生图模型' },
+      { value: 'MULTI_MODAL', text: '多模态模型' },
+      { value: 'OTHER', text: '其他' },
+    ],
+  },
 ]
 
 const fetchAIModels = async () => {
@@ -103,7 +115,13 @@ const closeModal = () => {
 
 const handleAddNew = () => {
   isEditing.value = false
-  currentModel.value = { name: '', api_url: '', api_key: '', model_name: '' }
+  currentModel.value = {
+    name: '',
+    api_url: '',
+    api_key: '',
+    model_name: '',
+    model_type: '',
+  }
   openModal()
 }
 
@@ -129,6 +147,7 @@ const saveModel = async (data) => {
       aiModels.value.unshift(response.data)
       notification.show('AI 模型已创建', 'success')
     }
+    closeModal()
   } catch {
     notification.show(isEditing.value ? '更新失败' : '创建失败', 'error')
   }

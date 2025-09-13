@@ -73,6 +73,7 @@ class CRUDAIModel(CRUDBase[models.AIModel, schemas.AIModelCreate, schemas.AIMode
             api_url=obj_in.api_url,
             api_key=encrypt_data(obj_in.api_key),
             model_name=obj_in.model_name,
+            model_type=obj_in.model_type,
         )
         db.add(db_obj)
         await db.commit()

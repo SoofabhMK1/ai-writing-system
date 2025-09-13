@@ -65,6 +65,14 @@ class GeneratedOutline(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+class ModelType(str, enum.Enum):
+    IMAGE_GENERATION = "IMAGE_GENERATION"
+    LANGUAGE_MODEL = "LANGUAGE_MODEL"
+    MULTI_MODAL = "MULTI_MODAL"
+    OTHER = "OTHER"
+
+
 class AIModel(Base):
     __tablename__ = "ai_models"
 
@@ -73,3 +81,4 @@ class AIModel(Base):
     api_url = Column(String, nullable=False)
     api_key = Column(String, nullable=False) # In a real app, this should be encrypted
     model_name = Column(String, nullable=False)
+    model_type = Column(Enum(ModelType), nullable=False)
